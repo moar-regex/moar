@@ -21,6 +21,7 @@ public class EdgeGraph {
 
 	private final Map<Integer, State> states = new HashMap<>();
 	private final Map<Integer, Set<Edge>> edges = new HashMap<>();
+	private final Map<Integer, Map<String, Edge>> staticEdges = new HashMap<>();
 
 	private State curState;
 
@@ -28,6 +29,19 @@ public class EdgeGraph {
 
 	public void freeze() {
 		this.frozen = true;
+		for ( Map.Entry<Integer, Set<Edge>> entry : this.edges.entrySet() ) {
+			Integer src = entry.getKey();
+			Map<String, Edge> map = new HashMap<>();
+			this.staticEdges.put( src, map );
+			entry.getValue().forEach(
+					(edge) -> {
+						State state = this.states.get( edge.destination );
+						if ( !(state instanceof VariableState) ) {
+							map.put( state.getEdgeString(), edge );
+						}
+					}
+			);
+		}
 	}
 
 	public void checkNotFrozen() {
@@ -71,6 +85,21 @@ public class EdgeGraph {
 		if ( set == null ) {
 			return null;
 		}
+
+		{
+			Map<String, Edge> staticEdges = this.staticEdges.get( from.getIdx() );
+			if ( staticEdges != null ) {
+				Edge edge = staticEdges.get( edgeString );
+				if ( edge != null ) {
+					return edge;
+				}
+			}
+		}
+
+		//this is only reached for the case that we
+		//are in a state with a backreference
+		//in this case we have at most 2 edges
+		//so this doesn't change the overall runtime
 		Set<Edge> viable = set.stream().filter(
 				edge -> {
 					State state = this.states.get( edge.destination );
@@ -83,7 +112,7 @@ public class EdgeGraph {
 				Collectors.toSet()
 		);
 		if ( viable.size() > 1 ) {
-			return null;
+			throw new IllegalStateException( "non-determinism detected, multiple edges for string: " + edgeString + ". The edges were: " + set );
 		}
 		if ( viable.size() == 0 ) {
 			return null;
@@ -93,7 +122,6 @@ public class EdgeGraph {
 
 	public enum StepResult {
 		CONSUMED,
-		NOT_CONSUMED,
 		REJECTED
 	}
 
@@ -118,28 +146,39 @@ public class EdgeGraph {
 				return StepResult.CONSUMED;
 			}
 		}
-
-		/*
-		{
-			Edge epsilonEdge = this.getEdge( this.curState, "" );
-			if ( epsilonEdge != null ) {
-				State destinationState = this.states.get( epsilonEdge.destination );
-				epsilonEdge.memoryAction.forEach( memoryAction -> memoryAction.act( vars ) );
-				this.curState = destinationState;
-				this.curState.touch();
-				return StepResult.NOT_CONSUMED;
-			}
-		}*/
-
 		return StepResult.REJECTED;
 	}
 
 	public int maximalNextTokenLength() {
-		int maxLen = 0;
+		int maxLen = -1;
+
+		Map<String, Edge> staticEdges = this.staticEdges.get( this.curState.getIdx() );
+		if ( staticEdges != null ) {
+			for ( Map.Entry<String, Edge> entry : staticEdges.entrySet() ) {
+				Edge edge = entry.getValue();
+				State state = this.states.get( edge.destination );
+				maxLen = Math.max( maxLen, state.getEdgeString().length() );
+				if ( maxLen > 0 ) {
+					return maxLen;
+				}
+			}
+
+		}
+
+		if ( maxLen != -1 ) {
+			return maxLen;
+		}
+		else {
+			maxLen = 0;
+		}
+
+		//fallback to "bruteforce", but this is only needed
+		//in case we find a backreference
+		//in which case there are at most 2 edges (=> O(n))
 		{
 			for ( Edge edge : this.edges.get( curState.getIdx() ) ) {
 				State otherEnd = this.states.get( edge.destination );
-				maxLen = Math.max(maxLen, otherEnd.getEdgeString().length());
+				maxLen = Math.max( maxLen, otherEnd.getEdgeString().length() );
 			}
 		}
 		return maxLen;

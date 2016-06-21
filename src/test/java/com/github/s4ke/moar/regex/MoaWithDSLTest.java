@@ -111,9 +111,13 @@ public class MoaWithDSLTest {
 				.plus()
 				.toMoa();
 		boolean tmp = false;
-		for ( int i = 0; i < 10; ++i ) {
-			tmp |= moa.check( repeat( "a", i ) );
-			System.out.println( moa.check( repeat( "a", i ) ) );
+		for ( int i = 0; i < 100; ++i ) {
+			String str = repeat( "a", i );
+			boolean res = moa.check( str );
+			if ( res ) {
+				tmp = true;
+				System.out.println( str );
+			}
 		}
 		assertTrue( tmp );
 	}
