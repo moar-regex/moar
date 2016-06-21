@@ -1,6 +1,6 @@
 # moar
 Deterministic Regular Expressions with Backreferences
 
-# Paper
+# Theoretical Background
 
 A Paper explaining the theoretical background is currently being written.
