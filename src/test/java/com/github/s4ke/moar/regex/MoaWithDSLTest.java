@@ -110,6 +110,7 @@ public class MoaWithDSLTest {
 				.and( Regex.reference( "y" ).and( "a" ).bind( "x" ) )
 				.plus()
 				.toMoa();
+		assertTrue( moa.check( "aaaa" ) );
 		boolean tmp = false;
 		for ( int i = 0; i < 100; ++i ) {
 			String str = repeat( "a", i );

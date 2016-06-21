@@ -51,13 +51,23 @@ public class Moa {
 						)
 				)
 		);
+		if ( !this.edges.isDeterministic() ) {
+			throw new NotDeterministicException( "this moa is not deterministic" );
+		}
 	}
+
 
 	public void checkNotFrozen() {
 		if ( this.frozen ) {
-			throw new IllegalStateException( "this EdgeGraph is frozen" );
+			throw new IllegalStateException( "this Moa is frozen" );
 		}
 		this.edges.checkNotFrozen();
+	}
+
+	public void checkFrozen() {
+		if ( !this.frozen ) {
+			throw new IllegalStateException( "this Moa is not frozen" );
+		}
 	}
 
 	public void reset() {
@@ -111,24 +121,26 @@ public class Moa {
 	}
 
 	public boolean check(String str) {
+		this.checkFrozen();
 		this.reset();
 		int pos = 0;
 		SubString token = new SubString();
 		int strLen = str.length();
 		while ( pos < strLen ) {
 			int tokenLen = this.edges.maximalNextTokenLength();
-			if(pos + tokenLen > strLen) {
+			if ( pos + tokenLen > strLen ) {
 				return false;
 			}
 			token.update( str, pos, pos + tokenLen );
-			if(this.step( token ) == EdgeGraph.StepResult.REJECTED) {
+			if ( this.step( token ) == EdgeGraph.StepResult.REJECTED ) {
 				return false;
 			}
 			pos += tokenLen;
 		}
 		token.reset();
 		//noinspection StatementWithEmptyBody
-		while(this.step( token ) == EdgeGraph.StepResult.CONSUMED) {}
+		while ( this.step( token ) == EdgeGraph.StepResult.CONSUMED ) {
+		}
 		return this.isFinished();
 	}
 

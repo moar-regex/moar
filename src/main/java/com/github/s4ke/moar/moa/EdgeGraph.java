@@ -149,13 +149,26 @@ public class EdgeGraph {
 		return StepResult.REJECTED;
 	}
 
+	public boolean isDeterministic() {
+		return true;
+	}
+
 	public int maximalNextTokenLength() {
 		int maxLen = -1;
 
+		//we assume all of the outgoing edges to be of equal length for
+		//the static edges (via construction these are always of length 1)
 		Map<String, Edge> staticEdges = this.staticEdges.get( this.curState.getIdx() );
 		if ( staticEdges != null ) {
 			for ( Map.Entry<String, Edge> entry : staticEdges.entrySet() ) {
 				Edge edge = entry.getValue();
+				if ( edge.destination == Moa.SNK.getIdx() ) {
+					//ignore the SNK, there might be a backreference edge as well
+					//SNK gets handled together with this
+					//ignoring this here doesn't change the asymptotic
+					//runtime
+					continue;
+				}
 				State state = this.states.get( edge.destination );
 				maxLen = Math.max( maxLen, state.getEdgeString().length() );
 				if ( maxLen > 0 ) {

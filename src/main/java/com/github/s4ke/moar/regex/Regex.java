@@ -36,7 +36,7 @@ public interface Regex extends StateContributor, EdgeContributor {
 			}
 		}
 		if ( ret == null ) {
-			return eps();
+			return Regex.eps();
 		}
 		return ret;
 	}
@@ -61,6 +61,10 @@ public interface Regex extends StateContributor, EdgeContributor {
 		return new Plus( this.copy() );
 	}
 
+	default Regex star() {
+		return this.plus().or( Regex.eps() );
+	}
+
 	default Regex bind(String name) {
 		return new Binding( name, this.copy() );
 	}
@@ -80,8 +84,8 @@ public interface Regex extends StateContributor, EdgeContributor {
 		Supplier<Integer> idxSupplier = idStart::getAndIncrement;
 		this.contributeStates( variables, states, selfRelevant, idxSupplier );
 		EdgeGraph edgeGraph = new EdgeGraph();
-		for(State state : states) {
-			edgeGraph.addState(state);
+		for ( State state : states ) {
+			edgeGraph.addState( state );
 		}
 		this.contributeEdges( edgeGraph, variables, states, selfRelevant );
 		moa.setVariables( variables );
