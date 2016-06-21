@@ -59,6 +59,11 @@ final class Binding implements Regex {
 			Map<String, Variable> variables,
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
+		if ( !variables.containsKey( this.name ) ) {
+			Variable var = new Variable( name );
+			variables.put( name, var );
+		}
+
 		this.regex.contributeEdges( edgeGraph, variables, states, selfRelevant );
 
 		for ( EdgeGraph.Edge edge : edgeGraph.getEdges( Moa.SRC ) ) {

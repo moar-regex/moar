@@ -74,7 +74,9 @@ public class Moa {
 		this.edges.setState( SRC );
 		for ( Variable var : this.vars.values() ) {
 			var.contents.reset();
-			this.varStates.get( var.name ).forEach( VariableState::reset );
+			if ( this.varStates.containsKey( var.name ) ) {
+				this.varStates.get( var.name ).forEach( VariableState::reset );
+			}
 		}
 	}
 

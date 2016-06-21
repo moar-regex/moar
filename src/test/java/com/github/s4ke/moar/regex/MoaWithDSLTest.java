@@ -88,6 +88,40 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testStarInBinding() {
+		Regex regex = Regex.str( "a" ).star().bind( "x" )
+				.and( "|" )
+				.and( Regex.reference( "x" ) ).build();
+		Moa moa = regex.toMoa();
+		for ( int i = 0; i < 10; ++i ) {
+			String str = repeat( "a", i ) + "|" + repeat( "a", i );
+			assertTrue( str + " was not accepted by x{a*}|&x", moa.check( str ) );
+		}
+	}
+
+	@Test
+	public void testStarInBindingMoreComplex() {
+		Regex regex = Regex.str( "a" ).or( "b" ).star().bind( "x" )
+				.and( "|" )
+				.and( Regex.reference( "x" ) ).build();
+		Moa moa = regex.toMoa();
+		for ( int i = 0; i < 10; ++i ) {
+			String str = repeat( "ab", i ) + "|" + repeat( "ab", i );
+			assertTrue( str + " was not accepted by x{(a or b)*}|&x*", moa.check( str ) );
+		}
+	}
+
+	@Test
+	public void testPlusAroundBinding() {
+		Regex regex = Regex.str( "a" ).plus().bind( "x" )
+				.and( "b" )
+				.plus().build();
+		Moa moa = regex.toMoa();
+		assertTrue( moa.check( "aab" ) );
+		assertTrue( moa.check( "aabab" ) );
+	}
+
+	@Test
 	public void plusInBinding() {
 		Moa moa = Regex.str( "a" ).plus().bind( "toast" ).and( "b" ).and( Regex.reference( "toast" ) ).build().toMoa();
 		assertTrue( moa.check( "aaabaaa" ) );
