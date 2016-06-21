@@ -46,6 +46,7 @@ public class VariableState implements State {
 
 	@Override
 	public void touch() {
+		//FIXME: store all contents in a list
 		if ( !this.touched ) {
 			this.contents = variable.contents.toString();
 			this.touched = true;
