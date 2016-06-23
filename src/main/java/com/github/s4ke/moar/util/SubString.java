@@ -16,7 +16,7 @@ package com.github.s4ke.moar.util;
  */
 public class SubString implements CharSequence {
 
-	private CharSequence underlying;
+	private String underlying;
 	private int start;
 	private int end;
 
@@ -26,7 +26,7 @@ public class SubString implements CharSequence {
 		this.end = 0;
 	}
 
-	public SubString(CharSequence underlying, int start, int end) {
+	public SubString(String underlying, int start, int end) {
 		this.underlying = underlying;
 		this.start = start;
 		this.end = end;
@@ -50,10 +50,7 @@ public class SubString implements CharSequence {
 		}
 	}
 
-	public void update(CharSequence underlying, int start, int end) {
-		if ( underlying instanceof SubString ) {
-			this.update( (SubString) underlying, start, end );
-		}
+	public void update(String underlying, int start, int end) {
 		this.underlying = underlying;
 		this.start = start;
 		this.end = end;
@@ -119,6 +116,9 @@ public class SubString implements CharSequence {
 	public String toString() {
 		if ( this.underlying == null ) {
 			return "";
+		}
+		if(this.length() == this.underlying.length()) {
+			return this.underlying.toString();
 		}
 		return this.underlying.subSequence( this.start, this.end ).toString();
 	}
