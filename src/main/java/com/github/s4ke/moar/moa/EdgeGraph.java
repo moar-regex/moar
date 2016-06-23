@@ -131,6 +131,10 @@ public class EdgeGraph {
 
 	public StepResult step(SubString ch, Map<String, Variable> vars) {
 		{
+			//TODO: can we avoid the toString call here somehow?
+			//maybe move it to the getEdge method as
+			//for variable Strings we can have a more specialized
+			//version of comparison that works as well
 			EdgeGraph.Edge edge = this.getEdge( this.curState, ch.toString() );
 			if ( edge != null ) {
 				State destinationState = this.states.get( edge.destination );
