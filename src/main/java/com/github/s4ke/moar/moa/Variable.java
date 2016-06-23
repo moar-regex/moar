@@ -10,7 +10,7 @@ public class Variable {
 	public final SubString contents = new SubString();
 	public final String name;
 	private boolean open = false;
-	private boolean wasOpen = false;
+	private int occurenceInRegex = -1;
 
 	public Variable(String name) {
 		this.name = name;
@@ -18,21 +18,23 @@ public class Variable {
 
 	public void open() {
 		this.open = true;
-		this.wasOpen = true;
 	}
 
 	public boolean isOpen() {
 		return this.open;
 	}
 
-	public boolean wasOpen() {
-		return this.wasOpen;
-	}
-
 	public void close() {
 		this.open = false;
 	}
 
+	public int getOccurenceInRegex() {
+		return this.occurenceInRegex;
+	}
+
+	public void setOccurenceInRegex(int occurenceInRegex) {
+		this.occurenceInRegex = occurenceInRegex;
+	}
 
 	@Override
 	public String toString() {
@@ -45,6 +47,14 @@ public class Variable {
 
 	public String getEdgeString() {
 		return this.contents.toString();
+	}
+
+	public String getContents() {
+		return this.contents.toString();
+	}
+
+	public void reset() {
+		this.contents.reset();
 	}
 
 	public boolean canConsume() {

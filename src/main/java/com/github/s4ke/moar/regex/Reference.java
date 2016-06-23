@@ -61,4 +61,9 @@ final class Reference implements Regex {
 		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, varState ) );
 		edgeGraph.addEdge( varState, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
 	}
+
+	@Override
+	public void calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) {
+		//no-op
+	}
 }

@@ -74,4 +74,13 @@ final class Binding implements Regex {
 				}
 		);
 	}
+
+	@Override
+	public void calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) {
+		Variable variable = variables.get( this.name );
+		variable.setOccurenceInRegex( varIdxSupplier.get() );
+
+		this.regex.calculateVariableOccurences( variables, varIdxSupplier );
+	}
+
 }

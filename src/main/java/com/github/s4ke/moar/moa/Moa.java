@@ -22,6 +22,7 @@ public class Moa {
 	public static final State SNK = EdgeGraph.SNK;
 
 	private Map<String, Variable> vars = new HashMap<>();
+	private Map<Integer, Variable> varsByOccurence = new HashMap<>();
 	private Map<String, List<VariableState>> varStates = new HashMap<>();
 
 	private EdgeGraph edges = new EdgeGraph();
@@ -77,7 +78,7 @@ public class Moa {
 	public void reset() {
 		this.edges.setState( SRC );
 		for ( Variable var : this.vars.values() ) {
-			var.contents.reset();
+			var.reset();
 			if ( this.varStates.containsKey( var.name ) ) {
 				this.varStates.get( var.name ).forEach( VariableState::reset );
 			}
@@ -124,6 +125,9 @@ public class Moa {
 	public void setVariables(Map<String, Variable> variables) {
 		this.checkNotFrozen();
 		this.vars = variables;
+		for ( Variable var : this.vars.values() ) {
+			this.varsByOccurence.put( var.getOccurenceInRegex(), var );
+		}
 	}
 
 	public boolean check(String str) {
@@ -148,6 +152,17 @@ public class Moa {
 		while ( this.step( token ) == EdgeGraph.StepResult.CONSUMED ) {
 		}
 		return this.isFinished();
+	}
+
+	/**
+	 * @param occurence 1-based
+	 */
+	public String getVariableContent(int occurence) {
+		Variable var = this.varsByOccurence.get( occurence );
+		if ( var == null ) {
+			throw new IllegalArgumentException( "variable with occurence " + occurence + " does not exist" );
+		}
+		return var.getContents();
 	}
 
 	public String getVariableContent(String variableName, int occurence) {

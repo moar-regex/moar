@@ -50,4 +50,10 @@ final class Choice implements Regex {
 		this.fst.contributeEdges( edgeGraph, variables, states, selfRelevant );
 		this.snd.contributeEdges( edgeGraph, variables, states, selfRelevant );
 	}
+
+	@Override
+	public void calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) {
+		this.fst.calculateVariableOccurences( variables, varIdxSupplier );
+		this.snd.calculateVariableOccurences( variables, varIdxSupplier );
+	}
 }

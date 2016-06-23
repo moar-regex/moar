@@ -1,7 +1,5 @@
 package com.github.s4ke.moar.regex;
 
-import java.util.HashMap;
-
 import com.github.s4ke.moar.NotDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 
@@ -84,6 +82,7 @@ public class MoaWithDSLTest {
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "a|a" ) );
 		assertEquals( "a", moa.getVariableContent( "toast", 0 ) );
+		assertEquals( "a", moa.getVariableContent( 1 ) );
 		assertFalse( moa.check( "a|aa" ) );
 	}
 
@@ -238,7 +237,7 @@ public class MoaWithDSLTest {
 						.bind( "y" )
 						.and( Regex.reference( "y" ).and( "a" ).bind( "x" ) )
 						.plus()
-						
+
 		);
 	}
 

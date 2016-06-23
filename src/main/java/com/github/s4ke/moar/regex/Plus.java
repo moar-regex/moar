@@ -79,4 +79,9 @@ final class Plus implements Regex {
 
 		addActions.forEach( Supplier::get );
 	}
+
+	@Override
+	public void calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) {
+		this.regex.calculateVariableOccurences( variables, varIdxSupplier );
+	}
 }

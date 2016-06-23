@@ -16,7 +16,7 @@ import com.github.s4ke.moar.moa.Variable;
 /**
  * @author Martin Braun
  */
-public interface Regex extends StateContributor, EdgeContributor {
+public interface Regex extends StateContributor, EdgeContributor, VariableOccurence {
 
 	static Regex reference(String reference) {
 		return new Reference( reference );
@@ -75,14 +75,17 @@ public interface Regex extends StateContributor, EdgeContributor {
 		Map<String, Variable> variables = new HashMap<>();
 		Set<State> states = new HashSet<>();
 		Map<Regex, Map<String, State>> selfRelevant = new HashMap<>();
-		AtomicInteger idStart = new AtomicInteger( 2 );
-		Supplier<Integer> idxSupplier = idStart::getAndIncrement;
+		AtomicInteger stateIdxStart = new AtomicInteger( 2 );
+		Supplier<Integer> idxSupplier = stateIdxStart::getAndIncrement;
 		this.contributeStates( variables, states, selfRelevant, idxSupplier );
 		EdgeGraph edgeGraph = new EdgeGraph();
 		for ( State state : states ) {
 			edgeGraph.addState( state );
 		}
 		this.contributeEdges( edgeGraph, variables, states, selfRelevant );
+		//we start at 1 for variables just like Java Regexes
+		AtomicInteger varIdxStart = new AtomicInteger( 1 );
+		this.calculateVariableOccurences( variables, varIdxStart::getAndIncrement );
 		moa.setVariables( variables );
 		moa.setEdges( edgeGraph );
 		if ( !moa.isDeterministic() ) {

@@ -57,4 +57,9 @@ final class Primitive implements Regex {
 		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, state ) );
 		edgeGraph.addEdge( state, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
 	}
+
+	@Override
+	public void calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) {
+		//no-op
+	}
 }

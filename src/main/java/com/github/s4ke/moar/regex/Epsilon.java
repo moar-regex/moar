@@ -1,11 +1,9 @@
 package com.github.s4ke.moar.regex;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.github.s4ke.moar.moa.ActionType;
 import com.github.s4ke.moar.moa.EdgeGraph;
 import com.github.s4ke.moar.moa.MemoryAction;
 import com.github.s4ke.moar.moa.Moa;
@@ -50,5 +48,10 @@ final class Epsilon implements Regex {
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
 		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
+	}
+
+	@Override
+	public void calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) {
+		//no-op
 	}
 }
