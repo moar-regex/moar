@@ -24,6 +24,11 @@ public class BasicState implements State {
 	}
 
 	@Override
+	public boolean isTerminal() {
+		return true;
+	}
+
+	@Override
 	public void touch() {
 
 	}

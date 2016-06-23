@@ -29,12 +29,24 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testOr() {
-		Regex regex = Regex.str( "a" ).or( "b" ).build();
+		Regex regex = Regex.str( "a" ).or( "b" ).or( "" ).build();
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "a" ) );
 		assertTrue( moa.check( "b" ) );
-		assertFalse( moa.check( "" ) );
+		assertTrue( moa.check( "" ) );
 		assertFalse( moa.check( "Z" ) );
+	}
+
+	@Test
+	public void testCompilcatedOr() {
+		Regex regex = Regex.str( "a" ).or( Regex.eps() ).and( Regex.str( "b" ).or( Regex.eps() ) );
+		Moa moa = regex.toMoa();
+		assertTrue( moa.check( "" ) );
+		assertTrue( moa.check( "a" ) );
+		assertTrue( moa.check( "b" ) );
+		assertFalse( moa.check( "Z" ) );
+		assertTrue( moa.check( "ab" ) );
+		assertFalse( moa.check( "abc" ) );
 	}
 
 	@Test
@@ -85,6 +97,14 @@ public class MoaWithDSLTest {
 		assertTrue( moa.check( "|" ) );
 		assertFalse( moa.check( "|a" ) );
 		assertFalse( moa.check( "a|" ) );
+	}
+
+	@Test
+	public void testOrEpsWithAnd() {
+		Regex regex = Regex.str( "a" ).or( Regex.eps() ).and( "b" );
+		Moa moa = regex.toMoa();
+		assertTrue( moa.check( "ab" ) );
+		assertTrue( moa.check( "b" ) );
 	}
 
 	@Test

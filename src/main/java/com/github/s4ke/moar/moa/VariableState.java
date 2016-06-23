@@ -35,6 +35,11 @@ public class VariableState implements State {
 		return this.variable.getEdgeString();
 	}
 
+	@Override
+	public boolean isTerminal() {
+		return false;
+	}
+
 	public boolean varOpen() {
 		return this.variable.isOpen();
 	}

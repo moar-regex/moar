@@ -9,6 +9,8 @@ public interface State {
 
 	String getEdgeString();
 
+	boolean isTerminal();
+
 	void touch();
 
 }
