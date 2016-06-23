@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import com.github.s4ke.moar.NotDeterministicException;
 import com.github.s4ke.moar.moa.EdgeGraph;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.State;
@@ -29,10 +30,10 @@ public interface Regex extends StateContributor, EdgeContributor {
 		Regex ret = null;
 		for ( char ch : str.toCharArray() ) {
 			if ( ret == null ) {
-				ret = new Primitive( new Symbol( String.valueOf( ch ), null ) );
+				ret = new Primitive( new Symbol( String.valueOf( ch ) ) );
 			}
 			else {
-				ret = ret.and( new Primitive( new Symbol( String.valueOf( ch ), null ) ) );
+				ret = ret.and( new Primitive( new Symbol( String.valueOf( ch ) ) ) );
 			}
 		}
 		if ( ret == null ) {
@@ -69,12 +70,6 @@ public interface Regex extends StateContributor, EdgeContributor {
 		return new Binding( name, this.copy() );
 	}
 
-	default Regex build() {
-		Regex copy = this.copy();
-		copy.build( new HashMap<>(), new HashMap<>() );
-		return copy;
-	}
-
 	default Moa toMoa() {
 		Moa moa = new Moa();
 		Map<String, Variable> variables = new HashMap<>();
@@ -90,6 +85,9 @@ public interface Regex extends StateContributor, EdgeContributor {
 		this.contributeEdges( edgeGraph, variables, states, selfRelevant );
 		moa.setVariables( variables );
 		moa.setEdges( edgeGraph );
+		if ( !moa.isDeterministic() ) {
+			throw new NotDeterministicException( this.toString() + " is not deterministic" );
+		}
 		moa.freeze();
 		return moa;
 	}
@@ -97,8 +95,5 @@ public interface Regex extends StateContributor, EdgeContributor {
 	Regex copy();
 
 	String toString();
-
-	void build(Map<String, Integer> strCount, Map<String, Regex> bindings);
-
 
 }

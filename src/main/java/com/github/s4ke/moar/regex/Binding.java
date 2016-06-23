@@ -30,16 +30,6 @@ final class Binding implements Regex {
 	}
 
 	@Override
-	public void build(
-			Map<String, Integer> strCount, Map<String, Regex> bindings) {
-		if ( bindings.containsKey( this.name ) ) {
-			throw new IllegalArgumentException( "duplicate binding with name " + this.name );
-		}
-		bindings.put( this.name, regex );
-		this.regex.build( strCount, bindings );
-	}
-
-	@Override
 	public Regex copy() {
 		return new Binding( this.name, this.regex.copy() );
 	}

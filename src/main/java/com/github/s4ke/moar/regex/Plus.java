@@ -1,6 +1,7 @@
 package com.github.s4ke.moar.regex;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -27,12 +28,6 @@ final class Plus implements Regex {
 	}
 
 	@Override
-	public void build(
-			Map<String, Integer> strCount, Map<String, Regex> bindings) {
-		this.regex.build( strCount, bindings );
-	}
-
-	@Override
 	public Regex copy() {
 		return new Plus( this.regex.copy() );
 	}
@@ -55,23 +50,33 @@ final class Plus implements Regex {
 		this.regex.contributeEdges( edgeGraph, variables, states, selfRelevant );
 
 		Set<EdgeGraph.Edge> srcEdges = edgeGraph.getEdges( Moa.SRC );
+
+		//used to avoid concurrent modification
+		List<Supplier<Void>> addActions = new ArrayList<>();
+
 		for ( State toSnkState : states ) {
 			for ( EdgeGraph.Edge snkEdge : edgeGraph.getEdges( toSnkState ) ) {
-				if(snkEdge.destination.equals( Moa.SNK.getIdx() )) {
+				if ( snkEdge.destination.equals( Moa.SNK.getIdx() ) ) {
 					//now we are a real SNK edge
 					for ( EdgeGraph.Edge srcEdge : srcEdges ) {
 						Integer fromSrcState = srcEdge.destination;
-						edgeGraph.addEdge(
-								toSnkState, new EdgeGraph.Edge(
-										Moa.f(
-												snkEdge.memoryAction,
-												srcEdge.memoryAction
-										), fromSrcState
-								)
-						);
+						Supplier<Void> val = () -> {
+							edgeGraph.addEdge(
+									toSnkState, new EdgeGraph.Edge(
+											Moa.f(
+													snkEdge.memoryAction,
+													srcEdge.memoryAction
+											), fromSrcState
+									)
+							);
+							return null;
+						};
+						addActions.add( val );
 					}
 				}
 			}
 		}
+
+		addActions.forEach( Supplier::get );
 	}
 }

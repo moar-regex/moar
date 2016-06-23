@@ -2,6 +2,7 @@ package com.github.s4ke.moar.regex;
 
 import java.util.HashMap;
 
+import com.github.s4ke.moar.NotDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 
 import org.junit.Test;
@@ -9,6 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Martin Braun
@@ -17,19 +19,19 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testSimple() {
-		Regex regex = Regex.str( "a" ).build();
+		Regex regex = Regex.str( "a" );
 		assertTrue( regex.toMoa().check( "a" ) );
 	}
 
 	@Test
 	public void testLongerString() {
-		Moa moa = Regex.str( "test" ).build().toMoa();
+		Moa moa = Regex.str( "test" ).toMoa();
 		assertTrue( moa.check( "test" ) );
 	}
 
 	@Test
 	public void testOr() {
-		Regex regex = Regex.str( "a" ).or( "b" ).or( "" ).build();
+		Regex regex = Regex.str( "a" ).or( "b" ).or( "" );
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "a" ) );
 		assertTrue( moa.check( "b" ) );
@@ -39,11 +41,9 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testCompilcatedOr() {
-		Regex regex = Regex.str( "a" ).or( Regex.eps() ).and( Regex.str( "b" ).or( Regex.eps() ) );
+		Regex regex = Regex.str( "a" ).and( Regex.str( "b" ).or( Regex.eps() ) );
 		Moa moa = regex.toMoa();
-		assertTrue( moa.check( "" ) );
 		assertTrue( moa.check( "a" ) );
-		assertTrue( moa.check( "b" ) );
 		assertFalse( moa.check( "Z" ) );
 		assertTrue( moa.check( "ab" ) );
 		assertFalse( moa.check( "abc" ) );
@@ -51,7 +51,7 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testOrEpsilon() {
-		Regex regex = Regex.str( "a" ).or( Regex.eps() ).build();
+		Regex regex = Regex.str( "a" ).or( Regex.eps() );
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "a" ) );
 		assertTrue( moa.check( "" ) );
@@ -60,7 +60,7 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testBiggerOrEpsilon() {
-		Regex regex = Regex.str( "a" ).or( Regex.eps() ).and( Regex.str( "b" ) ).build();
+		Regex regex = Regex.str( "a" ).or( Regex.eps() ).and( Regex.str( "b" ) );
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "ab" ) );
 		assertTrue( moa.check( "b" ) );
@@ -69,7 +69,7 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testAnd() {
-		Moa moa = Regex.str( "a" ).and( "b" ).build().toMoa();
+		Moa moa = Regex.str( "a" ).and( "b" ).toMoa();
 		assertTrue( moa.check( "ab" ) );
 		assertFalse( moa.check( "a" ) );
 		assertFalse( moa.check( "" ) );
@@ -80,7 +80,7 @@ public class MoaWithDSLTest {
 	public void testSimpleBinding() {
 		Regex regex = Regex.str( "a" ).bind( "toast" )
 				.and( "|" )
-				.and( Regex.reference( "toast" ) ).build();
+				.and( Regex.reference( "toast" ) );
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "a|a" ) );
 		assertEquals( "a", moa.getVariableContent( "toast", 0 ) );
@@ -91,7 +91,7 @@ public class MoaWithDSLTest {
 	public void testOrInBinding() {
 		Regex regex = Regex.str( "a" ).or( Regex.eps() ).bind( "toast" )
 				.and( "|" )
-				.and( Regex.reference( "toast" ) ).build();
+				.and( Regex.reference( "toast" ) );
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "a|a" ) );
 		assertTrue( moa.check( "|" ) );
@@ -111,7 +111,7 @@ public class MoaWithDSLTest {
 	public void testStarInBinding() {
 		Regex regex = Regex.str( "a" ).star().bind( "x" )
 				.and( "|" )
-				.and( Regex.reference( "x" ) ).build();
+				.and( Regex.reference( "x" ) );
 		Moa moa = regex.toMoa();
 		for ( int i = 0; i < 10; ++i ) {
 			String str = repeat( "a", i ) + "|" + repeat( "a", i );
@@ -123,7 +123,7 @@ public class MoaWithDSLTest {
 	public void testStarInBindingMoreComplex() {
 		Regex regex = Regex.str( "a" ).or( "b" ).star().bind( "x" )
 				.and( "|" )
-				.and( Regex.reference( "x" ) ).build();
+				.and( Regex.reference( "x" ) );
 		Moa moa = regex.toMoa();
 		for ( int i = 0; i < 10; ++i ) {
 			String str = repeat( "ab", i ) + "|" + repeat( "ab", i );
@@ -135,7 +135,7 @@ public class MoaWithDSLTest {
 	public void testPlusAroundBinding() {
 		Regex regex = Regex.str( "a" ).plus().bind( "x" )
 				.and( "b" )
-				.plus().build();
+				.plus();
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "aab" ) );
 		assertTrue( moa.check( "aabab" ) );
@@ -143,7 +143,7 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void plusInBinding() {
-		Moa moa = Regex.str( "a" ).plus().bind( "toast" ).and( "b" ).and( Regex.reference( "toast" ) ).build().toMoa();
+		Moa moa = Regex.str( "a" ).plus().bind( "toast" ).and( "b" ).and( Regex.reference( "toast" ) ).toMoa();
 		assertTrue( moa.check( "aaabaaa" ) );
 		assertFalse( moa.check( "aaaba" ) );
 		assertFalse( moa.check( "aaab" ) );
@@ -151,7 +151,7 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testSimplePlus() {
-		Moa moa = Regex.str( "a" ).plus().build().toMoa();
+		Moa moa = Regex.str( "a" ).plus().toMoa();
 		assertFalse( moa.check( "" ) );
 		assertTrue( moa.check( "a" ) );
 		assertTrue( moa.check( "aa" ) );
@@ -189,7 +189,7 @@ public class MoaWithDSLTest {
 	public void testPlusWithBind() {
 		Regex regex = Regex.str( "abc" ).bind( "toast" )
 				.and( "|" )
-				.and( Regex.reference( "toast" ) ).plus().build();
+				.and( Regex.reference( "toast" ) ).plus();
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "abc|abc" ) );
 		assertFalse( moa.check( "abc|abcabc" ) );
@@ -199,11 +199,60 @@ public class MoaWithDSLTest {
 		assertFalse( moa.check( "abc|abca|a" ) );
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void testDoubleBuild() {
-		Regex regex = Regex.str( "str" );
-		regex.build( new HashMap<>(), new HashMap<>() );
-		regex.build( null, null );
+	@Test
+	public void testNotDeterministic() {
+		assertNonDet( Regex.str( "a" ).bind( "x" ).or( "a" ) );
+		assertNonDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( Regex.reference( "x" ) ) );
+		assertDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( "c" ).and( Regex.reference( "x" ) ) );
+		assertDet( Regex.str( "a" ).plus().or( Regex.eps() ) );
+		assertNonDet( Regex.str( "a" ).star().or( Regex.eps() ) );
+		assertDet( Regex.str( "a" ).bind( "x" ).plus() );
+		assertNonDet( Regex.str( "a" ).plus().bind( "x" ).plus() );
+		assertDet( Regex.str( "a" ).plus().bind( "x" ).and( "b" ).plus() );
+		assertNonDet(
+				Regex.str( "a" )
+						.plus()
+						.bind( "x" )
+						.and( Regex.str( "b" ).plus().bind( "y" ) )
+						.or( Regex.str( "b" ).plus().bind( "y" ).and( Regex.str( "a" ).plus().bind( "x" ) ) )
+						.and( Regex.reference( "x" ).and( Regex.reference( "y" ) ) )
+		);
+		assertDet(
+				Regex.str( "a" )
+						.plus()
+						.bind( "x" )
+						.and( Regex.str( "b" ).plus().bind( "y" ) )
+						.or( Regex.str( "b" ).plus().bind( "y" ).and( Regex.str( "a" ).plus().bind( "x" ) ) )
+						.and( "c" ).and( Regex.reference( "x" ).and( Regex.reference( "y" ) ) )
+		);
+		assertNonDet(
+				Regex.str( "a" )
+						.plus()
+						.bind( "x" )
+						.and( Regex.str( "b" ).plus().bind( "y" ) )
+						.or( Regex.str( "b" ).plus().bind( "y" ).and( Regex.str( "a" ).plus().bind( "x" ) ) )
+						.and( Regex.reference( "x" ).or( Regex.reference( "y" ) ) )
+		);
+		assertDet(
+				Regex.reference( "x" )
+						.bind( "y" )
+						.and( Regex.reference( "y" ).and( "a" ).bind( "x" ) )
+						.plus()
+						
+		);
+	}
+
+	void assertNonDet(Regex regex) {
+		try {
+			regex.toMoa();
+			fail( "regex " + regex + " was not recognized as non-deterministic" );
+		}
+		catch (NotDeterministicException e) {
+		}
+	}
+
+	void assertDet(Regex regex) {
+		regex.toMoa();
 	}
 
 	@Test

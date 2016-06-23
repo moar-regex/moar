@@ -27,13 +27,6 @@ final class Choice implements Regex {
 	}
 
 	@Override
-	public void build(
-			Map<String, Integer> strCount, Map<String, Regex> bindings) {
-		this.fst.build( strCount, bindings );
-		this.snd.build( strCount, bindings );
-	}
-
-	@Override
 	public Regex copy() {
 		return new Choice( this.fst.copy(), this.snd.copy() );
 	}

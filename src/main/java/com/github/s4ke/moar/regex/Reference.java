@@ -18,8 +18,6 @@ import com.github.s4ke.moar.moa.VariableState;
 final class Reference implements Regex {
 
 	private final String reference;
-	private Regex regex;
-	private boolean built = false;
 
 	Reference(String reference) {
 		this.reference = reference;
@@ -27,21 +25,7 @@ final class Reference implements Regex {
 
 	@Override
 	public String toString() {
-		return "{Reference{" + this.reference + "," + this.regex.toString() + "}";
-	}
-
-	@Override
-	public void build(
-			Map<String, Integer> strCount, Map<String, Regex> bindings) {
-		if ( this.built ) {
-			throw new IllegalStateException( "this regex already has been built" );
-		}
-		Regex binding = bindings.get( this.reference );
-		if ( binding == null ) {
-			throw new IllegalArgumentException( "a binding with name " + this.reference + " does not exist (yet)!!" );
-		}
-		this.regex = binding;
-		this.built = true;
+		return "{Reference{" + this.reference + "}";
 	}
 
 	@Override

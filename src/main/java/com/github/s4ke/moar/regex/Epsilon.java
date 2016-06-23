@@ -29,12 +29,6 @@ final class Epsilon implements Regex {
 	}
 
 	@Override
-	public void build(
-			Map<String, Integer> strCount, Map<String, Regex> bindings) {
-		//no-op
-	}
-
-	@Override
 	public Regex copy() {
 		return this;
 	}

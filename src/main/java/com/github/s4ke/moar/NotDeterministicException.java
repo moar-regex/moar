@@ -1,4 +1,4 @@
-package com.github.s4ke.moar.moa;
+package com.github.s4ke.moar;
 
 /**
  * @author Martin Braun

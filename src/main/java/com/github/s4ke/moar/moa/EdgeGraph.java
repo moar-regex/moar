@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.github.s4ke.moar.util.SubString;
@@ -157,13 +158,21 @@ public class EdgeGraph {
 		for ( State state : this.states.values() ) {
 			Set<Edge> edges = this.edges.get( state.getIdx() );
 			int edgeCnt = edges.size();
+
 			Map<String, State> staticDestinationStates = new HashMap<>( edgeCnt );
+			Map<State, AtomicInteger> staticDestinationStateEdges = new HashMap<>();
 			VariableState variableDestinationState = null;
 
 			//check if there are edges to different states with the same
 			//terminal
 			for ( Edge edge : edges ) {
 				State destinationState = this.states.get( edge.destination );
+
+				if ( staticDestinationStateEdges.computeIfAbsent( destinationState, (key) -> new AtomicInteger( 0 ) )
+						.incrementAndGet() >= 2 ) {
+					return false;
+				}
+
 				if ( !destinationState.isTerminal() ) {
 					if ( variableDestinationState != null ) {
 						return false;
@@ -183,7 +192,7 @@ public class EdgeGraph {
 			//make sure that if there is a VariableState (Binding/Reference)
 			//there is no other destination than SNK
 			if ( variableDestinationState != null ) {
-				if ( staticDestinationStates.size() > 2 ) {
+				if ( staticDestinationStates.size() >= 2 ) {
 					return false;
 				}
 				if ( staticDestinationStates.size() == 1 ) {
@@ -192,8 +201,6 @@ public class EdgeGraph {
 					}
 				}
 			}
-
-			//FIXME: There is a node that has more than two or more edges to any other node. ?? (is this true?)
 		}
 		return true;
 	}

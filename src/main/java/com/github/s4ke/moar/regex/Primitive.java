@@ -18,7 +18,6 @@ import com.github.s4ke.moar.moa.Variable;
 final class Primitive implements Regex {
 
 	private Symbol symbol;
-	private boolean built = false;
 
 	Primitive(Symbol symbol) {
 		this.symbol = symbol;
@@ -30,23 +29,8 @@ final class Primitive implements Regex {
 	}
 
 	@Override
-	public void build(
-			Map<String, Integer> strCount, Map<String, Regex> bindings) {
-		if ( this.built ) {
-			throw new IllegalStateException( "this regex already has been built" );
-		}
-		Integer curCount = strCount.get( this.symbol.symbol );
-		if ( curCount == null ) {
-			curCount = 0;
-		}
-		this.symbol = new Symbol( this.symbol.symbol, curCount );
-		strCount.put( this.symbol.symbol, curCount + 1 );
-		this.built = true;
-	}
-
-	@Override
 	public Regex copy() {
-		return new Primitive( new Symbol( this.symbol.symbol, this.symbol.number ) );
+		return new Primitive( new Symbol( this.symbol.symbol ) );
 	}
 
 	@Override
