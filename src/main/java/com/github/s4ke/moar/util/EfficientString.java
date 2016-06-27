@@ -79,7 +79,7 @@ public class EfficientString implements CharSequence {
 
 		EfficientString efficientString = (EfficientString) o;
 
-		if(this.length() != efficientString.length()) {
+		if ( this.length() != efficientString.length() ) {
 			return false;
 		}
 
@@ -101,9 +101,11 @@ public class EfficientString implements CharSequence {
 
 	@Override
 	public int hashCode() {
-		int result = underlying != null ? underlying.hashCode() : 0;
-		result = 31 * result + Integer.hashCode( start );
-		result = 31 * result + Integer.hashCode( end );
+		int result = 0;
+		for ( int i = 0; i < this.length(); ++i ) {
+			result = 31 * result + Character.hashCode( this.charAt( i ) );
+		}
+		result = 31 * result + Integer.hashCode( this.length() );
 		return result;
 	}
 
