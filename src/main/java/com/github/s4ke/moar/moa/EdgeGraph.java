@@ -7,9 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-import com.github.s4ke.moar.util.SubString;
+import com.github.s4ke.moar.util.EfficientString;
 
 /**
  * @author Martin Braun
@@ -22,7 +21,7 @@ public class EdgeGraph {
 
 	private final Map<Integer, State> states = new HashMap<>();
 	private final Map<Integer, Set<Edge>> edges = new HashMap<>();
-	private final Map<Integer, Map<String, Edge>> staticEdges = new HashMap<>();
+	private final Map<Integer, Map<EfficientString, Edge>> staticEdges = new HashMap<>();
 
 	private State curState;
 
@@ -32,7 +31,7 @@ public class EdgeGraph {
 		this.frozen = true;
 		for ( Map.Entry<Integer, Set<Edge>> entry : this.edges.entrySet() ) {
 			Integer src = entry.getKey();
-			Map<String, Edge> map = new HashMap<>();
+			Map<EfficientString, Edge> map = new HashMap<>();
 			this.staticEdges.put( src, map );
 			entry.getValue().forEach(
 					(edge) -> {
@@ -81,14 +80,9 @@ public class EdgeGraph {
 		this.curState = state;
 	}
 
-	public Edge getEdge(State from, String edgeString) {
-		Set<Edge> set = this.edges.get( from.getIdx() );
-		if ( set == null ) {
-			return null;
-		}
-
+	public Edge getEdge(State from, EfficientString edgeString) {
 		{
-			Map<String, Edge> staticEdges = this.staticEdges.get( from.getIdx() );
+			Map<EfficientString, Edge> staticEdges = this.staticEdges.get( from.getIdx() );
 			if ( staticEdges != null ) {
 				Edge edge = staticEdges.get( edgeString );
 				if ( edge != null ) {
@@ -97,28 +91,27 @@ public class EdgeGraph {
 			}
 		}
 
-		//this is only reached for the case that we
-		//are in a state with a backreference
-		//in this case we have at most 2 edges
-		//so this doesn't change the overall runtime
-		Set<Edge> viable = set.stream().filter(
-				edge -> {
-					State state = this.states.get( edge.destination );
-					String otherEdgeString = state.getEdgeString();
-					return otherEdgeString != null && otherEdgeString.equals(
-							edgeString
-					);
-				}
-		).collect(
-				Collectors.toSet()
-		);
-		if ( viable.size() > 1 ) {
-			throw new IllegalStateException( "non-determinism detected, multiple edges for string: " + edgeString + ". The edges were: " + set );
-		}
-		if ( viable.size() == 0 ) {
+		Set<Edge> set = this.edges.get( from.getIdx() );
+		if ( set == null ) {
 			return null;
 		}
-		return viable.iterator().next();
+
+		//this is only reached for the case that we
+		//are in a state with a backreference
+		//in this case we have at most 2 edges (the backref or possibly epsilon)
+		//so this doesn't change the overall runtime
+		Edge edgeRes = null;
+		for ( Edge edge : set ) {
+			State state = this.states.get( edge.destination );
+			if ( state.getEdgeString().equalTo( edgeString ) ) {
+				if ( edgeRes != null ) {
+					throw new IllegalStateException( "non-determinism detected, multiple edges for string: " + edgeString + ". The edges were: " + set );
+				}
+				edgeRes = edge;
+			}
+
+		}
+		return edgeRes;
 	}
 
 	public enum StepResult {
@@ -130,13 +123,9 @@ public class EdgeGraph {
 		return this.curState;
 	}
 
-	public StepResult step(SubString ch, Map<String, Variable> vars) {
+	public StepResult step(EfficientString ch, Map<String, Variable> vars) {
 		{
-			//TODO: can we avoid the toString call here somehow?
-			//maybe move it to the getEdge method as
-			//for variable Strings we can have a more specialized
-			//version of comparison that works as well
-			EdgeGraph.Edge edge = this.getEdge( this.curState, ch.toString() );
+			EdgeGraph.Edge edge = this.getEdge( this.curState, ch );
 			if ( edge != null ) {
 				State destinationState = this.states.get( edge.destination );
 				edge.memoryAction.forEach( memoryAction -> memoryAction.act( vars ) );
@@ -180,7 +169,7 @@ public class EdgeGraph {
 					variableDestinationState = (VariableState) destinationState;
 					continue;
 				}
-				String edgeString = destinationState.getEdgeString();
+				String edgeString = destinationState.getEdgeString().toString();
 				State knownDestinationState = staticDestinationStates.get( edgeString );
 				if ( knownDestinationState != null && knownDestinationState != destinationState ) {
 					//duplicated edge to
@@ -210,9 +199,9 @@ public class EdgeGraph {
 
 		//we assume all of the outgoing edges to be of equal length for
 		//the static edges (via construction these are always of length 1)
-		Map<String, Edge> staticEdges = this.staticEdges.get( this.curState.getIdx() );
+		Map<EfficientString, Edge> staticEdges = this.staticEdges.get( this.curState.getIdx() );
 		if ( staticEdges != null ) {
-			for ( Map.Entry<String, Edge> entry : staticEdges.entrySet() ) {
+			for ( Map.Entry<EfficientString, Edge> entry : staticEdges.entrySet() ) {
 				Edge edge = entry.getValue();
 				if ( edge.destination == Moa.SNK.getIdx() ) {
 					//ignore the SNK, there might be a backreference edge as well

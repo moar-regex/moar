@@ -1,13 +1,13 @@
 package com.github.s4ke.moar.moa;
 
-import com.github.s4ke.moar.util.SubString;
+import com.github.s4ke.moar.util.EfficientString;
 
 /**
  * @author Martin Braun
  */
 public class Variable {
 
-	public final SubString contents = new SubString();
+	public final EfficientString contents = new EfficientString();
 	public final String name;
 	private boolean open = false;
 	private int occurenceInRegex = -1;
@@ -45,8 +45,8 @@ public class Variable {
 				'}';
 	}
 
-	public String getEdgeString() {
-		return this.contents.toString();
+	public EfficientString getEdgeString() {
+		return this.contents;
 	}
 
 	public String getContents() {
@@ -61,7 +61,7 @@ public class Variable {
 		return this.isOpen();
 	}
 
-	public void consume(SubString str) {
+	public void consume(EfficientString str) {
 		if ( !this.canConsume() ) {
 			throw new IllegalStateException( "cannot consume at the moment!" );
 		}

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.s4ke.moar.NotDeterministicException;
-import com.github.s4ke.moar.util.SubString;
+import com.github.s4ke.moar.util.EfficientString;
 
 
 /**
@@ -85,7 +85,7 @@ public class Moa {
 		}
 	}
 
-	private EdgeGraph.StepResult step(SubString ch) {
+	private EdgeGraph.StepResult step(EfficientString ch) {
 		return this.edges.step( ch, this.vars );
 	}
 
@@ -134,7 +134,7 @@ public class Moa {
 		this.checkFrozen();
 		this.reset();
 		int pos = 0;
-		SubString token = new SubString();
+		EfficientString token = new EfficientString();
 		int strLen = str.length();
 		while ( pos < strLen ) {
 			int tokenLen = this.edges.maximalNextTokenLength();

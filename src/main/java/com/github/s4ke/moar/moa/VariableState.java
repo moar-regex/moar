@@ -6,6 +6,8 @@
  */
 package com.github.s4ke.moar.moa;
 
+import com.github.s4ke.moar.util.EfficientString;
+
 /**
  * @author Martin Braun
  */
@@ -31,7 +33,7 @@ public class VariableState implements State {
 	}
 
 	@Override
-	public String getEdgeString() {
+	public EfficientString getEdgeString() {
 		return this.variable.getEdgeString();
 	}
 

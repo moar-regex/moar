@@ -14,31 +14,37 @@ package com.github.s4ke.moar.util;
  *
  * @author Martin Braun
  */
-public class SubString implements CharSequence {
+public class EfficientString implements CharSequence {
 
 	private String underlying;
 	private int start;
 	private int end;
 
-	public SubString() {
+	public EfficientString() {
 		this.underlying = null;
 		this.start = 0;
 		this.end = 0;
 	}
 
-	public SubString(String underlying, int start, int end) {
+	public EfficientString(String underlying, int start, int end) {
 		this.underlying = underlying;
 		this.start = start;
 		this.end = end;
 	}
 
-	public void update(SubString underlying, int start, int end) {
+	public EfficientString(String underlying) {
+		this.underlying = underlying;
+		this.start = 0;
+		this.end = underlying.length();
+	}
+
+	public void update(EfficientString underlying, int start, int end) {
 		this.underlying = underlying.underlying;
 		this.start = start;
 		this.end = end;
 	}
 
-	public void appendOrOverwrite(SubString substring) {
+	public void appendOrOverwrite(EfficientString substring) {
 		if ( this.underlying == null ) {
 			this.update( substring, substring.start, substring.end );
 		}
@@ -71,23 +77,33 @@ public class SubString implements CharSequence {
 			return false;
 		}
 
-		SubString subString = (SubString) o;
+		EfficientString efficientString = (EfficientString) o;
 
-		if ( start != subString.start ) {
-			return false;
-		}
-		if ( end != subString.end ) {
+		if(this.length() != efficientString.length()) {
 			return false;
 		}
 
-		return !(underlying != null ? !underlying.equals( subString.underlying ) : subString.underlying != null);
+		return this.equalTo( efficientString );
+	}
+
+	public boolean equalTo(CharSequence str) {
+		int ownLength = this.length();
+		if ( ownLength != str.length() ) {
+			return false;
+		}
+		for ( int i = 0; i < ownLength; ++i ) {
+			if ( this.charAt( i ) != str.charAt( i ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = underlying != null ? underlying.hashCode() : 0;
-		result = 31 * result + start;
-		result = 31 * result + end;
+		result = 31 * result + Integer.hashCode( start );
+		result = 31 * result + Integer.hashCode( end );
 		return result;
 	}
 
@@ -105,11 +121,11 @@ public class SubString implements CharSequence {
 	}
 
 	@Override
-	public SubString subSequence(int start, int end) {
+	public EfficientString subSequence(int start, int end) {
 		if ( end - start > this.length() ) {
 			throw new IndexOutOfBoundsException();
 		}
-		return new SubString( this.underlying, this.start + start, this.end + end );
+		return new EfficientString( this.underlying, this.start + start, this.end + end );
 	}
 
 	@Override
@@ -117,7 +133,7 @@ public class SubString implements CharSequence {
 		if ( this.underlying == null ) {
 			return "";
 		}
-		if(this.length() == this.underlying.length()) {
+		if ( this.length() == this.underlying.length() ) {
 			return this.underlying.toString();
 		}
 		return this.underlying.subSequence( this.start, this.end ).toString();
