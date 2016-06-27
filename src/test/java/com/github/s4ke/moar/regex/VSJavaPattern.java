@@ -29,7 +29,7 @@ public class VSJavaPattern {
 
 	@Test
 	public void testBackRef() {
-		String testStr = "aaaaaaaaaa|aaaaaaaaaa";
+		String testStr = "aaaaaaaaaaaaaaaaaaa|aaaaaaaaaaaaaaaaaaa";
 
 		time(
 				gen(

@@ -81,7 +81,6 @@ public class MoaWithDSLTest {
 				.and( Regex.reference( "toast" ) );
 		Moa moa = regex.toMoa();
 		assertTrue( moa.check( "a|a" ) );
-		assertEquals( "a", moa.getVariableContent( "toast", 0 ) );
 		assertEquals( "a", moa.getVariableContent( 1 ) );
 		assertFalse( moa.check( "a|aa" ) );
 	}

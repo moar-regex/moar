@@ -103,7 +103,7 @@ public class EdgeGraph {
 		Edge edgeRes = null;
 		for ( Edge edge : set ) {
 			State state = this.states.get( edge.destination );
-			if ( state.getEdgeString().equalTo( edgeString ) ) {
+			if ( !state.isTerminal() && state.getEdgeString().equalTo( edgeString ) ) {
 				if ( edgeRes != null ) {
 					throw new IllegalStateException( "non-determinism detected, multiple edges for string: " + edgeString + ". The edges were: " + set );
 				}
