@@ -38,6 +38,12 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testMultiLine() {
+		{
+		}
+	}
+
+	@Test
 	public void testCompilcatedOr() {
 		Regex regex = Regex.str( "a" ).and( Regex.str( "b" ).or( Regex.eps() ) );
 		Moa moa = regex.toMoa();

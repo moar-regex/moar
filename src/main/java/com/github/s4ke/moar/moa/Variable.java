@@ -1,6 +1,6 @@
 package com.github.s4ke.moar.moa;
 
-import com.github.s4ke.moar.util.EfficientString;
+import com.github.s4ke.moar.strings.EfficientString;
 
 /**
  * @author Martin Braun

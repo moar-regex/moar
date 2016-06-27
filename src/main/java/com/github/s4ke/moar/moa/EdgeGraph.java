@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.github.s4ke.moar.util.EfficientString;
+import com.github.s4ke.moar.strings.EfficientString;
 
 /**
  * @author Martin Braun
@@ -130,11 +130,9 @@ public class EdgeGraph {
 				State destinationState = this.states.get( edge.destination );
 				edge.memoryAction.forEach( memoryAction -> memoryAction.act( vars ) );
 				//we have found an edge so we can accept this input
-				for ( Variable var : vars.values() ) {
-					if ( var.canConsume() ) {
-						var.consume( ch );
-					}
-				}
+				vars.values().stream().filter( Variable::canConsume ).forEach(
+						var -> var.consume( ch )
+				);
 				this.curState = destinationState;
 				this.curState.touch();
 				return StepResult.CONSUMED;

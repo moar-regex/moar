@@ -1,4 +1,4 @@
-package com.github.s4ke.moar.util;
+package com.github.s4ke.moar.strings;
 
 /**
  * <p>
@@ -14,9 +14,9 @@ package com.github.s4ke.moar.util;
  *
  * @author Martin Braun
  */
-public class EfficientString implements CharSequence {
+public class EfficientString {
 
-	private String underlying;
+	private CharSequence underlying;
 	private int start;
 	private int end;
 
@@ -26,13 +26,13 @@ public class EfficientString implements CharSequence {
 		this.end = 0;
 	}
 
-	public EfficientString(String underlying, int start, int end) {
+	public EfficientString(CharSequence underlying, int start, int end) {
 		this.underlying = underlying;
 		this.start = start;
 		this.end = end;
 	}
 
-	public EfficientString(String underlying) {
+	public EfficientString(CharSequence underlying) {
 		this.underlying = underlying;
 		this.start = 0;
 		this.end = underlying.length();
@@ -56,7 +56,7 @@ public class EfficientString implements CharSequence {
 		}
 	}
 
-	public void update(String underlying, int start, int end) {
+	public void update(CharSequence underlying, int start, int end) {
 		this.underlying = underlying;
 		this.start = start;
 		this.end = end;
@@ -73,20 +73,19 @@ public class EfficientString implements CharSequence {
 		if ( this == o ) {
 			return true;
 		}
+
+		//these checks are important so we can have our special char behaviour
+		//for i.e. ^ and $
 		if ( o == null || getClass() != o.getClass() ) {
 			return false;
 		}
 
 		EfficientString efficientString = (EfficientString) o;
 
-		if ( this.length() != efficientString.length() ) {
-			return false;
-		}
-
 		return this.equalTo( efficientString );
 	}
 
-	public boolean equalTo(CharSequence str) {
+	public boolean equalTo(EfficientString str) {
 		int ownLength = this.length();
 		if ( ownLength != str.length() ) {
 			return false;
@@ -109,12 +108,10 @@ public class EfficientString implements CharSequence {
 		return result;
 	}
 
-	@Override
 	public int length() {
 		return this.end - start;
 	}
 
-	@Override
 	public char charAt(int index) {
 		if ( this.underlying == null ) {
 			throw new IndexOutOfBoundsException();
@@ -122,7 +119,6 @@ public class EfficientString implements CharSequence {
 		return this.underlying.charAt( this.start + index );
 	}
 
-	@Override
 	public EfficientString subSequence(int start, int end) {
 		if ( end - start > this.length() ) {
 			throw new IndexOutOfBoundsException();
