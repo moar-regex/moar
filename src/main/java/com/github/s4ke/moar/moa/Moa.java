@@ -91,7 +91,7 @@ public final class Moa {
 	}
 
 	public boolean check(String str) {
-		return this.matcher( str ).check();
+		return this.matcher( str ).checkAsSingleWord();
 	}
 
 
