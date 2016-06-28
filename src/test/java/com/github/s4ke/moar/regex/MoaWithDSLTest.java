@@ -39,21 +39,6 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
-	public void testMultiLine() {
-		{
-			Regex regex = Regex.str( "toast" ).or( "or is it?" ).bind( "x" );
-			Moa moa = regex.toMoa();
-			Matcher matcher = moa.matcher( "toast is not a beverage\nno wait, or is it?\nb" );
-			int matchCount = 0;
-			while ( matcher.nextMatch() ) {
-				++matchCount;
-				assertTrue( moa.matcher( matcher.getVariableContent( 1 ) ).checkAsSingleWord() );
-			}
-			assertEquals( 2, matchCount );
-		}
-	}
-
-	@Test
 	public void testCompilcatedOr() {
 		Regex regex = Regex.str( "a" ).and( Regex.str( "b" ).or( Regex.eps() ) );
 		Moa moa = regex.toMoa();

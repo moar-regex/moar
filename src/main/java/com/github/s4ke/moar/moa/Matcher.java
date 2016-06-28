@@ -61,26 +61,35 @@ public final class Matcher implements CurStateHolder {
 		EfficientString token = new EfficientString();
 		int strLen = this.str.length();
 		while ( !this.isFinished() && this.pos < strLen ) {
-			{
-				while ( !this.isFinished() && this.pos < strLen ) {
-					int tokenLen = this.edges.maximalNextTokenLength( this, this.vars );
-					if ( this.pos + tokenLen > strLen ) {
-						++this.pos;
-						this.resetStateAndVars();
-						break;
+			int curStart = this.pos;
+			while ( !this.isFinished() && this.pos < strLen ) {
+				int tokenLen = this.edges.maximalNextTokenLength( this, this.vars );
+				if ( this.pos + tokenLen > strLen ) {
+					if ( tokenLen > 1 ) {
+						//reference
+						this.pos = curStart;
 					}
-					token.update( this.str, this.pos, this.pos + tokenLen );
-					if ( this.step( token ) == EdgeGraph.StepResult.REJECTED ) {
-						++this.pos;
-						this.resetStateAndVars();
-						break;
+					++this.pos;
+					break;
+				}
+				token.update( this.str, this.pos, this.pos + tokenLen );
+				if ( this.step( token ) == EdgeGraph.StepResult.REJECTED ) {
+					if ( tokenLen > 1 ) {
+						//reference
+						this.pos = curStart;
 					}
-					this.pos += tokenLen;
+					++this.pos;
+					break;
 				}
-				token.reset();
-				//noinspection StatementWithEmptyBody
-				while ( !this.isFinished() && this.step( token ) == EdgeGraph.StepResult.CONSUMED ) {
-				}
+				this.pos += tokenLen;
+			}
+			token.reset();
+			//noinspection StatementWithEmptyBody
+			while ( !this.isFinished() && this.step( token ) == EdgeGraph.StepResult.CONSUMED ) {
+			}
+
+			if ( !this.isFinished() ) {
+				this.resetStateAndVars();
 			}
 		}
 		return this.isFinished();
@@ -124,6 +133,14 @@ public final class Matcher implements CurStateHolder {
 		Variable var = this.varsByOccurence.get( occurence );
 		if ( var == null ) {
 			throw new IllegalArgumentException( "variable with occurence " + occurence + " does not exist" );
+		}
+		return var.getContents();
+	}
+
+	public String getVariableContent(String name) {
+		Variable var = this.vars.get( name );
+		if ( var == null ) {
+			throw new IllegalArgumentException( "variable with name " + name + " does not exist" );
 		}
 		return var.getContents();
 	}
