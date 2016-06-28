@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.github.s4ke.moar.moa.EdgeGraph;
-import com.github.s4ke.moar.moa.MemoryAction;
+import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
+import com.github.s4ke.moar.moa.edgegraph.MemoryAction;
 import com.github.s4ke.moar.moa.Moa;
-import com.github.s4ke.moar.moa.State;
-import com.github.s4ke.moar.moa.Variable;
-import com.github.s4ke.moar.moa.VariableState;
+import com.github.s4ke.moar.moa.states.State;
+import com.github.s4ke.moar.moa.states.Variable;
+import com.github.s4ke.moar.moa.states.VariableState;
 
 /**
  * @author Martin Braun
@@ -44,8 +44,7 @@ final class Reference implements Regex {
 			variables.put( this.reference, var );
 		}
 
-		Variable var = variables.get( this.reference );
-		VariableState varState = new VariableState( idxSupplier.get(), var );
+		VariableState varState = new VariableState( idxSupplier.get(), this.reference );
 		states.add( varState );
 		selfRelevant.put( this, new HashMap<>() );
 		selfRelevant.get( this ).put( this.reference, varState );

@@ -1,4 +1,6 @@
-package com.github.s4ke.moar.moa;
+package com.github.s4ke.moar.moa.states;
+
+import java.util.Map;
 
 import com.github.s4ke.moar.strings.EfficientString;
 
@@ -9,7 +11,7 @@ public interface State {
 
 	int getIdx();
 
-	EfficientString getEdgeString();
+	EfficientString getEdgeString(Map<String, Variable> variables);
 
 	boolean isTerminal();
 

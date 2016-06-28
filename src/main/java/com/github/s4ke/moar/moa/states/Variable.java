@@ -1,4 +1,4 @@
-package com.github.s4ke.moar.moa;
+package com.github.s4ke.moar.moa.states;
 
 import com.github.s4ke.moar.strings.EfficientString;
 
@@ -11,6 +11,14 @@ public class Variable {
 	public final String name;
 	private boolean open = false;
 	private int occurenceInRegex = -1;
+
+	/**
+	 * does not copy state
+	 */
+	public Variable(Variable variable){
+		this(variable.name);
+		this.occurenceInRegex = variable.occurenceInRegex;
+	}
 
 	public Variable(String name) {
 		this.name = name;

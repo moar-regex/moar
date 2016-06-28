@@ -1,4 +1,6 @@
-package com.github.s4ke.moar.moa;
+package com.github.s4ke.moar.moa.states;
+
+import java.util.Map;
 
 import com.github.s4ke.moar.strings.EfficientString;
 
@@ -21,7 +23,7 @@ public class BasicState implements State {
 	}
 
 	@Override
-	public EfficientString getEdgeString() {
+	public EfficientString getEdgeString(Map<String, Variable> variables) {
 		return this.string;
 	}
 

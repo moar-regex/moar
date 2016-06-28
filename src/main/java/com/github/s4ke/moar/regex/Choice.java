@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.github.s4ke.moar.moa.EdgeGraph;
-import com.github.s4ke.moar.moa.State;
-import com.github.s4ke.moar.moa.Variable;
+import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
+import com.github.s4ke.moar.moa.states.State;
+import com.github.s4ke.moar.moa.states.Variable;
 
 /**
  * @author Martin Braun

@@ -1,6 +1,7 @@
 package com.github.s4ke.moar.regex;
 
 import com.github.s4ke.moar.NotDeterministicException;
+import com.github.s4ke.moar.moa.Matcher;
 import com.github.s4ke.moar.moa.Moa;
 
 import org.junit.Test;
@@ -40,6 +41,9 @@ public class MoaWithDSLTest {
 	@Test
 	public void testMultiLine() {
 		{
+			Regex regex = Regex.str( "a" ).and( "\n" ).and( "b" );
+			Moa moa = regex.toMoa();
+			assertTrue( moa.check( "a\nb" ) );
 		}
 	}
 
@@ -86,8 +90,9 @@ public class MoaWithDSLTest {
 				.and( "|" )
 				.and( Regex.reference( "toast" ) );
 		Moa moa = regex.toMoa();
-		assertTrue( moa.check( "a|a" ) );
-		assertEquals( "a", moa.getVariableContent( 1 ) );
+		Matcher matcher = moa.matcher( "a|a" );
+		assertTrue( matcher.check() );
+		assertEquals( "a", matcher.getVariableContent( 1 ) );
 		assertFalse( moa.check( "a|aa" ) );
 	}
 

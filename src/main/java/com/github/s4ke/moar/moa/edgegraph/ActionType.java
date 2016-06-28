@@ -1,4 +1,6 @@
-package com.github.s4ke.moar.moa;
+package com.github.s4ke.moar.moa.edgegraph;
+
+import com.github.s4ke.moar.moa.states.Variable;
 
 /**
  * @author Martin Braun

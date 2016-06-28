@@ -1,4 +1,4 @@
-package com.github.s4ke.moar.moa;
+package com.github.s4ke.moar.moa.edgegraph;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,12 +8,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.github.s4ke.moar.moa.Moa;
+import com.github.s4ke.moar.moa.states.BasicState;
+import com.github.s4ke.moar.moa.states.State;
+import com.github.s4ke.moar.moa.states.Variable;
+import com.github.s4ke.moar.moa.states.VariableState;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
  * @author Martin Braun
  */
-public class EdgeGraph {
+public final class EdgeGraph {
 
 	public static final State SRC = new BasicState( 0, "SRC" );
 	//SNK's name must be equal to "" so that epsilon works
@@ -22,8 +27,6 @@ public class EdgeGraph {
 	private final Map<Integer, State> states = new HashMap<>();
 	private final Map<Integer, Set<Edge>> edges = new HashMap<>();
 	private final Map<Integer, Map<EfficientString, Edge>> staticEdges = new HashMap<>();
-
-	private State curState;
 
 	private boolean frozen = false;
 
@@ -37,7 +40,8 @@ public class EdgeGraph {
 					(edge) -> {
 						State state = this.states.get( edge.destination );
 						if ( state.isTerminal() ) {
-							map.put( state.getEdgeString(), edge );
+							//only called for terminals so null is fine
+							map.put( state.getEdgeString( null ), edge );
 						}
 					}
 			);
@@ -76,11 +80,7 @@ public class EdgeGraph {
 		}
 	}
 
-	public void setState(State state) {
-		this.curState = state;
-	}
-
-	public Edge getEdge(State from, EfficientString edgeString) {
+	public Edge getEdge(State from, EfficientString edgeString, Map<String, Variable> variables) {
 		{
 			Map<EfficientString, Edge> staticEdges = this.staticEdges.get( from.getIdx() );
 			if ( staticEdges != null ) {
@@ -103,7 +103,7 @@ public class EdgeGraph {
 		Edge edgeRes = null;
 		for ( Edge edge : set ) {
 			State state = this.states.get( edge.destination );
-			if ( !state.isTerminal() && state.getEdgeString().equalTo( edgeString ) ) {
+			if ( !state.isTerminal() && state.getEdgeString( variables ).equalTo( edgeString ) ) {
 				if ( edgeRes != null ) {
 					throw new IllegalStateException( "non-determinism detected, multiple edges for string: " + edgeString + ". The edges were: " + set );
 				}
@@ -119,13 +119,9 @@ public class EdgeGraph {
 		REJECTED
 	}
 
-	public State getCurState() {
-		return this.curState;
-	}
-
-	public StepResult step(EfficientString ch, Map<String, Variable> vars) {
+	public StepResult step(CurStateHolder stateHolder, EfficientString ch, Map<String, Variable> vars) {
 		{
-			EdgeGraph.Edge edge = this.getEdge( this.curState, ch );
+			EdgeGraph.Edge edge = this.getEdge( stateHolder.getState(), ch, vars );
 			if ( edge != null ) {
 				State destinationState = this.states.get( edge.destination );
 				edge.memoryAction.forEach( memoryAction -> memoryAction.act( vars ) );
@@ -133,8 +129,8 @@ public class EdgeGraph {
 				vars.values().stream().filter( Variable::canConsume ).forEach(
 						var -> var.consume( ch )
 				);
-				this.curState = destinationState;
-				this.curState.touch();
+				stateHolder.setState( destinationState );
+				destinationState.touch();
 				return StepResult.CONSUMED;
 			}
 		}
@@ -167,7 +163,8 @@ public class EdgeGraph {
 					variableDestinationState = (VariableState) destinationState;
 					continue;
 				}
-				String edgeString = destinationState.getEdgeString().toString();
+				//only called for terminals, so null is fine
+				String edgeString = destinationState.getEdgeString( null ).toString();
 				State knownDestinationState = staticDestinationStates.get( edgeString );
 				if ( knownDestinationState != null && knownDestinationState != destinationState ) {
 					//duplicated edge to
@@ -192,12 +189,12 @@ public class EdgeGraph {
 		return true;
 	}
 
-	public int maximalNextTokenLength() {
+	public int maximalNextTokenLength(CurStateHolder stateHolder, Map<String, Variable> vars) {
 		int maxLen = -1;
 
 		//we assume all of the outgoing edges to be of equal length for
 		//the static edges (via construction these are always of length 1)
-		Map<EfficientString, Edge> staticEdges = this.staticEdges.get( this.curState.getIdx() );
+		Map<EfficientString, Edge> staticEdges = this.staticEdges.get( stateHolder.getState().getIdx() );
 		if ( staticEdges != null ) {
 			for ( Map.Entry<EfficientString, Edge> entry : staticEdges.entrySet() ) {
 				Edge edge = entry.getValue();
@@ -209,7 +206,7 @@ public class EdgeGraph {
 					continue;
 				}
 				State state = this.states.get( edge.destination );
-				maxLen = Math.max( maxLen, state.getEdgeString().length() );
+				maxLen = Math.max( maxLen, state.getEdgeString( vars ).length() );
 				if ( maxLen > 0 ) {
 					return maxLen;
 				}
@@ -228,9 +225,9 @@ public class EdgeGraph {
 		//in case we find a backreference
 		//in which case there are at most 2 edges (=> O(n))
 		{
-			for ( Edge edge : this.edges.get( curState.getIdx() ) ) {
+			for ( Edge edge : this.edges.get( stateHolder.getState().getIdx() ) ) {
 				State otherEnd = this.states.get( edge.destination );
-				maxLen = Math.max( maxLen, otherEnd.getEdgeString().length() );
+				maxLen = Math.max( maxLen, otherEnd.getEdgeString( vars ).length() );
 			}
 		}
 		return maxLen;
