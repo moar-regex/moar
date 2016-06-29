@@ -12,16 +12,17 @@ import com.github.s4ke.moar.strings.EfficientString;
 /**
  * @author Martin Braun
  */
-public final class Matcher implements CurStateHolder {
+public final class MoaMatcher implements CurStateHolder {
 
 	private final EdgeGraph edges;
 	private final Map<String, Variable> vars;
 	private final Map<Integer, Variable> varsByOccurence;
 	private CharSequence str;
 	private int pos = 0;
+	private int lastStart = -1;
 	private State state = Moa.SRC;
 
-	Matcher(EdgeGraph edges, Map<String, Variable> vars, CharSequence str) {
+	MoaMatcher(EdgeGraph edges, Map<String, Variable> vars, CharSequence str) {
 		this.edges = edges;
 		this.vars = vars;
 		this.str = str;
@@ -54,6 +55,30 @@ public final class Matcher implements CurStateHolder {
 	@Override
 	public void setState(State state) {
 		this.state = state;
+	}
+
+	//FIXME: allow adding capturing groups to the replacement
+
+	public String replaceFirst(String replacement) {
+		this.reset();
+		if ( this.nextMatch() ) {
+			int matchLength = this.pos - this.lastStart;
+			int retLength = this.str.length() - matchLength + replacement.length();
+			StringBuilder ret = new StringBuilder( retLength );
+			for ( int i = 0; i < this.lastStart; ++i ) {
+				ret.append( this.str.charAt( i ) );
+			}
+			for ( int i = 0; i < replacement.length(); ++i ) {
+				ret.append( replacement.charAt( i ) );
+			}
+			for ( int i = this.pos; i < this.str.length(); ++i ) {
+				ret.append( this.str.charAt( i ) );
+			}
+			return ret.toString();
+		}
+		else {
+			return this.str.toString();
+		}
 	}
 
 	public boolean nextMatch() {
@@ -90,6 +115,9 @@ public final class Matcher implements CurStateHolder {
 
 			if ( !this.isFinished() ) {
 				this.resetStateAndVars();
+			}
+			else {
+				this.lastStart = curStart;
 			}
 		}
 		return this.isFinished();

@@ -6,15 +6,15 @@ import com.github.s4ke.moar.regex.Regex;
 /**
  * @author Martin Braun
  */
-public class MoaMatcher implements GenericMatcher {
+public class GenericMoaMatcher implements GenericMatcher {
 
 	private final Moa moa;
 
-	public MoaMatcher(Moa moa) {
+	public GenericMoaMatcher(Moa moa) {
 		this.moa = moa;
 	}
 
-	public MoaMatcher(Regex regex) {
+	public GenericMoaMatcher(Regex regex) {
 		this.moa = regex.toMoa();
 	}
 
@@ -25,7 +25,7 @@ public class MoaMatcher implements GenericMatcher {
 
 	@Override
 	public String toString() {
-		return "MoaMatcher{" +
+		return "GenericMoaMatcher{" +
 				"moa=" + moa +
 				'}';
 	}

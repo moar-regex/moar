@@ -1,6 +1,6 @@
 package com.github.s4ke.moar.regex;
 
-import com.github.s4ke.moar.moa.Matcher;
+import com.github.s4ke.moar.moa.MoaMatcher;
 import com.github.s4ke.moar.moa.Moa;
 
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class FullTextTest {
 		{
 			Regex regex = Regex.str( "toast" ).or( "or is it?" ).bind( "x" );
 			Moa moa = regex.toMoa();
-			Matcher matcher = moa.matcher( "toast is not a beverage\nno wait, or is it?\nb" );
+			MoaMatcher matcher = moa.matcher( "toast is not a beverage\nno wait, or is it?\nb" );
 			int matchCount = 0;
 			while ( matcher.nextMatch() ) {
 				++matchCount;
@@ -38,12 +38,12 @@ public class FullTextTest {
 		System.out.println( regex.toString() );
 		Moa moa = regex.toMoa();
 		{
-			Matcher matcher = moa.matcher( "aaaa" );
+			MoaMatcher matcher = moa.matcher( "aaaa" );
 			assertTrue( matcher.nextMatch() );
 			assertEquals( "aaaa", matcher.getVariableContent( "all" ) );
 		}
 		{
-			Matcher matcher = moa.matcher( "aaaaa" );
+			MoaMatcher matcher = moa.matcher( "aaaaa" );
 			assertFalse( moa.check( "aaaaa" ) );
 			assertTrue( matcher.nextMatch() );
 			assertEquals( "aaaa", matcher.getVariableContent( "all" ) );

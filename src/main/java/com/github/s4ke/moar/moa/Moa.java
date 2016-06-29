@@ -81,13 +81,13 @@ public final class Moa {
 		this.vars = variables;
 	}
 
-	public Matcher matcher(CharSequence str) {
+	public MoaMatcher matcher(CharSequence str) {
 		this.checkFrozen();
 		Map<String, Variable> varCopy = new HashMap<>( this.vars.size() );
 		for ( Map.Entry<String, Variable> entry : this.vars.entrySet() ) {
 			varCopy.put( entry.getKey(), new Variable( entry.getValue() ) );
 		}
-		return new Matcher( this.edges, varCopy, str );
+		return new MoaMatcher( this.edges, varCopy, str );
 	}
 
 	public boolean check(String str) {

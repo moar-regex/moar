@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.util.GenericMatcher;
-import com.github.s4ke.moar.util.MoaMatcher;
+import com.github.s4ke.moar.util.GenericMoaMatcher;
 import com.github.s4ke.moar.util.PatternMatcher;
 
 import org.junit.Test;
@@ -51,10 +51,10 @@ public class VSJavaPattern {
 
 	private GenericMatcher gen(Object obj) {
 		if ( obj instanceof Moa ) {
-			return new MoaMatcher( (Moa) obj );
+			return new GenericMoaMatcher( (Moa) obj );
 		}
 		if ( obj instanceof Regex ) {
-			return new MoaMatcher( (Regex) obj );
+			return new GenericMoaMatcher( (Regex) obj );
 		}
 		if ( obj instanceof Pattern ) {
 			return new PatternMatcher( (Pattern) obj );
