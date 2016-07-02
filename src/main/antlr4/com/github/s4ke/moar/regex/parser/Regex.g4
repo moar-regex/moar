@@ -1,7 +1,12 @@
 grammar Regex;
 
+options {
+k=2;
+output=AST;
+}
+
 /**
- * Grammar for parsing Perl Regexes
+ * Grammar for parsing Perl/Java-style Regexes
  * after: http://www.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
  * but with left recursion eliminated
  */
@@ -13,17 +18,17 @@ union :
     concatenation
     | union '|' concatenation;
 concatenation :
-    basicregex
-    | basicregex concatenation;
-basicregex :
+    basicRegex
+    | basicRegex concatenation;
+basicRegex :
     star
     | plus
-    | elementaryregex;
+    | elementaryRegex;
 star :
-    elementaryregex '*';
+    elementaryRegex '*';
 plus :
-    elementaryregex '+';
-elementaryregex :
+    elementaryRegex '+';
+elementaryRegex :
     group
     | set
     | ANY
@@ -32,14 +37,14 @@ elementaryregex :
 group :
     '(' regex ')';
 set :
-    positiveset
-    | negativeset;
-positiveset	: '[' setitems ']';
-negativeset	: '[^' setitems ']';
-setitems :
-    setitem
-    | setitem setitems;
-setitem :
+    positiveSet
+    | negativeSet;
+positiveSet	: '[' setItems ']';
+negativeSet	: '[^' setItems ']';
+setItems :
+    setItem
+    | setItem setItems;
+setItem :
     range
     | CHAR;
 range :
