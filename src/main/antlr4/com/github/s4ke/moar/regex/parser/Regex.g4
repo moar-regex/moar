@@ -31,6 +31,7 @@ plus :
 elementaryRegex :
     group
     | set
+    | backRef
     | ANY
     | EOS
     | CHAR;
@@ -39,6 +40,7 @@ group :
 set :
     positiveSet
     | negativeSet;
+backRef : '\\' NUMBER;
 positiveSet	: '[' setItems ']';
 negativeSet	: '[^' setItems ']';
 setItems :
@@ -50,10 +52,12 @@ setItem :
 range :
     CHAR '-' CHAR;
 
+NON_ZERO_DIGIT : ('1'..'9');
+DIGIT : ('0'..'9');
+NUMBER : NON_ZERO_DIGIT DIGIT*;
 METACHAR : '\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+';
-ESCAPE : '\\';
 EOS : '$';
 ANY : '.';
 CHAR :
     ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+')
-    | ESCAPE METACHAR;
+    | '\\' METACHAR;
