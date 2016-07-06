@@ -6,9 +6,6 @@ import java.util.Stack;
 
 import com.github.s4ke.moar.regex.Regex;
 import com.github.s4ke.moar.strings.EfficientString;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
  * @author Martin Braun
@@ -36,6 +33,12 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		if ( this.regexStack.size() != 1 ) {
 			throw new AssertionError();
 		}
+	}
+
+	@Override
+	public void exitBackRef(RegexParser.BackRefContext ctx) {
+		Regex regex = Regex.reference( ctx.NUMBER().getText() );
+		this.regexStack.push( regex );
 	}
 
 	@Override
@@ -170,23 +173,4 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		this.regexStack.push( Regex.set( (string) -> !excluded.contains( string ) ) );
 	}
 
-	@Override
-	public void visitTerminal(TerminalNode terminalNode) {
-
-	}
-
-	@Override
-	public void visitErrorNode(ErrorNode errorNode) {
-
-	}
-
-	@Override
-	public void enterEveryRule(ParserRuleContext parserRuleContext) {
-
-	}
-
-	@Override
-	public void exitEveryRule(ParserRuleContext parserRuleContext) {
-
-	}
 }
