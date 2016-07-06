@@ -30,12 +30,27 @@ public class VariableState implements State {
 
 	@Override
 	public EfficientString getEdgeString(Map<String, Variable> variables) {
-		return variables.get(this.variableName).getEdgeString();
+		return variables.get( this.variableName ).getEdgeString();
 	}
 
 	@Override
-	public boolean isTerminal() {
+	public boolean canConsume(EfficientString string) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean isStatic() {
 		return false;
+	}
+
+	@Override
+	public boolean isSet() {
+		return false;
+	}
+
+	@Override
+	public boolean isVariable() {
+		return true;
 	}
 
 	@Override

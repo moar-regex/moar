@@ -15,8 +15,8 @@ public class Variable {
 	/**
 	 * does not copy state
 	 */
-	public Variable(Variable variable){
-		this(variable.name);
+	public Variable(Variable variable) {
+		this( variable.name );
 		this.occurenceInRegex = variable.occurenceInRegex;
 	}
 

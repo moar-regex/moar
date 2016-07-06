@@ -1,8 +1,11 @@
 package com.github.s4ke.moar.regex.parser;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 import com.github.s4ke.moar.regex.Regex;
+import com.github.s4ke.moar.strings.EfficientString;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -17,6 +20,15 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	public Regex finalRegex() {
 		return this.regexStack.peek();
+	}
+
+	private static String getCh(RegexParser.CharOrEscapedContext charOrEscaped) {
+		if ( charOrEscaped.CHAR() != null ) {
+			return charOrEscaped.CHAR().getText();
+		}
+		else {
+			return charOrEscaped.METACHAR().getText();
+		}
 	}
 
 	@Override
@@ -75,16 +87,11 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	@Override
 	public void exitElementaryRegex(RegexParser.ElementaryRegexContext ctx) {
 		if ( ctx.ANY() != null ) {
-			//FIXME: woah, this is bad
-			Regex regex = Regex.str( String.valueOf( Character.valueOf( (char) 0 ) ) );
-			for ( char i = 1; i < Character.MAX_VALUE; ++i ) {
-				regex.or( String.valueOf( Character.valueOf( i ) ) );
-			}
-			regex = Regex.str( String.valueOf( Character.valueOf( Character.MAX_VALUE ) ) );
+			Regex regex = Regex.set( (char) 0, Character.MAX_VALUE );
 			this.regexStack.push( regex );
 		}
-		else if ( ctx.CHAR() != null ) {
-			Regex regex = Regex.str( ctx.CHAR().getSymbol().getText() );
+		else if ( ctx.charOrEscaped() != null ) {
+			Regex regex = Regex.str( getCh( ctx.charOrEscaped() ) );
 			this.regexStack.push( regex );
 		}
 		else if ( ctx.EOS() != null ) {
@@ -110,24 +117,24 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		Regex regex;
 		{
 			RegexParser.SetItemContext setItem = setItems.setItem();
-			regex = Regex.str( setItem.CHAR().getText() );
+			regex = Regex.str( getCh( setItem.charOrEscaped() ) );
 
 			setItems = setItems.setItems();
 		}
 
 		while ( setItems != null ) {
 			RegexParser.SetItemContext setItem = setItems.setItem();
-			if ( setItem.CHAR() != null ) {
-				regex = regex.or( Regex.str( setItem.CHAR().getText() ) );
+			if ( setItem.charOrEscaped() != null ) {
+				regex = regex.or( Regex.str( getCh( setItem.charOrEscaped() ) ) );
 			}
 			else if ( setItem.range() != null ) {
-				char from = setItem.range().CHAR( 0 ).getText().charAt( 0 );
-				char to = setItem.range().CHAR( 1 ).getText().charAt( 0 );
+				char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
+				char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
 
-				Regex rangeRegex = Regex.str( String.valueOf( from ) );
-				for ( int i = from + 1; i <= to; ++i ) {
-					rangeRegex.or( Regex.str( String.valueOf( (char) i ) ) );
-				}
+				//the explicit set function is really only needed here, and
+				//not above as single tokens in a group can be handled with a simple
+				//or without any real memory usage difference
+				Regex rangeRegex = Regex.set( from, to );
 				regex = regex.or( rangeRegex );
 			}
 
@@ -140,7 +147,27 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	@Override
 	public void exitNegativeSet(RegexParser.NegativeSetContext ctx) {
+		Set<EfficientString> excluded = new HashSet<>();
+		{
+			RegexParser.SetItemsContext setItems = ctx.setItems();
+			while ( setItems != null ) {
+				RegexParser.SetItemContext setItem = setItems.setItem();
+				if ( setItem.charOrEscaped() != null ) {
+					excluded.add( new EfficientString( getCh( setItems.setItem().charOrEscaped() ) ) );
+				}
+				else if ( setItem.range() != null ) {
+					char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
+					char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
 
+					for ( int i = from; i <= to; ++i ) {
+						excluded.add( new EfficientString( String.valueOf( (char) i ) ) );
+					}
+				}
+				setItems = setItems.setItems();
+			}
+		}
+
+		this.regexStack.push( Regex.set( (string) -> !excluded.contains( string ) ) );
 	}
 
 	@Override

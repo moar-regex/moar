@@ -1,8 +1,8 @@
 package com.github.s4ke.moar.regex;
 
 import com.github.s4ke.moar.NotDeterministicException;
-import com.github.s4ke.moar.moa.MoaMatcher;
 import com.github.s4ke.moar.moa.Moa;
+import com.github.s4ke.moar.moa.MoaMatcher;
 
 import org.junit.Test;
 
@@ -200,6 +200,17 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testSet() {
+		Regex regex = Regex.set( 'a', 'c' );
+		Moa moa = regex.toMoa();
+		assertTrue( moa.check( "a" ) );
+		assertTrue( moa.check( "b" ) );
+		assertTrue( moa.check( "c" ) );
+		assertFalse( moa.check( "d" ) );
+		assertFalse( moa.check( "" ) );
+	}
+
+	@Test
 	public void testNotDeterministic() {
 		assertNonDet( Regex.str( "a" ).bind( "x" ).or( "a" ) );
 		assertNonDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( Regex.reference( "x" ) ) );
@@ -240,6 +251,12 @@ public class MoaWithDSLTest {
 						.plus()
 
 		);
+	}
+
+	@Test
+	public void testDeterminismWithRange() {
+		assertNonDet( Regex.set( "a", "c" ).or( "a" ) );
+		assertNonDet( Regex.set( "a", "c" ).or( Regex.set( "a", "c" ) ) );
 	}
 
 	void assertNonDet(Regex regex) {

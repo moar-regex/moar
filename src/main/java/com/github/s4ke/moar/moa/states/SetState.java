@@ -1,20 +1,23 @@
 package com.github.s4ke.moar.moa.states;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
  * @author Martin Braun
  */
-public class BasicState implements State {
+public class SetState implements State {
 
 	public final int idx;
-	public final EfficientString string;
+	public final int length;
+	public final Function<EfficientString, Boolean> criterion;
 
-	public BasicState(int idx, String string) {
+	public SetState(int idx, int length, Function<EfficientString, Boolean> criterion) {
 		this.idx = idx;
-		this.string = new EfficientString( string );
+		this.length = length;
+		this.criterion = criterion;
 	}
 
 	@Override
@@ -24,22 +27,22 @@ public class BasicState implements State {
 
 	@Override
 	public EfficientString getEdgeString(Map<String, Variable> variables) {
-		return this.string;
-	}
-
-	@Override
-	public boolean canConsume(EfficientString string) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
+	public boolean canConsume(EfficientString string) {
+		return this.criterion.apply( string );
+	}
+
+	@Override
 	public boolean isStatic() {
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isSet() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -50,13 +53,5 @@ public class BasicState implements State {
 	@Override
 	public void touch() {
 
-	}
-
-	@Override
-	public String toString() {
-		return "BasicState{" +
-				"idx=" + idx +
-				", string='" + string + '\'' +
-				'}';
 	}
 }

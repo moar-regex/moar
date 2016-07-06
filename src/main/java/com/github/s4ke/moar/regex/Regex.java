@@ -5,13 +5,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.github.s4ke.moar.NotDeterministicException;
-import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.Moa;
+import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
+import com.github.s4ke.moar.strings.EfficientString;
 
 /**
  * @author Martin Braun
@@ -40,6 +42,21 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 			return Regex.eps();
 		}
 		return ret;
+	}
+
+	static Regex set(Function<EfficientString, Boolean> setDescriptor) {
+		return new SetRegex( setDescriptor );
+	}
+
+	static Regex set(char from, char to) {
+		return set(
+				(str) ->
+						str.length() == 1 && str.charAt( 0 ) >= from && str.charAt( 0 ) <= to
+		);
+	}
+
+	static Regex set(String from, String to) {
+		return set( from.charAt( 0 ), to.charAt( 0 ) );
 	}
 
 	default Regex or(Regex other) {

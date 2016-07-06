@@ -71,26 +71,52 @@ public class ParserTest {
 
 	@Test
 	public void testRangePositiveSet() {
-		Regex regex = parseRegex( "[ac-zAC-Z]" );
-		for ( char c = 'a'; c <= 'Z'; ++c ) {
-			if ( c == 'c' || c == 'C' ) {
-				assertMatch( false, regex, String.valueOf( c ) );
+		Moa moa = parseRegex( "[ac-zAC-Z]" ).toMoa();
+		for ( char c = 'a'; c <= 'z'; ++c ) {
+			if ( c == 'b' ) {
+				assertMatch( false, moa, String.valueOf( c ) );
 			}
 			else {
-				assertMatch( true, regex, String.valueOf( c ) );
+				assertMatch( true, moa, String.valueOf( c ) );
 			}
 		}
-		assertMatch( false, regex, "!" );
+		for ( char c = 'A'; c <= 'Z'; ++c ) {
+			if ( c == 'B' ) {
+				assertMatch( false, moa, String.valueOf( c ) );
+			}
+			else {
+				assertMatch( true, moa, String.valueOf( c ) );
+			}
+		}
+		assertMatch( false, moa, "!" );
+	}
+
+	@Test
+	public void testRangeNegativeset() {
+		//reuse this, the non-determinism check is quite expensive if a set
+		//is used
+		Moa moa = parseRegex( "[^a]" ).toMoa();
+		for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
+			if(i == 'a') {
+				assertMatch( false, moa, String.valueOf( (char) i ) );
+			} else {
+				assertMatch( true, moa, String.valueOf( (char) i ) );
+			}
+		}
 	}
 
 	@Test
 	public void testEscape() {
-		Regex regex = parseRegex( "\\\\" );
+		//Regex regex = parseRegex( "\\\\" );
 		//assertMatch( true, regex, "\\" );
 	}
 
 	private static void assertMatch(boolean shouldMatch, Regex regex, String input) {
 		assertEquals( shouldMatch, regex.toMoa().check( input ) );
+	}
+
+	private static void assertMatch(boolean shouldMatch, Moa moa, String input) {
+		assertEquals( shouldMatch, moa.check( input ) );
 	}
 
 	private static Regex parseRegex(String regexStr) {

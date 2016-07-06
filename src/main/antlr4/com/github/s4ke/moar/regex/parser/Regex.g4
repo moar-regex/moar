@@ -32,9 +32,9 @@ elementaryRegex :
     group
     | set
     | backRef
+    | charOrEscaped
     | ANY
-    | EOS
-    | CHAR;
+    | EOS;
 group :
     '(' regex ')';
 set :
@@ -48,9 +48,12 @@ setItems :
     | setItem setItems;
 setItem :
     range
-    | CHAR;
+    | charOrEscaped;
 range :
-    CHAR '-' CHAR;
+    charOrEscaped '-' charOrEscaped;
+charOrEscaped :
+    CHAR
+    | '\\' METACHAR;
 
 NON_ZERO_DIGIT : ('1'..'9');
 DIGIT : ('0'..'9');
@@ -59,5 +62,4 @@ METACHAR : '\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+';
 EOS : '$';
 ANY : '.';
 CHAR :
-    ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+')
-    | '\\' METACHAR;
+    ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+');

@@ -13,7 +13,13 @@ public interface State {
 
 	EfficientString getEdgeString(Map<String, Variable> variables);
 
-	boolean isTerminal();
+	boolean canConsume(EfficientString string);
+
+	boolean isStatic();
+
+	boolean isSet();
+
+	boolean isVariable();
 
 	void touch();
 
