@@ -1,5 +1,7 @@
 package com.github.s4ke.moar.regex;
 
+import java.util.regex.Pattern;
+
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.MoaMatcher;
 import com.github.s4ke.moar.regex.parser.RegexLexer;
@@ -123,6 +125,28 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testOrNothing() {
+		Moa moa = parseRegex( "a?" ).toMoa();
+		assertMatch( true, moa, "" );
+		assertMatch( true, moa, "a" );
+		assertMatch( false, moa, "b" );
+	}
+
+	@Test
+	public void testEpsilon() {
+		Moa moa = parseRegex( "" ).toMoa();
+		assertMatch( true, moa, "" );
+		assertMatch( false, moa, "a" );
+	}
+
+	@Test
+	public void testAny() {
+		Moa moa = parseRegex( "." ).toMoa();
+		assertMatch( false, moa, "" );
+		assertMatch( true, moa, "a" );
+	}
+
+	@Test
 	public void testEscapeBackslash() {
 		Regex regex = parseRegex( "\\\\" );
 		assertMatch( true, regex, "\\" );
@@ -146,7 +170,7 @@ public class ParserTest {
 	private static Regex parseRegex(String regexStr) {
 		RegexParser parser = regexParser( regexStr );
 		RegexParser.RegexContext regexTree = parser.regex();
-		System.out.println( regexTree.toStringTree(parser) );
+		System.out.println( regexTree.toStringTree( parser ) );
 		RegexTreeListener listener = new RegexTreeListener();
 		ParseTreeWalker walker = new ParseTreeWalker();
 		walker.walk( listener, regexTree );

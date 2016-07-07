@@ -11,8 +11,9 @@ output=AST;
  * but with left recursion eliminated
  */
 
-regex
-    : union EOF
+regex:
+    EOF
+    | START? union EOS? EOF
     ;
 union :
     concatenation
@@ -24,11 +25,14 @@ basicRegex :
     backRef
     | star
     | plus
+    | orEpsilon
     | elementaryRegex;
 star :
     elementaryRegex '*';
 plus :
     elementaryRegex '+';
+orEpsilon:
+    elementaryRegex '?';
 elementaryRegex :
     group
     | set
@@ -57,9 +61,10 @@ charOrEscaped :
     | ESC ESC;
 
 NUMBER : [1-9][0-9]*;
-METACHAR : '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+';
+METACHAR : '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+' | '?';
 ESC : '\\';
 EOS : '$';
+START : '^';
 ANY : '.';
 CHAR :
-    ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+');
+    ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+' | '?');

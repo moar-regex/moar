@@ -23,15 +23,19 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		if ( charOrEscaped.CHAR() != null ) {
 			return charOrEscaped.CHAR().getText();
 		}
-		else if(charOrEscaped.METACHAR() != null) {
+		else if ( charOrEscaped.METACHAR() != null ) {
 			return charOrEscaped.METACHAR().getText();
-		} else {
+		}
+		else {
 			return charOrEscaped.ESC( 1 ).getText();
 		}
 	}
 
 	@Override
 	public void exitRegex(RegexParser.RegexContext ctx) {
+		if ( this.regexStack.size() == 0 ) {
+			this.regexStack.push( Regex.eps() );
+		}
 		if ( this.regexStack.size() != 1 ) {
 			throw new AssertionError();
 		}
@@ -86,6 +90,13 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	public void exitPlus(RegexParser.PlusContext ctx) {
 		Regex regex = this.regexStack.pop();
 		regex = regex.plus();
+		this.regexStack.push( regex );
+	}
+
+	@Override
+	public void exitOrEpsilon(RegexParser.OrEpsilonContext ctx) {
+		Regex regex = this.regexStack.pop();
+		regex = regex.or( Regex.eps() );
 		this.regexStack.push( regex );
 	}
 
