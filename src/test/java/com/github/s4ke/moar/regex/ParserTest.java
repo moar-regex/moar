@@ -1,7 +1,5 @@
 package com.github.s4ke.moar.regex;
 
-import java.util.regex.Pattern;
-
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.MoaMatcher;
 import com.github.s4ke.moar.regex.parser.RegexLexer;
@@ -137,6 +135,13 @@ public class ParserTest {
 		Moa moa = parseRegex( "" ).toMoa();
 		assertMatch( true, moa, "" );
 		assertMatch( false, moa, "a" );
+	}
+
+	@Test
+	public void testWhitespace() {
+		Moa moa = parseRegex( "\\s" ).toMoa();
+		assertMatch( true, moa, " " );
+		assertMatch( false, moa, "" );
 	}
 
 	@Test

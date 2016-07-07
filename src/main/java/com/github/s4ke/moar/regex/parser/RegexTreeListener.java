@@ -97,7 +97,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	@Override
 	public void exitElementaryRegex(RegexParser.ElementaryRegexContext ctx) {
 		if ( ctx.ANY() != null ) {
-			Regex regex = Regex.set( (string) -> true );
+			Regex regex = Regex.set( (string) -> string.length() == 1 );
 			this.regexStack.push( regex );
 		}
 		else if ( ctx.charOrEscaped() != null ) {

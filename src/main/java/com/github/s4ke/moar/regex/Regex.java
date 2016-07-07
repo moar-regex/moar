@@ -56,7 +56,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	}
 
 	static Regex whiteSpace() {
-		return set( (str) -> str.length() == 0 && Character.isWhitespace( str.charAt( 0 ) ) );
+		return set( (str) -> str.length() == 1 && Character.isWhitespace( str.charAt( 0 ) ) );
 	}
 
 	static Regex set(String from, String to) {
