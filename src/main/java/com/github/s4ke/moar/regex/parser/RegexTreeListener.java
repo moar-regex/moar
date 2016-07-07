@@ -1,6 +1,8 @@
 package com.github.s4ke.moar.regex.parser;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -13,6 +15,8 @@ import com.github.s4ke.moar.strings.EfficientString;
 public class RegexTreeListener extends RegexBaseListener implements RegexListener {
 
 	private final Stack<Regex> regexStack = new Stack<>();
+	private final Map<Integer, String> groupNames = new HashMap<>();
+	private final Set<String> usedGroupNames = new HashSet<>();
 	private int groupCount = 0;
 
 	public Regex finalRegex() {
@@ -43,7 +47,13 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	@Override
 	public void exitBackRef(RegexParser.BackRefContext ctx) {
-		Regex regex = Regex.reference( ctx.NUMBER().getText() );
+		Regex regex;
+		if ( ctx.groupName() != null ) {
+			regex = Regex.reference( ctx.groupName().getText() );
+		}
+		else {
+			regex = Regex.reference( ctx.NUMBER().getText() );
+		}
 		this.regexStack.push( regex );
 	}
 
@@ -110,15 +120,33 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	}
 
 	@Override
-	public void exitGroup(RegexParser.GroupContext ctx) {
-		if ( ctx.union() == null ) {
-			this.regexStack.push( Regex.eps().bind( String.valueOf( ++this.groupCount ) ) );
+	public void exitCapturingGroup(RegexParser.CapturingGroupContext ctx) {
+		++this.groupCount;
+		String regexName;
+		if ( ctx.groupName() == null ) {
+			regexName = String.valueOf( this.groupCount );
 		}
 		else {
-			Regex regex = this.regexStack.pop();
-			regex = regex.bind( String.valueOf( ++this.groupCount ) );
-			this.regexStack.push( regex );
+			regexName = ctx.groupName().getText();
 		}
+		Regex regex;
+		if ( ctx.union() == null ) {
+			regex = Regex.eps();
+		}
+		else {
+			regex = this.regexStack.pop();
+		}
+		if ( this.usedGroupNames.contains( regexName ) ) {
+			throw new IllegalArgumentException( "group with name" + regexName + " exists more than once" );
+		}
+		this.usedGroupNames.add( regexName );
+		this.groupNames.put( this.groupCount, regexName );
+		this.regexStack.push( regex.bind( regexName ) );
+	}
+
+	@Override
+	public void exitNonCapturingGroup(RegexParser.NonCapturingGroupContext ctx) {
+		//no-op
 	}
 
 	@Override

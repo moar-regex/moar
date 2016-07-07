@@ -107,13 +107,31 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testBackRef() {
+	public void testBackRefIndexed() {
 		Moa moa = parseRegex( "(a*)b\\1" ).toMoa();
 		assertMatch( false, moa, "ab" );
 		assertMatch( true, moa, "aba" );
 		assertMatch( false, moa, "aaba" );
 		assertMatch( false, moa, "abaa" );
 		assertMatch( true, moa, "aabaa" );
+	}
+
+	@Test
+	public void testBackRefNamed() {
+		Moa moa = parseRegex( "(?<zA>a*)b\\<zA>" ).toMoa();
+		assertMatch( false, moa, "ab" );
+		assertMatch( true, moa, "aba" );
+		assertMatch( false, moa, "aaba" );
+		assertMatch( false, moa, "abaa" );
+		assertMatch( true, moa, "aabaa" );
+	}
+
+	@Test
+	public void testNonCapturingGroup() {
+		Moa moa = parseRegex( "(?:ab)*c" ).toMoa();
+		assertMatch( true, moa, "c" );
+		assertMatch( true, moa, "abc" );
+		assertMatch( true, moa, "ababc" );
 	}
 
 	@Test
@@ -128,6 +146,15 @@ public class ParserTest {
 		assertMatch( true, moa, "" );
 		assertMatch( true, moa, "a" );
 		assertMatch( false, moa, "b" );
+	}
+
+	@Test
+	public void testPrecedenceAndOr() {
+		Regex regex = parseRegex( "ab|bcd" );
+		Moa moa = regex.toMoa();
+		assertMatch( true, moa, "ab" );
+		assertMatch( true, moa, "bcd" );
+		assertMatch( false, moa, "abbcd" );
 	}
 
 	@Test

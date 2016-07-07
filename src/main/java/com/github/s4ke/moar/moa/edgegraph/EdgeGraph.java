@@ -227,20 +227,23 @@ public final class EdgeGraph {
 				//check for overlapping SetStates
 				//FIXME: can we do this more efficiently?
 				{
-					for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
-						char ch = (char) i;
-						boolean foundOne = false;
-						for ( Edge edge : edges ) {
-							State destinationState = this.states.get( edge.destination );
-							if ( destinationState.isSet() ) {
-								if ( destinationState.canConsume( new EfficientString( String.valueOf( ch ) ) ) ) {
-									//if a set exists that contains a string from another set
-									//state, we are nondeterministic
-									if ( foundOne ) {
-										return false;
-									}
-									else {
-										foundOne = true;
+					Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
+					if ( setEdges != null && setEdges.size() > 1) {
+						for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
+							char ch = (char) i;
+							boolean foundOne = false;
+							for ( Edge edge : edges ) {
+								State destinationState = this.states.get( edge.destination );
+								if ( destinationState.isSet() ) {
+									if ( destinationState.canConsume( new EfficientString( String.valueOf( ch ) ) ) ) {
+										//if a set exists that contains a string from another set
+										//state, we are nondeterministic
+										if ( foundOne ) {
+											return false;
+										}
+										else {
+											foundOne = true;
+										}
 									}
 								}
 							}
