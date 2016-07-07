@@ -23,8 +23,10 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		if ( charOrEscaped.CHAR() != null ) {
 			return charOrEscaped.CHAR().getText();
 		}
-		else {
+		else if(charOrEscaped.METACHAR() != null) {
 			return charOrEscaped.METACHAR().getText();
+		} else {
+			return charOrEscaped.ESC( 1 ).getText();
 		}
 	}
 

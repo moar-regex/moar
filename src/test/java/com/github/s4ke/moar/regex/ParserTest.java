@@ -117,9 +117,13 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testEscape() {
-		regexParser( "\\\\" ).charOrEscaped();
+	public void testEscapeSimple() {
+		Regex regex = parseRegex( "\\^" );
+		assertMatch( true, regex, "^" );
+	}
 
+	@Test
+	public void testEscapeBackslash() {
 		Regex regex = parseRegex( "\\\\" );
 		assertMatch( true, regex, "\\" );
 	}

@@ -40,7 +40,7 @@ group :
 set :
     positiveSet
     | negativeSet;
-backRef : '\\' NUMBER;
+backRef : ESC NUMBER;
 positiveSet	: '[' setItems ']';
 negativeSet	: '[^' setItems ']';
 setItems :
@@ -53,12 +53,12 @@ range :
     charOrEscaped '-' charOrEscaped;
 charOrEscaped :
     CHAR
-    | '\\' METACHAR;
+    | ESC METACHAR
+    | ESC ESC;
 
-NON_ZERO_DIGIT : ('1'..'9');
-DIGIT : ('0'..'9');
-NUMBER : NON_ZERO_DIGIT DIGIT*;
-METACHAR : '\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+';
+NUMBER : [1-9][0-9]*;
+METACHAR : '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+';
+ESC : '\\';
 EOS : '$';
 ANY : '.';
 CHAR :
