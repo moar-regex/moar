@@ -73,12 +73,6 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		this.regexStack.push( regex );
 	}
 
-
-	@Override
-	public void exitBasicRegex(RegexParser.BasicRegexContext ctx) {
-		//no-op
-	}
-
 	@Override
 	public void exitStar(RegexParser.StarContext ctx) {
 		Regex regex = this.regexStack.pop();
@@ -103,7 +97,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	@Override
 	public void exitElementaryRegex(RegexParser.ElementaryRegexContext ctx) {
 		if ( ctx.ANY() != null ) {
-			Regex regex = Regex.set( (char) 0, Character.MAX_VALUE );
+			Regex regex = Regex.set( (string) -> true );
 			this.regexStack.push( regex );
 		}
 		else if ( ctx.charOrEscaped() != null ) {
@@ -186,4 +180,9 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		this.regexStack.push( Regex.set( (string) -> !excluded.contains( string ) ) );
 	}
 
+	@Override
+	public void exitWhiteSpace(RegexParser.WhiteSpaceContext ctx) {
+		Regex regex = Regex.whiteSpace();
+		this.regexStack.push( regex );
+	}
 }

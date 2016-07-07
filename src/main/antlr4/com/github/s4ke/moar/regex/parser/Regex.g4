@@ -36,6 +36,7 @@ orEpsilon:
 elementaryRegex :
     group
     | set
+    | stockSets
     | charOrEscaped
     | ANY
     | EOS;
@@ -55,6 +56,9 @@ setItem :
     | charOrEscaped;
 range :
     charOrEscaped '-' charOrEscaped;
+stockSets:
+    whiteSpace;
+whiteSpace : ESC 's';
 charOrEscaped :
     CHAR
     | ESC METACHAR

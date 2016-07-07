@@ -142,6 +142,14 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testWhiteSpace() {
+		Regex regex = Regex.whiteSpace();
+		Moa moa = regex.toMoa();
+		assertTrue( moa.check( " " ) );
+		assertFalse( moa.check( "" ) );
+	}
+
+	@Test
 	public void plusInBinding() {
 		Moa moa = Regex.str( "a" ).plus().bind( "toast" ).and( "b" ).and( Regex.reference( "toast" ) ).toMoa();
 		assertTrue( moa.check( "aaabaaa" ) );
