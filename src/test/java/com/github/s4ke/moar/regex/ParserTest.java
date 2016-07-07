@@ -128,10 +128,11 @@ public class ParserTest {
 
 	@Test
 	public void testNonCapturingGroup() {
-		Moa moa = parseRegex( "(?:ab)*c" ).toMoa();
+		Moa moa = parseRegex( "(?:ab|d)*c" ).toMoa();
 		assertMatch( true, moa, "c" );
 		assertMatch( true, moa, "abc" );
 		assertMatch( true, moa, "ababc" );
+		assertMatch( true, moa, "abdabc" );
 	}
 
 	@Test
