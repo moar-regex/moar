@@ -43,6 +43,8 @@ final class Reference implements Regex {
 			Variable var = new Variable( this.reference );
 			variables.put( this.reference, var );
 		}
+		states.add( Moa.SRC );
+		states.add( Moa.SNK );
 
 		VariableState varState = new VariableState( idxSupplier.get(), this.reference );
 		states.add( varState );

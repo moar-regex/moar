@@ -210,6 +210,14 @@ public class MoaWithDSLTest {
 		assertFalse( moa.check( "" ) );
 	}
 
+
+	@Test
+	public void testNonExistingReference() {
+		Regex regex = Regex.reference( "x" );
+		Moa moa = regex.toMoa();
+		assertTrue( moa.check( "" ) );
+	}
+
 	@Test
 	public void testNotDeterministic() {
 		assertNonDet( Regex.str( "a" ).bind( "x" ).or( "a" ) );

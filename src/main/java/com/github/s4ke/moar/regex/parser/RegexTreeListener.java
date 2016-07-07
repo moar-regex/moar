@@ -104,7 +104,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	@Override
 	public void exitGroup(RegexParser.GroupContext ctx) {
-		if ( ctx.regex() == null ) {
+		if ( ctx.union() == null ) {
 			this.regexStack.push( Regex.eps().bind( String.valueOf( ++this.groupCount ) ) );
 		}
 		else {

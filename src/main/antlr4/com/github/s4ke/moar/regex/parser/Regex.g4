@@ -12,7 +12,7 @@ output=AST;
  */
 
 regex
-    : union
+    : union EOF
     ;
 union :
     concatenation
@@ -21,7 +21,8 @@ concatenation :
     basicRegex
     | basicRegex concatenation;
 basicRegex :
-    star
+    backRef
+    | star
     | plus
     | elementaryRegex;
 star :
@@ -31,12 +32,11 @@ plus :
 elementaryRegex :
     group
     | set
-    | backRef
     | charOrEscaped
     | ANY
     | EOS;
 group :
-    '(' regex ')';
+    '(' union ')';
 set :
     positiveSet
     | negativeSet;

@@ -97,18 +97,31 @@ public class ParserTest {
 		//is used
 		Moa moa = parseRegex( "[^a]" ).toMoa();
 		for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
-			if(i == 'a') {
+			if ( i == 'a' ) {
 				assertMatch( false, moa, String.valueOf( (char) i ) );
-			} else {
+			}
+			else {
 				assertMatch( true, moa, String.valueOf( (char) i ) );
 			}
 		}
 	}
 
 	@Test
+	public void testBackRef() {
+		Moa moa = parseRegex( "(a*)b\\1" ).toMoa();
+		assertMatch( false, moa, "ab" );
+		assertMatch( true, moa, "aba" );
+		assertMatch( false, moa, "aaba" );
+		assertMatch( false, moa, "abaa" );
+		assertMatch( true, moa, "aabaa" );
+	}
+
+	@Test
 	public void testEscape() {
-		//Regex regex = parseRegex( "\\\\" );
-		//assertMatch( true, regex, "\\" );
+		regexParser( "\\\\" ).charOrEscaped();
+
+		Regex regex = parseRegex( "\\\\" );
+		assertMatch( true, regex, "\\" );
 	}
 
 	private static void assertMatch(boolean shouldMatch, Regex regex, String input) {
@@ -119,11 +132,17 @@ public class ParserTest {
 		assertEquals( shouldMatch, moa.check( input ) );
 	}
 
-	private static Regex parseRegex(String regexStr) {
+	private static RegexParser regexParser(String regexStr) {
 		RegexLexer lexer = new RegexLexer( new ANTLRInputStream( regexStr ) );
 		RegexParser parser = new RegexParser( new CommonTokenStream( lexer ) );
 		parser.setBuildParseTree( true );
+		return parser;
+	}
+
+	private static Regex parseRegex(String regexStr) {
+		RegexParser parser = regexParser( regexStr );
 		RegexParser.RegexContext regexTree = parser.regex();
+		System.out.println( regexTree.toStringTree(parser) );
 		RegexTreeListener listener = new RegexTreeListener();
 		ParseTreeWalker walker = new ParseTreeWalker();
 		walker.walk( listener, regexTree );
