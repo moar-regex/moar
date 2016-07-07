@@ -275,6 +275,13 @@ public class MoaWithDSLTest {
 		assertNonDet( Regex.set( "a", "c" ).or( Regex.set( "a", "c" ) ) );
 	}
 
+	@Test
+	public void testEpsilonMoa() {
+		Moa moa = Regex.eps().toMoa();
+		assertTrue( moa.check( "" ) );
+		assertFalse( moa.check( "a" ) );
+	}
+
 	void assertNonDet(Regex regex) {
 		try {
 			regex.toMoa();
@@ -286,13 +293,6 @@ public class MoaWithDSLTest {
 
 	void assertDet(Regex regex) {
 		regex.toMoa();
-	}
-
-	@Test
-	public void testEpsilonMoa() {
-		Moa moa = Regex.eps().toMoa();
-		assertTrue( moa.check( "" ) );
-		assertFalse( moa.check( "t" ) );
 	}
 
 }

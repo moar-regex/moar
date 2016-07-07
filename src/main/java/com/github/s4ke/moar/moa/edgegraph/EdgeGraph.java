@@ -98,6 +98,18 @@ public final class EdgeGraph {
 			}
 		}
 
+		{
+			Set<Edge> setEdges = this.setEdges.get( from.getIdx() );
+			if ( setEdges != null ) {
+				for ( Edge edge : setEdges ) {
+					State state = this.states.get( edge.destination );
+					if ( state.isSet() && state.canConsume( edgeString ) ) {
+						return edge;
+					}
+				}
+			}
+		}
+
 		Set<Edge> set = this.edges.get( from.getIdx() );
 		if ( set == null ) {
 			return null;
@@ -116,13 +128,6 @@ public final class EdgeGraph {
 				}
 				edgeRes = edge;
 			}
-			else if ( state.isSet() && state.canConsume( edgeString ) ) {
-				if ( edgeRes != null ) {
-					throw new IllegalStateException( "non-determinism detected, multiple edges for string: " + edgeString + ". The edges were: " + set );
-				}
-				edgeRes = edge;
-			}
-
 		}
 		return edgeRes;
 	}
@@ -201,17 +206,20 @@ public final class EdgeGraph {
 
 				//check if the sets contain values from the static states
 				{
-					for ( Edge edge : edges ) {
-						State destinationState = this.states.get( edge.destination );
-						if ( destinationState.isSet() ) {
-							for ( String edgeString : staticEdgeStrings ) {
-								if ( destinationState.canConsume( new EfficientString( edgeString ) ) ) {
-									//if a set exists that contains a string from another static
-									//state, we are nondeterministic
-									return false;
+					Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
+					if ( setEdges != null ) {
+						for ( Edge edge : setEdges ) {
+							State destinationState = this.states.get( edge.destination );
+							if ( destinationState.isSet() ) {
+								for ( String edgeString : staticEdgeStrings ) {
+									if ( destinationState.canConsume( new EfficientString( edgeString ) ) ) {
+										//if a set exists that contains a string from another static
+										//state, we are nondeterministic
+										return false;
+									}
 								}
+								++staticOrSetCount;
 							}
-							++staticOrSetCount;
 						}
 					}
 				}

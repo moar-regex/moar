@@ -91,6 +91,8 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		return new Binding( name, this.copy() );
 	}
 
+	//TODO: this can be done with a Stack and some clever handling
+	//instead of recursion
 	default Moa toMoa() {
 		Moa moa = new Moa();
 		Map<String, Variable> variables = new HashMap<>();
