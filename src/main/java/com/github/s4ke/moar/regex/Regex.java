@@ -1,5 +1,6 @@
 package com.github.s4ke.moar.regex;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,6 +20,8 @@ import com.github.s4ke.moar.strings.EfficientString;
  * @author Martin Braun
  */
 public interface Regex extends StateContributor, EdgeContributor, VariableOccurence {
+
+	Set<Character> WHITE_SPACE_CHARS = new HashSet<>( Arrays.asList( ' ', '\t', '\n', (char) 0x0B, '\f', '\r' ) );
 
 	static Regex reference(String reference) {
 		return new Reference( reference );
@@ -50,13 +53,40 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 
 	static Regex set(char from, char to) {
 		return set(
-				(str) ->
-						str.length() == 1 && str.charAt( 0 ) >= from && str.charAt( 0 ) <= to
+				fromTo( from, to )
 		);
 	}
 
+	static Function<EfficientString, Boolean> fromTo(char from, char to) {
+		return (str) ->
+				str.length() == 1 && str.charAt( 0 ) >= from && str.charAt( 0 ) <= to;
+	}
+
 	static Regex whiteSpace() {
-		return set( (str) -> str.length() == 1 && Character.isWhitespace( str.charAt( 0 ) ) );
+		return set( str -> str.length() == 1 && WHITE_SPACE_CHARS.contains( str.charAt( 0 ) ) );
+	}
+
+	static Regex nonWhiteSpace() {
+		return set( str -> str.length() == 1 && !WHITE_SPACE_CHARS.contains( str.charAt( 0 ) ) );
+	}
+
+	static Regex digit() {
+		return set( str -> str.length() == 1 && Character.isDigit( str.charAt( 0 ) ) );
+	}
+
+	static Regex nonDigit() {
+		return set( str -> str.length() == 1 && !Character.isDigit( str.charAt( 0 ) ) );
+	}
+
+	static Regex wordCharacter() {
+		return set( 'a', 'z' ).or( set( 'A', 'Z' ) ).or( set( '0', '9' ) ).or( "_" );
+	}
+
+	static Regex nonWordCharacter() {
+		return set(
+				str -> str.length() == 1 && !fromTo( 'a', 'z' ).apply( str ) && !fromTo( 'A', 'Z' ).apply( str )
+						&& !fromTo( '0', '9' ).apply( str ) && str.charAt( 0 ) != '_'
+		);
 	}
 
 	static Regex set(String from, String to) {

@@ -169,6 +169,47 @@ public class ParserTest {
 	public void testWhitespace() {
 		Moa moa = parseRegex( "\\s" ).toMoa();
 		assertMatch( true, moa, " " );
+		assertMatch( false, moa, "a" );
+		assertMatch( false, moa, "" );
+	}
+
+	@Test
+	public void testNonWhitespace() {
+		Moa moa = parseRegex( "\\S" ).toMoa();
+		assertMatch( false, moa, " " );
+		assertMatch( true, moa, "a" );
+		assertMatch( false, moa, "" );
+	}
+
+	@Test
+	public void testWordCharacter() {
+		Moa moa = parseRegex( "\\w" ).toMoa();
+		assertMatch( false, moa, " " );
+		assertMatch( true, moa, "a" );
+		assertMatch( false, moa, "" );
+	}
+
+	@Test
+	public void testNonWordCharacter() {
+		Moa moa = parseRegex( "\\W" ).toMoa();
+		assertMatch( true, moa, " " );
+		assertMatch( false, moa, "a" );
+		assertMatch( false, moa, "" );
+	}
+
+	@Test
+	public void testNumeric() {
+		Moa moa = parseRegex( "\\d" ).toMoa();
+		assertMatch( true, moa, "1" );
+		assertMatch( false, moa, "a" );
+		assertMatch( false, moa, "" );
+	}
+
+	@Test
+	public void testNonNumeric() {
+		Moa moa = parseRegex( "\\D" ).toMoa();
+		assertMatch( false, moa, "1" );
+		assertMatch( true, moa, "a" );
 		assertMatch( false, moa, "" );
 	}
 

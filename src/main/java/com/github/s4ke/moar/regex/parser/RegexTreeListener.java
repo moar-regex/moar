@@ -24,8 +24,8 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	}
 
 	private static String getCh(RegexParser.CharOrEscapedContext charOrEscaped) {
-		if ( charOrEscaped.CHAR() != null ) {
-			return charOrEscaped.CHAR().getText();
+		if ( charOrEscaped.character() != null ) {
+			return charOrEscaped.character().getText();
 		}
 		else if ( charOrEscaped.METACHAR() != null ) {
 			return charOrEscaped.METACHAR().getText();
@@ -211,6 +211,36 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	@Override
 	public void exitWhiteSpace(RegexParser.WhiteSpaceContext ctx) {
 		Regex regex = Regex.whiteSpace();
+		this.regexStack.push( regex );
+	}
+
+	@Override
+	public void exitNonWhiteSpace(RegexParser.NonWhiteSpaceContext ctx) {
+		Regex regex = Regex.nonWhiteSpace();
+		this.regexStack.push( regex );
+	}
+
+	@Override
+	public void exitDigit(RegexParser.DigitContext ctx) {
+		Regex regex = Regex.digit();
+		this.regexStack.push( regex );
+	}
+
+	@Override
+	public void exitNonDigit(RegexParser.NonDigitContext ctx) {
+		Regex regex = Regex.nonDigit();
+		this.regexStack.push( regex );
+	}
+
+	@Override
+	public void exitNonWordCharacter(RegexParser.NonWordCharacterContext ctx) {
+		Regex regex = Regex.nonWordCharacter();
+		this.regexStack.push(regex);
+	}
+
+	@Override
+	public void exitWordCharacter(RegexParser.WordCharacterContext ctx) {
+		Regex regex = Regex.wordCharacter();
 		this.regexStack.push( regex );
 	}
 }

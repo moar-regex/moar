@@ -35,8 +35,8 @@ orEpsilon:
 elementaryRegex :
     group
     | set
-    | stockSets
     | charOrEscaped
+    | stockSets
     | ANY
     | EOS;
 
@@ -44,7 +44,7 @@ group :
     '(' (capturingGroup | nonCapturingGroup) ')';
 capturingGroup : ('?' '<' groupName '>')? union?;
 nonCapturingGroup: '?' ':' union?;
-groupName : CHAR+;
+groupName : character+;
 
 backRef :
     ESC NUMBER
@@ -65,19 +65,30 @@ range :
     charOrEscaped '-' charOrEscaped;
 
 stockSets:
-    whiteSpace;
+    whiteSpace
+    | nonWhiteSpace
+    | digit
+    | nonDigit
+    | wordCharacter
+    | nonWordCharacter;
 whiteSpace : ESC 's';
+nonWhiteSpace : ESC 'S';
+digit : ESC 'd';
+nonDigit : ESC 'D';
+wordCharacter : ESC 'w';
+nonWordCharacter : ESC 'W';
 
 charOrEscaped :
-    CHAR
+    character
     | ESC METACHAR
     | ESC ESC;
+character : (UNUSED_CHARS | 's' | 'S' | 'd' | 'D' | 'w' | 'W');
 
 NUMBER : [1-9][0-9]*;
 METACHAR : '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+' | '?' | '<' | '>' | ':';
 ESC : '\\';
-EOS : '$';
 START : '^';
+EOS : '$';
 ANY : '.';
-CHAR :
-    ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+' | '?' | '<' | '>' | ':');
+UNUSED_CHARS :
+    ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+' | '?' | '<' | '>' | ':' | 's' | 'S' | 'd' | 'D' | 'w' | 'W');
