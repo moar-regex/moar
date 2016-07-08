@@ -47,8 +47,8 @@ nonCapturingGroup: '?' ':' union?;
 groupName : character+;
 
 backRef :
-    ESC NUMBER
-    | ESC '<' groupName '>';
+    ESC number
+    | ESC 'k' '<' groupName '>';
 
 set :
     positiveSet
@@ -64,6 +64,9 @@ setItem :
 range :
     charOrEscaped '-' charOrEscaped;
 
+//should these be handled in the TreeListener?
+//if so, we could patch stuff easily without changing
+//the grammar
 stockSets:
     whiteSpace
     | nonWhiteSpace
@@ -80,15 +83,26 @@ nonWordCharacter : ESC 'W';
 
 charOrEscaped :
     character
-    | ESC METACHAR
-    | ESC ESC;
-character : (UNUSED_CHARS | 's' | 'S' | 'd' | 'D' | 'w' | 'W');
+    | escapeSeq;
+character : (UNUSED_CHARS | ZERO | ONE_TO_NINE | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' );
+escapeSeq : ESC escapee;
+escapee : '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
+    | ESC | ANY | EOS | START
+    | '*' | '+' | '?'
+    | ':' ;
 
-NUMBER : [1-9][0-9]*;
-METACHAR : '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+' | '?' | '<' | '>' | ':';
+number :  ONE_TO_NINE (ZERO | ONE_TO_NINE)*;
+
+ZERO : '0';
+ONE_TO_NINE : [1-9];
 ESC : '\\';
-START : '^';
-EOS : '$';
 ANY : '.';
+EOS : '$';
+START : '^';
 UNUSED_CHARS :
-    ~('\\' | '^' | '$' | '[' | ']' | '(' | ')' | '*' | '+' | '?' | '<' | '>' | ':' | 's' | 'S' | 'd' | 'D' | 'w' | 'W');
+    ~('0' .. '9'
+    | '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
+    | '\\' | '.' | '$' | '^'
+    | '*' | '+' | '?'
+    | ':'
+    | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k');

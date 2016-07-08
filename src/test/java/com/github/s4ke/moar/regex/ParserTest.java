@@ -107,6 +107,12 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testNumericalRegex() {
+		Moa moa = parseRegex( "1" ).toMoa();
+		assertMatch( true, moa, "1" );
+	}
+
+	@Test
 	public void testBackRefIndexed() {
 		Moa moa = parseRegex( "(a*)b\\1" ).toMoa();
 		assertMatch( false, moa, "ab" );
@@ -118,7 +124,7 @@ public class ParserTest {
 
 	@Test
 	public void testBackRefNamed() {
-		Moa moa = parseRegex( "(?<zA>a*)b\\<zA>" ).toMoa();
+		Moa moa = parseRegex( "(?<zA1>a*)b\\k<zA1>" ).toMoa();
 		assertMatch( false, moa, "ab" );
 		assertMatch( true, moa, "aba" );
 		assertMatch( false, moa, "aaba" );
@@ -139,6 +145,12 @@ public class ParserTest {
 	public void testEscapeSimple() {
 		Regex regex = parseRegex( "\\^" );
 		assertMatch( true, regex, "^" );
+	}
+
+	@Test
+	public void testEscapeBackslash() {
+		Regex regex = parseRegex( "\\\\" );
+		assertMatch( true, regex, "\\" );
 	}
 
 	@Test
@@ -221,9 +233,42 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testEscapeBackslash() {
-		Regex regex = parseRegex( "\\\\" );
-		assertMatch( true, regex, "\\" );
+	public void testSpecialChars() {
+		char[] specialChars = {'s', 'S', 'w', 'W', 'd', 'D', 'k'};
+		for ( char specialChar : specialChars ) {
+
+			Moa moa = parseRegex( String.valueOf( specialChar ) ).toMoa();
+			assertMatch( false, moa, "" );
+			assertMatch( true, moa, String.valueOf( specialChar ) );
+
+		}
+	}
+
+	@Test
+	public void testEscapeNonBrackets() {
+		char[] escapees = {'*', '+', '?', ':', '\\', '.' | '$'};
+		for ( char escapee : escapees ) {
+			{
+				Moa moa = parseRegex( "\\" + escapee ).toMoa();
+				assertMatch( false, moa, "" );
+				assertMatch( true, moa, String.valueOf( escapee ) );
+			}
+		}
+
+		Regex regex = parseRegex( "\\^" );
+		assertMatch( true, regex, "^" );
+	}
+
+	@Test
+	public void testEscapeBrackets() {
+		char[] brackets = {'[', ']', '(', ')', '{', '}', '<', '>'};
+		for ( char bracket : brackets ) {
+			{
+				Moa moa = parseRegex( "\\" + bracket ).toMoa();
+				assertMatch( false, moa, "" );
+				assertMatch( true, moa, String.valueOf( bracket ) );
+			}
+		}
 	}
 
 	private static void assertMatch(boolean shouldMatch, Regex regex, String input) {

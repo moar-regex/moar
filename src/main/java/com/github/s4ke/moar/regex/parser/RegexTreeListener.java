@@ -27,11 +27,10 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		if ( charOrEscaped.character() != null ) {
 			return charOrEscaped.character().getText();
 		}
-		else if ( charOrEscaped.METACHAR() != null ) {
-			return charOrEscaped.METACHAR().getText();
-		}
-		else {
-			return charOrEscaped.ESC( 1 ).getText();
+		else if ( charOrEscaped.escapeSeq() != null ) {
+			return charOrEscaped.escapeSeq().escapee().getText();
+		} else {
+			throw new AssertionError();
 		}
 	}
 
@@ -52,7 +51,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 			regex = Regex.reference( ctx.groupName().getText() );
 		}
 		else {
-			regex = Regex.reference( ctx.NUMBER().getText() );
+			regex = Regex.reference( ctx.number().getText() );
 		}
 		this.regexStack.push( regex );
 	}
@@ -235,7 +234,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	@Override
 	public void exitNonWordCharacter(RegexParser.NonWordCharacterContext ctx) {
 		Regex regex = Regex.nonWordCharacter();
-		this.regexStack.push(regex);
+		this.regexStack.push( regex );
 	}
 
 	@Override
