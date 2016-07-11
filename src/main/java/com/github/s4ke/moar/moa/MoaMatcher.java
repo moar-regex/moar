@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.github.s4ke.moar.moa.edgegraph.CurStateHolder;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
+import com.github.s4ke.moar.moa.states.MatchInfo;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
 import com.github.s4ke.moar.strings.EfficientString;
@@ -83,7 +84,9 @@ public final class MoaMatcher implements CurStateHolder {
 
 	public boolean nextMatch() {
 		this.resetStateAndVars();
+		MatchInfo mi = new MatchInfo();
 		EfficientString token = new EfficientString();
+		mi.setString( token );
 		int strLen = this.str.length();
 		while ( !this.isFinished() && this.pos < strLen ) {
 			int curStart = this.pos;
@@ -98,7 +101,7 @@ public final class MoaMatcher implements CurStateHolder {
 					break;
 				}
 				token.update( this.str, this.pos, this.pos + tokenLen );
-				if ( this.step( token ) == EdgeGraph.StepResult.REJECTED ) {
+				if ( this.step( mi ) == EdgeGraph.StepResult.REJECTED ) {
 					if ( tokenLen > 1 ) {
 						//reference
 						this.pos = curStart;
@@ -110,7 +113,7 @@ public final class MoaMatcher implements CurStateHolder {
 			}
 			token.reset();
 			//noinspection StatementWithEmptyBody
-			while ( !this.isFinished() && this.step( token ) == EdgeGraph.StepResult.CONSUMED ) {
+			while ( !this.isFinished() && this.step( mi ) == EdgeGraph.StepResult.CONSUMED ) {
 			}
 
 			if ( !this.isFinished() ) {
@@ -125,7 +128,9 @@ public final class MoaMatcher implements CurStateHolder {
 
 	public boolean checkAsSingleWord() {
 		this.reset();
+		MatchInfo mi = new MatchInfo();
 		EfficientString token = new EfficientString();
+		mi.setString( token );
 		int strLen = this.str.length();
 		while ( this.pos < strLen ) {
 			int tokenLen = this.edges.maximalNextTokenLength( this, this.vars );
@@ -133,7 +138,7 @@ public final class MoaMatcher implements CurStateHolder {
 				return false;
 			}
 			token.update( this.str, this.pos, this.pos + tokenLen );
-			if ( this.step( token ) == EdgeGraph.StepResult.REJECTED ) {
+			if ( this.step( mi ) == EdgeGraph.StepResult.REJECTED ) {
 				return false;
 			}
 			this.pos += tokenLen;
@@ -141,7 +146,7 @@ public final class MoaMatcher implements CurStateHolder {
 		//reset the token to ""
 		token.reset();
 		//noinspection StatementWithEmptyBody
-		while ( !this.isFinished() && this.step( token ) == EdgeGraph.StepResult.CONSUMED ) {
+		while ( !this.isFinished() && this.step( mi ) == EdgeGraph.StepResult.CONSUMED ) {
 		}
 		return this.isFinished();
 	}
@@ -150,8 +155,8 @@ public final class MoaMatcher implements CurStateHolder {
 		return this.state == Moa.SNK;
 	}
 
-	private EdgeGraph.StepResult step(EfficientString ch) {
-		return this.edges.step( this, ch, this.vars );
+	private EdgeGraph.StepResult step(MatchInfo mi) {
+		return this.edges.step( this, mi, this.vars );
 	}
 
 	/**

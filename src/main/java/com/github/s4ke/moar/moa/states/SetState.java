@@ -36,6 +36,11 @@ public class SetState implements State {
 	}
 
 	@Override
+	public boolean canConsume(MatchInfo matchInfo) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public boolean isStatic() {
 		return false;
 	}
@@ -47,6 +52,11 @@ public class SetState implements State {
 
 	@Override
 	public boolean isVariable() {
+		return false;
+	}
+
+	@Override
+	public boolean isBound() {
 		return false;
 	}
 

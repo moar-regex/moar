@@ -1,26 +1,21 @@
-/*
- * Hibernate Search, full-text search for your domain model
- *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
- */
 package com.github.s4ke.moar.moa.states;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
  * @author Martin Braun
  */
-public class VariableState implements State {
+public class BoundState implements State {
 
 	private final int idx;
-	private final String variableName;
+	private final Function<MatchInfo, Boolean> condition;
 
-	public VariableState(int idx, String variableName) {
+	public BoundState(int idx, Function<MatchInfo, Boolean> condition) {
 		this.idx = idx;
-		this.variableName = variableName;
+		this.condition = condition;
 	}
 
 	@Override
@@ -30,7 +25,7 @@ public class VariableState implements State {
 
 	@Override
 	public EfficientString getEdgeString(Map<String, Variable> variables) {
-		return variables.get( this.variableName ).getEdgeString();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -40,7 +35,7 @@ public class VariableState implements State {
 
 	@Override
 	public boolean canConsume(MatchInfo matchInfo) {
-		throw new UnsupportedOperationException();
+		return this.condition.apply( matchInfo );
 	}
 
 	@Override
@@ -55,24 +50,16 @@ public class VariableState implements State {
 
 	@Override
 	public boolean isVariable() {
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isBound() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public void touch() {
 
-	}
-
-	@Override
-	public String toString() {
-		return "VariableState{" +
-				"idx=" + idx +
-				", variableName=" + variableName +
-				'}';
 	}
 }

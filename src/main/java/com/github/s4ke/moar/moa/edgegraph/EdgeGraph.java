@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.states.BasicState;
+import com.github.s4ke.moar.moa.states.MatchInfo;
 import com.github.s4ke.moar.moa.states.SetState;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
@@ -87,11 +88,11 @@ public final class EdgeGraph {
 		}
 	}
 
-	public Edge getEdge(State from, EfficientString edgeString, Map<String, Variable> variables) {
+	public Edge getEdge(State from, MatchInfo matchInfo, Map<String, Variable> variables) {
 		{
 			Map<EfficientString, Edge> staticEdges = this.staticEdges.get( from.getIdx() );
 			if ( staticEdges != null ) {
-				Edge edge = staticEdges.get( edgeString );
+				Edge edge = staticEdges.get( matchInfo.getString() );
 				if ( edge != null ) {
 					return edge;
 				}
@@ -103,7 +104,7 @@ public final class EdgeGraph {
 			if ( setEdges != null ) {
 				for ( Edge edge : setEdges ) {
 					State state = this.states.get( edge.destination );
-					if ( state.isSet() && state.canConsume( edgeString ) ) {
+					if ( state.isSet() && state.canConsume( matchInfo.getString() ) ) {
 						return edge;
 					}
 				}
@@ -122,9 +123,11 @@ public final class EdgeGraph {
 		Edge edgeRes = null;
 		for ( Edge edge : set ) {
 			State state = this.states.get( edge.destination );
-			if ( state.isVariable() && state.getEdgeString( variables ).equalTo( edgeString ) ) {
+			if ( state.isVariable() && state.getEdgeString( variables ).equalTo( matchInfo.getString() ) ) {
 				if ( edgeRes != null ) {
-					throw new IllegalStateException( "non-determinism detected, multiple edges for string: " + edgeString + ". The edges were: " + set );
+					throw new IllegalStateException(
+							"non-determinism detected, multiple edges for string: " + matchInfo.getString() + ". The edges were: " + set
+					);
 				}
 				edgeRes = edge;
 			}
@@ -137,15 +140,15 @@ public final class EdgeGraph {
 		REJECTED
 	}
 
-	public StepResult step(CurStateHolder stateHolder, EfficientString ch, Map<String, Variable> vars) {
+	public StepResult step(CurStateHolder stateHolder, MatchInfo mi, Map<String, Variable> vars) {
 		{
-			EdgeGraph.Edge edge = this.getEdge( stateHolder.getState(), ch, vars );
+			EdgeGraph.Edge edge = this.getEdge( stateHolder.getState(), mi, vars );
 			if ( edge != null ) {
 				State destinationState = this.states.get( edge.destination );
 				edge.memoryAction.forEach( memoryAction -> memoryAction.act( vars ) );
 				//we have found an edge so we can accept this input
 				vars.values().stream().filter( Variable::canConsume ).forEach(
-						var -> var.consume( ch )
+						var -> var.consume( mi.getString() )
 				);
 				stateHolder.setState( destinationState );
 				destinationState.touch();
@@ -228,7 +231,7 @@ public final class EdgeGraph {
 				//FIXME: can we do this more efficiently?
 				{
 					Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
-					if ( setEdges != null && setEdges.size() > 1) {
+					if ( setEdges != null && setEdges.size() > 1 ) {
 						for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
 							char ch = (char) i;
 							boolean foundOne = false;
