@@ -85,6 +85,7 @@ public final class MoaMatcher implements CurStateHolder {
 	public boolean nextMatch() {
 		this.resetStateAndVars();
 		MatchInfo mi = new MatchInfo();
+		mi.setWholeString( this.str );
 		EfficientString token = new EfficientString();
 		mi.setString( token );
 		int strLen = this.str.length();
@@ -101,19 +102,26 @@ public final class MoaMatcher implements CurStateHolder {
 					break;
 				}
 				token.update( this.str, this.pos, this.pos + tokenLen );
-				if ( this.step( mi ) == EdgeGraph.StepResult.REJECTED ) {
-					if ( tokenLen > 1 ) {
-						//reference
-						this.pos = curStart;
+				{
+					EdgeGraph.StepResult stepResult = this.step( mi );
+					if ( stepResult == EdgeGraph.StepResult.REJECTED ) {
+						if ( tokenLen > 1 ) {
+							//reference
+							this.pos = curStart;
+						}
+						++this.pos;
+						break;
 					}
-					++this.pos;
-					break;
+					if ( stepResult == EdgeGraph.StepResult.CONSUMED ) {
+						this.pos += tokenLen;
+						mi.setPos( this.pos );
+					}
 				}
-				this.pos += tokenLen;
 			}
 			token.reset();
 			//noinspection StatementWithEmptyBody
-			while ( !this.isFinished() && this.step( mi ) == EdgeGraph.StepResult.CONSUMED ) {
+			while ( !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
+
 			}
 
 			if ( !this.isFinished() ) {
@@ -129,6 +137,7 @@ public final class MoaMatcher implements CurStateHolder {
 	public boolean checkAsSingleWord() {
 		this.reset();
 		MatchInfo mi = new MatchInfo();
+		mi.setWholeString( this.str );
 		EfficientString token = new EfficientString();
 		mi.setString( token );
 		int strLen = this.str.length();
@@ -138,15 +147,21 @@ public final class MoaMatcher implements CurStateHolder {
 				return false;
 			}
 			token.update( this.str, this.pos, this.pos + tokenLen );
-			if ( this.step( mi ) == EdgeGraph.StepResult.REJECTED ) {
-				return false;
+			{
+				EdgeGraph.StepResult stepResult = this.step( mi );
+				if ( stepResult == EdgeGraph.StepResult.REJECTED ) {
+					return false;
+				}
+				if ( stepResult == EdgeGraph.StepResult.CONSUMED ) {
+					this.pos += tokenLen;
+					mi.setPos( this.pos );
+				}
 			}
-			this.pos += tokenLen;
 		}
 		//reset the token to ""
 		token.reset();
 		//noinspection StatementWithEmptyBody
-		while ( !this.isFinished() && this.step( mi ) == EdgeGraph.StepResult.CONSUMED ) {
+		while ( !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
 		}
 		return this.isFinished();
 	}

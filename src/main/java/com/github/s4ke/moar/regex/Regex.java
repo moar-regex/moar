@@ -23,6 +23,66 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 
 	Set<Character> WHITE_SPACE_CHARS = new HashSet<>( Arrays.asList( ' ', '\t', '\n', (char) 0x0B, '\f', '\r' ) );
 
+	//FIXME: caret and dollar are only allowed at the start or end of the regex
+
+	static Regex caret() {
+		return
+				Regex.str( "\n" )
+						.or( "\r\n" )
+						.or( "\u2029" )
+								//weird Java Pattern logic copied
+						.or( String.valueOf( (char) ('\u2029' - 1) ) )
+						.or( "\u0085" )
+						.and(
+								new BoundaryRegex(
+										BoundConstants.START_OF_LINE, (mi) -> {
+									// Perl does not match ^ at end of input even after newline
+									if ( mi.getPos() > mi.getWholeString().length() - 1 ) {
+										return false;
+									}
+									return true;
+								}
+								)
+						).or(
+						Regex.eps().and(
+								new BoundaryRegex(
+										BoundConstants.START_OF_LINE,
+										(mi) -> mi.getPos() == 0
+								)
+						)
+				);
+	}
+
+	static Regex dollar() {
+		return new BoundaryRegex(
+				BoundConstants.END_OF_LINE, (mi) -> {
+			//we are at the end, so match the dollar sign
+			if ( mi.getPos() == mi.getWholeString().length() - 1 ) {
+				return true;
+			}
+			String nextSymbol = String.valueOf( mi.getWholeString().charAt( mi.getPos() + 1 ) );
+			if ( BoundConstants.LINE_BREAK_CHARS.contains( new EfficientString( nextSymbol ) ) ) {
+				return true;
+			}
+			if ( nextSymbol.equals( "\r" ) ) {
+				if ( mi.getPos() + 2 < mi.getWholeString().length() ) {
+					if ( mi.getWholeString().charAt( mi.getPos() + 2 ) == '\n' ) {
+						return false;
+					}
+				}
+			}
+			return false;
+		}
+		).and(
+				Regex.str( "\n" )
+						.or( "\r\n" )
+						.or( "\u2029" )
+								//weird Java Pattern logic copied
+						.or( String.valueOf( (char) ('\u2029' | 1) ) )
+						.or( "\u0085" )
+		);
+	}
+
 	static Regex reference(String reference) {
 		return new Reference( reference );
 	}

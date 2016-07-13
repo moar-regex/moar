@@ -21,9 +21,11 @@ public class BoundaryRegex implements Regex {
 
 	private static final String SELF_RELEVANT_KEY = "";
 
+	private final int boundHandled;
 	private final Function<MatchInfo, Boolean> matchDescriptor;
 
-	public BoundaryRegex(Function<MatchInfo, Boolean> matchDescriptor) {
+	public BoundaryRegex(int boundHandled, Function<MatchInfo, Boolean> matchDescriptor) {
+		this.boundHandled = boundHandled;
 		this.matchDescriptor = matchDescriptor;
 	}
 
@@ -44,7 +46,7 @@ public class BoundaryRegex implements Regex {
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant,
 			Supplier<Integer> idxSupplier) {
-		State state = new BoundState( idxSupplier.get(), this.matchDescriptor );
+		State state = new BoundState( idxSupplier.get(), this.boundHandled, this.matchDescriptor );
 		states.add( state );
 		states.add( Moa.SRC );
 		states.add( Moa.SNK );
@@ -60,6 +62,6 @@ public class BoundaryRegex implements Regex {
 
 	@Override
 	public Regex copy() {
-		return new BoundaryRegex( this.matchDescriptor );
+		return new BoundaryRegex( this.boundHandled, this.matchDescriptor );
 	}
 }

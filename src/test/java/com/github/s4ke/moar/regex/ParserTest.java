@@ -236,11 +236,9 @@ public class ParserTest {
 	public void testSpecialChars() {
 		char[] specialChars = {'s', 'S', 'w', 'W', 'd', 'D', 'k'};
 		for ( char specialChar : specialChars ) {
-
 			Moa moa = parseRegex( String.valueOf( specialChar ) ).toMoa();
 			assertMatch( false, moa, "" );
 			assertMatch( true, moa, String.valueOf( specialChar ) );
-
 		}
 	}
 

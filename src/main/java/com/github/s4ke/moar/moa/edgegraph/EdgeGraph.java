@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.states.BasicState;
+import com.github.s4ke.moar.moa.states.BoundState;
 import com.github.s4ke.moar.moa.states.MatchInfo;
 import com.github.s4ke.moar.moa.states.SetState;
 import com.github.s4ke.moar.moa.states.State;
@@ -29,6 +30,7 @@ public final class EdgeGraph {
 	private final Map<Integer, State> states = new HashMap<>();
 	private final Map<Integer, Set<Edge>> edges = new HashMap<>();
 	private final Map<Integer, Set<Edge>> setEdges = new HashMap<>();
+	private final Map<Integer, Set<Edge>> boundEdges = new HashMap<>();
 	private final Map<Integer, Map<EfficientString, Edge>> staticEdges = new HashMap<>();
 
 	private boolean frozen = false;
@@ -41,6 +43,8 @@ public final class EdgeGraph {
 			this.staticEdges.put( src, stat );
 			Set<Edge> setEdges = new HashSet<>();
 			this.setEdges.put( src, setEdges );
+			Set<Edge> boundEdges = new HashSet<>();
+			this.boundEdges.put( src, boundEdges );
 			entry.getValue().forEach(
 					(edge) -> {
 						State state = this.states.get( edge.destination );
@@ -50,6 +54,9 @@ public final class EdgeGraph {
 						}
 						else if ( state.isSet() ) {
 							setEdges.add( edge );
+						}
+						else if ( state.isBound() ) {
+							boundEdges.add( edge );
 						}
 					}
 			);
@@ -89,6 +96,19 @@ public final class EdgeGraph {
 	}
 
 	public Edge getEdge(State from, MatchInfo matchInfo, Map<String, Variable> variables) {
+		if ( this.boundEdges.get( from.getIdx() ).size() >= 1 ) {
+			if ( this.boundEdges.get( from.getIdx() ).size() > 1 ) {
+				return null;
+			}
+			else {
+				Edge edge = this.boundEdges.get( from.getIdx() ).iterator().next();
+				BoundState state = (BoundState) this.states.get( edge.destination );
+				if ( state.canConsume( matchInfo ) ) {
+					return edge;
+				}
+			}
+		}
+
 		{
 			Map<EfficientString, Edge> staticEdges = this.staticEdges.get( from.getIdx() );
 			if ( staticEdges != null ) {
@@ -137,6 +157,7 @@ public final class EdgeGraph {
 
 	public enum StepResult {
 		CONSUMED,
+		NOT_CONSUMED,
 		REJECTED
 	}
 
@@ -152,6 +173,9 @@ public final class EdgeGraph {
 				);
 				stateHolder.setState( destinationState );
 				destinationState.touch();
+				if(destinationState.isBound()) {
+					return StepResult.NOT_CONSUMED;
+				}
 				return StepResult.CONSUMED;
 			}
 		}
@@ -164,19 +188,20 @@ public final class EdgeGraph {
 			int edgeCnt = edges.size();
 
 			VariableState variableDestinationState = null;
+			BoundState boundState = null;
 			Map<String, State> staticDestinationStates = new HashMap<>( edgeCnt );
 			int staticOrSetCount;
 
 			{
 				Set<String> staticEdgeStrings = new HashSet<>();
-				Map<State, AtomicInteger> staticDestinationStateEdges = new HashMap<>();
+				Map<State, AtomicInteger> destinationStateCount = new HashMap<>();
 
 				//check if there are edges to different states with the same
 				//terminal
 				for ( Edge edge : edges ) {
 					State destinationState = this.states.get( edge.destination );
 
-					if ( staticDestinationStateEdges.computeIfAbsent(
+					if ( destinationStateCount.computeIfAbsent(
 							destinationState,
 							(key) -> new AtomicInteger( 0 )
 					)
@@ -202,6 +227,13 @@ public final class EdgeGraph {
 							return false;
 						}
 						staticDestinationStates.put( edgeString, destinationState );
+					}
+
+					if ( destinationState.isBound() ) {
+						if ( boundState != null ) {
+							return false;
+						}
+						boundState = (BoundState) destinationState;
 					}
 				}
 
@@ -255,6 +287,23 @@ public final class EdgeGraph {
 				}
 			}
 
+			//Bound edges are only allowed
+			//at the beginning or the end
+			{
+				//END-like boundaries
+				if ( state.isBound() ) {
+					if ( edges.size() != 1 && edges.iterator().next() != Moa.SNK ) {
+						return false;
+					}
+				}
+
+				//START-like boundaries
+				if ( boundState != null ) {
+					//if ( state != Moa.SRC || staticOrSetCount > 0 ) {
+					//	return false;
+					//}
+				}
+			}
 
 			//make sure that if there is a VariableState (Binding/Reference)
 			//there is no other destination than SNK
@@ -274,6 +323,10 @@ public final class EdgeGraph {
 
 	public int maximalNextTokenLength(CurStateHolder stateHolder, Map<String, Variable> vars) {
 		int maxLen = -1;
+
+		if ( this.boundEdges.get( stateHolder.getState().getIdx() ).size() > 0 ) {
+			maxLen = 0;
+		}
 
 		{
 			//we assume all of the outgoing edges to be of equal length for

@@ -17,6 +17,25 @@ import static org.junit.Assert.fail;
 public class MoaWithDSLTest {
 
 	@Test
+	public void testStartOfLine() {
+		Moa moa = Regex.caret().and( "a" ).toMoa();
+		assertTrue( moa.check( "\na" ) );
+		assertTrue( moa.check( "a" ) );
+
+		{
+			MoaMatcher matcher = moa.matcher( "aa" );
+			assertTrue( matcher.nextMatch() );
+			assertFalse( matcher.nextMatch() );
+		}
+	}
+
+	@Test
+	public void testStartOfLineInMidOfRegex() {
+		//assertNonDet( Regex.str( "a" ).and( Regex.caret() ) );
+		//assertNonDet( Regex.str( "a" ).and( Regex.caret() ).and( "b" ) );
+	}
+
+	@Test
 	public void testSimple() {
 		Regex regex = Regex.str( "a" );
 		assertTrue( regex.toMoa().check( "a" ) );
@@ -81,10 +100,16 @@ public class MoaWithDSLTest {
 				.and( "|" )
 				.and( Regex.reference( "toast" ) );
 		Moa moa = regex.toMoa();
-		MoaMatcher matcher = moa.matcher( "a|a" );
-		assertTrue( matcher.checkAsSingleWord() );
-		assertEquals( "a", matcher.getVariableContent( 1 ) );
-		assertFalse( moa.check( "a|aa" ) );
+		{
+			MoaMatcher matcher = moa.matcher( "a|a" );
+			assertTrue( matcher.checkAsSingleWord() );
+			assertEquals( "a", matcher.getVariableContent( 1 ) );
+			assertFalse( moa.check( "a|aa" ) );
+		}
+		{
+			MoaMatcher matcher = moa.matcher( "a|aa" );
+			assertFalse( matcher.checkAsSingleWord() );
+		}
 	}
 
 	@Test

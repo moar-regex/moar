@@ -3,7 +3,6 @@ package com.github.s4ke.moar.moa.states;
 import java.util.Map;
 
 import com.github.s4ke.moar.strings.EfficientString;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 
 /**
  * @author Martin Braun
