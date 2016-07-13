@@ -19,8 +19,7 @@ concatenation :
     | basicRegex concatenation;
 
 basicRegex :
-    backRef
-    | star
+    star
     | plus
     | orEpsilon
     | elementaryRegex;
@@ -33,7 +32,8 @@ orEpsilon:
     elementaryRegex '?';
 
 elementaryRegex :
-    group
+    backRef
+    | group
     | set
     | charOrEscaped
     | stockSets
