@@ -40,15 +40,29 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		if ( this.regexStack.size() == 0 ) {
 			this.regexStack.push( Regex.eps() );
 		}
-		if ( ctx.START() != null ) {
-			Regex regex = this.regexStack.pop();
-			regex = Regex.caret().and( regex );
-			this.regexStack.push( regex );
+		if ( ctx.startBoundary() != null ) {
+			if ( ctx.startBoundary().START() != null ) {
+				Regex regex = this.regexStack.pop();
+				regex = Regex.caret().and( regex );
+				this.regexStack.push( regex );
+			}
+			if(ctx.startBoundary().prevMatch() != null) {
+				Regex regex = this.regexStack.pop();
+				regex = Regex.endOfLastMatch().and( regex );
+				this.regexStack.push( regex );
+			}
 		}
-		if ( ctx.EOS() != null ) {
-			Regex regex = this.regexStack.pop();
-			regex = regex.dollar();
-			this.regexStack.push( regex );
+		if ( ctx.endBoundary() != null ) {
+			if ( ctx.endBoundary().EOS() != null ) {
+				Regex regex = this.regexStack.pop();
+				regex = regex.dollar();
+				this.regexStack.push( regex );
+			}
+			if(ctx.endBoundary().endOfInput() != null) {
+				Regex regex = this.regexStack.pop();
+				regex = regex.end();
+				this.regexStack.push( regex );
+			}
 		}
 		if ( this.regexStack.size() != 1 ) {
 			throw new AssertionError();

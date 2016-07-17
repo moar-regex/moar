@@ -82,12 +82,30 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	}
 	);
 
+	Regex END_OF_INPUT = new BoundaryRegex(
+			BoundConstants.END_OF_INPUT,
+			(mi) -> mi.getPos() == mi.getWholeString().length()
+	);
+
+	Regex END_OF_LAST_MATCH = new BoundaryRegex(
+			BoundConstants.END_OF_LAST_MATCH, (mi) ->
+			mi.getLastMatch() == -1 || mi.getPos() == mi.getLastMatch()
+	);
+
 	static Regex caret() {
 		return CARET;
 	}
 
 	static Regex dollar_() {
 		return DOLLAR;
+	}
+
+	static Regex end_() {
+		return END_OF_INPUT;
+	}
+
+	static Regex endOfLastMatch() {
+		return END_OF_LAST_MATCH;
 	}
 
 	static Regex reference(String reference) {
@@ -190,6 +208,10 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 
 	default Regex dollar() {
 		return this.and( dollar_() );
+	}
+
+	default Regex end() {
+		return this.and( end_() );
 	}
 
 	//TODO: this can be done with a Stack and some clever handling

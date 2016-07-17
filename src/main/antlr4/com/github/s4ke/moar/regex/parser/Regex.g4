@@ -8,7 +8,17 @@ grammar Regex;
 
 regex:
     EOF
-    | START? union EOS? EOF;
+    | startBoundary? union endBoundary? EOF;
+
+startBoundary :
+    START
+    | prevMatch;
+prevMatch : ESC 'G';
+
+endBoundary :
+    EOS
+    | endOfInput;
+endOfInput : ESC 'z';
 
 union :
     concatenation
@@ -83,7 +93,7 @@ nonWordCharacter : ESC 'W';
 charOrEscaped :
     character
     | escapeSeq;
-character : (UNUSED_CHARS | ZERO | ONE_TO_NINE | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' );
+character : (UNUSED_CHARS | ZERO | ONE_TO_NINE | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G' );
 escapeSeq : ESC escapee;
 escapee : '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
     | ESC | ANY | EOS | START
@@ -104,4 +114,4 @@ UNUSED_CHARS :
     | '\\' | '.' | '$' | '^'
     | '*' | '+' | '?'
     | ':'
-    | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k');
+    | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G');

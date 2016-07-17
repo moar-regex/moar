@@ -40,6 +40,48 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testEndOfLastMatch() {
+		Moa moa = Regex.endOfLastMatch().and( "a" ).toMoa();
+		assertTrue( moa.check( "a" ) );
+
+		{
+			String tmp = "aa";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			assertEquals( 2, cnt );
+		}
+
+		{
+			String tmp = "a a";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			assertEquals( 1, cnt );
+		}
+	}
+
+	@Test
+	public void testEndOfInput() {
+		Moa moa = Regex.str( "aa" ).end().toMoa();
+		assertTrue( moa.check( "aa" ) );
+
+		{
+			String tmp = "aaaa";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			org.junit.Assert.assertEquals( 1, cnt );
+		}
+	}
+
+	@Test
 	public void testStartAndEndOfLine() {
 		Moa moa = Regex.caret().and( "a" ).dollar().toMoa();
 		assertTrue( moa.check( "a" ) );
@@ -78,6 +120,16 @@ public class MoaWithDSLTest {
 				++cnt;
 			}
 			assertEquals( 1, cnt );
+		}
+
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			String tmp = "a" + eff.toString() + "ba";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			assertEquals( 2, cnt );
 		}
 	}
 

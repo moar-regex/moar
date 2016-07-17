@@ -9,8 +9,8 @@ public class MatchInfo {
 
 	private EfficientString string;
 	private CharSequence wholeString;
-	private int pos;
-	private int lastMatch;
+	private int pos = 0;
+	private int lastMatch = -1;
 
 	public int getPos() {
 		return pos;

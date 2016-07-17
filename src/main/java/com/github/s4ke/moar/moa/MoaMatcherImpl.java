@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.github.s4ke.moar.MoaMatcher;
-import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.edgegraph.CurStateHolder;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.states.MatchInfo;
@@ -21,7 +20,8 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	private final Map<String, Variable> vars;
 	private final Map<Integer, Variable> varsByOccurence;
 	private CharSequence str;
-	private int pos = 0;
+
+	private MatchInfo mi = new MatchInfo();
 	private int lastStart = -1;
 	private State state = Moa.SRC;
 
@@ -37,7 +37,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 
 	public void reset() {
 		this.resetStateAndVars();
-		this.pos = 0;
+		this.mi = new MatchInfo();
 	}
 
 	private void resetStateAndVars() {
@@ -67,7 +67,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	public String replaceFirst(String replacement) {
 		this.reset();
 		if ( this.nextMatch() ) {
-			int matchLength = this.pos - this.lastStart;
+			int matchLength = this.mi.getPos() - this.lastStart;
 			int retLength = this.str.length() - matchLength + replacement.length();
 			StringBuilder ret = new StringBuilder( retLength );
 			for ( int i = 0; i < this.lastStart; ++i ) {
@@ -76,7 +76,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 			for ( int i = 0; i < replacement.length(); ++i ) {
 				ret.append( replacement.charAt( i ) );
 			}
-			for ( int i = this.pos; i < this.str.length(); ++i ) {
+			for ( int i = this.mi.getPos(); i < this.str.length(); ++i ) {
 				ret.append( this.str.charAt( i ) );
 			}
 			return ret.toString();
@@ -90,44 +90,48 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	public boolean nextMatch() {
 		this.resetStateAndVars();
 		EdgeGraph.StepResult stepResult = null;
-		int curStart = this.pos;
-		MatchInfo mi = new MatchInfo();
+		int curStart = this.mi.getPos();
 		mi.setWholeString( this.str );
 		EfficientString token = new EfficientString();
 		mi.setString( token );
 		int strLen = this.str.length();
 
-
-		while ( !this.isFinished() && this.pos < strLen ) {
-			curStart = this.pos;
-			while ( !this.isFinished() && this.pos < strLen ) {
+		while ( !this.isFinished() && this.mi.getPos() < strLen ) {
+			curStart = this.mi.getPos();
+			while ( !this.isFinished() && this.mi.getPos() < strLen ) {
 				int tokenLen = this.edges.maximalNextTokenLength( this, this.vars );
-				if ( this.pos + tokenLen > strLen ) {
+				if ( this.mi.getPos() + tokenLen > strLen ) {
 					if ( tokenLen > 1 ) {
 						//reference
-						this.pos = curStart;
+						this.mi.setPos( curStart );
 					}
-					++this.pos;
+					this.mi.setPos( this.mi.getPos() + 1 );
 					break;
 				}
-				mi.setPos( this.pos );
-				token.update( this.str, this.pos, this.pos + tokenLen );
+				token.update( this.str, this.mi.getPos(), this.mi.getPos() + tokenLen );
 				{
 					stepResult = this.step( mi );
 					if ( stepResult == EdgeGraph.StepResult.REJECTED ) {
 						if ( tokenLen > 1 ) {
 							//reference
-							this.pos = curStart;
+							this.mi.setPos( curStart );
 						}
-						++this.pos;
+						if ( tokenLen > 0 ) {
+							this.mi.setPos( this.mi.getPos() + 1 );
+						}
+						else {
+							//this is in case we failed on a "epsilon"-style edge
+							//like end of input
+							//FIXME: can this be done better?
+							this.mi.setPos( curStart + 1 );
+						}
 						break;
 					}
 					if ( stepResult == EdgeGraph.StepResult.CONSUMED ) {
-						this.pos += tokenLen;
+						this.mi.setPos( this.mi.getPos() + tokenLen );
 					}
 				}
 			}
-			mi.setPos( this.pos );
 			token.reset();
 			//noinspection StatementWithEmptyBody
 			while ( stepResult != EdgeGraph.StepResult.REJECTED && !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
@@ -143,7 +147,6 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 		}
 
 		{
-			mi.setPos( this.pos );
 			token.reset();
 			//noinspection StatementWithEmptyBody
 			while ( stepResult != EdgeGraph.StepResult.REJECTED && !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
@@ -158,6 +161,10 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 			}
 		}
 
+		if ( this.isFinished() ) {
+			this.mi.setLastMatch( this.mi.getPos() );
+		}
+
 		return this.isFinished();
 	}
 
@@ -165,7 +172,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	public boolean matches() {
 		this.reset();
 		if ( this.nextMatch() ) {
-			if ( this.lastStart == 0 && this.pos >= this.str.length() ) {
+			if ( this.lastStart == 0 && this.mi.getPos() >= this.str.length() ) {
 				return true;
 			}
 		}

@@ -62,6 +62,48 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testEndOfLastMatch() {
+		Moa moa = parseRegex( "\\Ga" ).toMoa();
+		assertTrue( moa.check( "a" ) );
+
+		{
+			String tmp = "aa";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			Assert.assertEquals( 2, cnt );
+		}
+
+		{
+			String tmp = "a a";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			Assert.assertEquals( 1, cnt );
+		}
+	}
+
+	@Test
+	public void testEndOfInput() {
+		Moa moa = parseRegex( "a\\z" ).toMoa();
+		assertTrue( moa.check( "a" ) );
+
+		{
+			String tmp = "aa";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			Assert.assertEquals( 1, cnt );
+		}
+	}
+
+	@Test
 	public void testCaretAndDollar() {
 		Moa moa = parseRegex( "^a$" ).toMoa();
 		assertTrue( moa.check( "a" ) );
