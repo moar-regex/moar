@@ -21,6 +21,21 @@ import static org.junit.Assert.assertTrue;
 public class ParserTest {
 
 	@Test
+	public void testCaret() {
+		Moa moa = parseRegex( "^a" ).toMoa();
+		assertMatch( true, moa, "a" );
+		{
+			String tmp = "^aa";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			assertEquals( 1, cnt );
+		}
+	}
+
+	@Test
 	public void testSingleChar() {
 		Regex regex = parseRegex( "a" );
 		assertMatch( true, regex, "a" );

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.s4ke.moar.NotDeterministicException;
+import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.edgegraph.ActionType;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.edgegraph.MemoryAction;
@@ -30,7 +30,7 @@ public final class Moa {
 		this.frozen = true;
 		this.edges.freeze();
 		if ( !this.edges.isDeterministic() ) {
-			throw new NotDeterministicException( "this moa is not deterministic" );
+			throw new NonDeterministicException( "this moa is not deterministic" );
 		}
 	}
 

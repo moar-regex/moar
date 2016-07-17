@@ -1,6 +1,6 @@
 package com.github.s4ke.moar.regex;
 
-import com.github.s4ke.moar.NotDeterministicException;
+import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.MoaMatcher;
 
@@ -19,7 +19,6 @@ public class MoaWithDSLTest {
 	@Test
 	public void testStartOfLine() {
 		Moa moa = Regex.caret().and( "a" ).toMoa();
-		assertTrue( moa.check( "\na" ) );
 		assertTrue( moa.check( "a" ) );
 
 		{
@@ -312,7 +311,7 @@ public class MoaWithDSLTest {
 			regex.toMoa();
 			fail( "regex " + regex + " was not recognized as non-deterministic" );
 		}
-		catch (NotDeterministicException e) {
+		catch (NonDeterministicException e) {
 		}
 	}
 

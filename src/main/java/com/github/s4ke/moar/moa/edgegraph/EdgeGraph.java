@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.states.BasicState;
 import com.github.s4ke.moar.moa.states.BoundState;
@@ -98,7 +99,7 @@ public final class EdgeGraph {
 	public Edge getEdge(State from, MatchInfo matchInfo, Map<String, Variable> variables) {
 		if ( this.boundEdges.get( from.getIdx() ).size() >= 1 ) {
 			if ( this.boundEdges.get( from.getIdx() ).size() > 1 ) {
-				return null;
+				throw new NonDeterministicException( "multiple boundEdges found in graph" );
 			}
 			else {
 				Edge edge = this.boundEdges.get( from.getIdx() ).iterator().next();
@@ -173,7 +174,7 @@ public final class EdgeGraph {
 				);
 				stateHolder.setState( destinationState );
 				destinationState.touch();
-				if(destinationState.isBound()) {
+				if ( destinationState.isBound() ) {
 					return StepResult.NOT_CONSUMED;
 				}
 				return StepResult.CONSUMED;
@@ -308,13 +309,19 @@ public final class EdgeGraph {
 			//make sure that if there is a VariableState (Binding/Reference)
 			//there is no other destination than SNK
 			if ( variableDestinationState != null ) {
-				if ( staticOrSetCount >= 2 ) {
+				if ( staticOrSetCount >= 2 || boundState != null ) {
 					return false;
 				}
 				if ( staticOrSetCount == 1 ) {
 					if ( staticDestinationStates.values().iterator().next() != SNK ) {
 						return false;
 					}
+				}
+			}
+
+			if ( boundState != null ) {
+				if ( staticOrSetCount > 0 ) {
+					return false;
 				}
 			}
 		}

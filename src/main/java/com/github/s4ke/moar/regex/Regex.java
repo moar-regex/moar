@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.github.s4ke.moar.NotDeterministicException;
+import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.states.State;
@@ -26,31 +26,36 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	//FIXME: caret and dollar are only allowed at the start or end of the regex
 
 	static Regex caret() {
-		return
-				Regex.str( "\n" )
-						.or( "\r\n" )
-						.or( "\u2029" )
-								//weird Java Pattern logic copied
-						.or( String.valueOf( (char) ('\u2029' - 1) ) )
-						.or( "\u0085" )
-						.and(
-								new BoundaryRegex(
-										BoundConstants.START_OF_LINE, (mi) -> {
-									// Perl does not match ^ at end of input even after newline
-									if ( mi.getPos() > mi.getWholeString().length() - 1 ) {
-										return false;
-									}
-									return true;
-								}
-								)
-						).or(
-						Regex.eps().and(
-								new BoundaryRegex(
-										BoundConstants.START_OF_LINE,
-										(mi) -> mi.getPos() == 0
-								)
-						)
-				);
+		return new BoundaryRegex(
+				BoundConstants.START_OF_LINE, (mi) -> {
+			// Perl does not match ^ at end of input even after newline
+			if ( mi.getPos() > mi.getWholeString().length() - 1 ) {
+				return false;
+			}
+			if ( mi.getPos() == 0 ) {
+				return true;
+			}
+			for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+				int length = eff.length();
+				CharSequence whole = mi.getWholeString();
+				//zero-based position
+				if ( mi.getPos() >= length ) {
+					boolean eq = true;
+					int charPos = 0;
+					for ( int i = length; i > 0; --i ) {
+						if ( whole.charAt( mi.getPos() - i ) != eff.charAt( charPos++ ) ) {
+							eq = false;
+							break;
+						}
+					}
+					if ( eq ) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		);
 	}
 
 	static Regex dollar() {
@@ -202,7 +207,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		moa.setVariables( variables );
 		moa.setEdges( edgeGraph );
 		if ( !moa.isDeterministic() ) {
-			throw new NotDeterministicException( this.toString() + " is not deterministic" );
+			throw new NonDeterministicException( this.toString() + " is not deterministic" );
 		}
 		moa.freeze();
 		return moa;

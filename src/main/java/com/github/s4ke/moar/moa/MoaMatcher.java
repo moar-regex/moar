@@ -88,6 +88,7 @@ public final class MoaMatcher implements CurStateHolder {
 		mi.setWholeString( this.str );
 		EfficientString token = new EfficientString();
 		mi.setString( token );
+		mi.setPos( this.pos );
 		int strLen = this.str.length();
 		while ( !this.isFinished() && this.pos < strLen ) {
 			int curStart = this.pos;
