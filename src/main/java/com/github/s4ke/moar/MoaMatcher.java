@@ -9,6 +9,8 @@ public interface MoaMatcher {
 
 	String replaceFirst(String replacement);
 
+	String replaceAll(String replacement);
+
 	boolean nextMatch();
 
 	boolean matches();

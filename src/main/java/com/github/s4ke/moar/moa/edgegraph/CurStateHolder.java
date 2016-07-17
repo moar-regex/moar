@@ -10,5 +10,4 @@ public interface CurStateHolder {
 	State getState();
 
 	void setState(State state);
-
 }

@@ -87,6 +87,27 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	}
 
 	@Override
+	public String replaceAll(String replacement) {
+		this.reset();
+
+		StringBuilder ret = new StringBuilder( this.str.length() );
+		int prefixStart = 0;
+		while ( this.nextMatch() ) {
+			for ( int i = prefixStart; i < this.lastStart; ++i ) {
+				ret.append( this.str.charAt( i ) );
+			}
+			for ( int i = 0; i < replacement.length(); ++i ) {
+				ret.append( replacement.charAt( i ) );
+			}
+			prefixStart = this.mi.getLastMatch();
+		}
+		for ( int i = this.mi.getLastMatch(); i < this.str.length(); ++i ) {
+			ret.append( this.str.charAt( i ) );
+		}
+		return ret.toString();
+	}
+
+	@Override
 	public boolean nextMatch() {
 		this.resetStateAndVars();
 		EdgeGraph.StepResult stepResult = null;
