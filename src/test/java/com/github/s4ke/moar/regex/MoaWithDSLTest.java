@@ -40,6 +40,14 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testStartOfLineSingleLine() {
+		//quite unnecessary? we only allow the start of line check
+		//at the beginning of the regex? is this okay?
+		Moa moa = Regex.caret().and( "a" ).toMoa();
+		assertTrue( moa.check( "a" ) );
+	}
+
+	@Test
 	public void testStartOfLineInMidOfRegex() {
 		//assertNonDet( Regex.str( "a" ).and( Regex.caret() ) );
 		//assertNonDet( Regex.str( "a" ).and( Regex.caret() ).and( "b" ) );
