@@ -1,5 +1,5 @@
 # moar
-Deterministic Regular Expressions with Backreferences
+Deterministic Regular Expressions with Backreferences. Uses ANTLR for Pattern compilation.
 
 # Theoretical Background
 
