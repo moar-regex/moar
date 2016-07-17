@@ -84,13 +84,17 @@ public final class MoaMatcher implements CurStateHolder {
 
 	public boolean nextMatch() {
 		this.resetStateAndVars();
+		EdgeGraph.StepResult stepResult = null;
+		int curStart = this.pos;
 		MatchInfo mi = new MatchInfo();
 		mi.setWholeString( this.str );
 		EfficientString token = new EfficientString();
 		mi.setString( token );
 		int strLen = this.str.length();
+
+
 		while ( !this.isFinished() && this.pos < strLen ) {
-			int curStart = this.pos;
+			curStart = this.pos;
 			while ( !this.isFinished() && this.pos < strLen ) {
 				int tokenLen = this.edges.maximalNextTokenLength( this, this.vars );
 				if ( this.pos + tokenLen > strLen ) {
@@ -104,7 +108,7 @@ public final class MoaMatcher implements CurStateHolder {
 				mi.setPos( this.pos );
 				token.update( this.str, this.pos, this.pos + tokenLen );
 				{
-					EdgeGraph.StepResult stepResult = this.step( mi );
+					stepResult = this.step( mi );
 					if ( stepResult == EdgeGraph.StepResult.REJECTED ) {
 						if ( tokenLen > 1 ) {
 							//reference
@@ -118,9 +122,10 @@ public final class MoaMatcher implements CurStateHolder {
 					}
 				}
 			}
+			mi.setPos( this.pos );
 			token.reset();
 			//noinspection StatementWithEmptyBody
-			while ( !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
+			while ( stepResult != EdgeGraph.StepResult.REJECTED && !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
 
 			}
 
@@ -131,39 +136,34 @@ public final class MoaMatcher implements CurStateHolder {
 				this.lastStart = curStart;
 			}
 		}
+
+		{
+			mi.setPos( this.pos );
+			token.reset();
+			//noinspection StatementWithEmptyBody
+			while ( stepResult != EdgeGraph.StepResult.REJECTED && !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
+
+			}
+
+			if ( !this.isFinished() ) {
+				this.resetStateAndVars();
+			}
+			else {
+				this.lastStart = curStart;
+			}
+		}
+
 		return this.isFinished();
 	}
 
 	public boolean checkAsSingleWord() {
 		this.reset();
-		MatchInfo mi = new MatchInfo();
-		mi.setWholeString( this.str );
-		EfficientString token = new EfficientString();
-		mi.setString( token );
-		int strLen = this.str.length();
-		while ( this.pos < strLen ) {
-			int tokenLen = this.edges.maximalNextTokenLength( this, this.vars );
-			if ( this.pos + tokenLen > strLen ) {
-				return false;
-			}
-			mi.setPos( this.pos );
-			token.update( this.str, this.pos, this.pos + tokenLen );
-			{
-				EdgeGraph.StepResult stepResult = this.step( mi );
-				if ( stepResult == EdgeGraph.StepResult.REJECTED ) {
-					return false;
-				}
-				if ( stepResult == EdgeGraph.StepResult.CONSUMED ) {
-					this.pos += tokenLen;
-				}
+		if ( this.nextMatch() ) {
+			if ( this.lastStart == 0 && this.pos >= this.str.length() ) {
+				return true;
 			}
 		}
-		//reset the token to ""
-		token.reset();
-		//noinspection StatementWithEmptyBody
-		while ( !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
-		}
-		return this.isFinished();
+		return false;
 	}
 
 	private boolean isFinished() {

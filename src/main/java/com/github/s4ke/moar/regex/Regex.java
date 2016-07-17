@@ -23,69 +23,71 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 
 	Set<Character> WHITE_SPACE_CHARS = new HashSet<>( Arrays.asList( ' ', '\t', '\n', (char) 0x0B, '\f', '\r' ) );
 
-	//FIXME: caret and dollar are only allowed at the start or end of the regex
+	Regex CARET = new BoundaryRegex(
+			BoundConstants.START_OF_LINE, (mi) -> {
+		// Perl does not match ^ at end of input even after newline
+		if ( mi.getPos() > mi.getWholeString().length() - 1 ) {
+			return false;
+		}
+		if ( mi.getPos() == 0 ) {
+			return true;
+		}
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			int length = eff.length();
+			CharSequence whole = mi.getWholeString();
+			//zero-based position
+			if ( mi.getPos() >= length ) {
+				boolean eq = true;
+				int charPos = 0;
+				for ( int i = length; i > 0; --i ) {
+					if ( whole.charAt( mi.getPos() - i ) != eff.charAt( charPos++ ) ) {
+						eq = false;
+						break;
+					}
+				}
+				if ( eq ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	);
+
+	Regex DOLLAR = new BoundaryRegex(
+			BoundConstants.END_OF_LINE, (mi) -> {
+		//we are at the end, so match the dollar sign
+		if ( mi.getPos() == mi.getWholeString().length() ) {
+			return true;
+		}
+		//check if the following stuff is the end of input
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			int length = eff.length();
+			CharSequence whole = mi.getWholeString();
+			//zero-based position
+			if ( mi.getPos() + length <= mi.getWholeString().length() ) {
+				boolean eq = true;
+				for ( int i = 0; i < length; ++i ) {
+					if ( whole.charAt( mi.getPos() + i ) != eff.charAt( i ) ) {
+						eq = false;
+						break;
+					}
+				}
+				if ( eq ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	);
 
 	static Regex caret() {
-		return new BoundaryRegex(
-				BoundConstants.START_OF_LINE, (mi) -> {
-			// Perl does not match ^ at end of input even after newline
-			if ( mi.getPos() > mi.getWholeString().length() - 1 ) {
-				return false;
-			}
-			if ( mi.getPos() == 0 ) {
-				return true;
-			}
-			for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
-				int length = eff.length();
-				CharSequence whole = mi.getWholeString();
-				//zero-based position
-				if ( mi.getPos() >= length ) {
-					boolean eq = true;
-					int charPos = 0;
-					for ( int i = length; i > 0; --i ) {
-						if ( whole.charAt( mi.getPos() - i ) != eff.charAt( charPos++ ) ) {
-							eq = false;
-							break;
-						}
-					}
-					if ( eq ) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-		);
+		return CARET;
 	}
 
-	static Regex dollar() {
-		return new BoundaryRegex(
-				BoundConstants.END_OF_LINE, (mi) -> {
-			//we are at the end, so match the dollar sign
-			if ( mi.getPos() == mi.getWholeString().length() - 1 ) {
-				return true;
-			}
-			String nextSymbol = String.valueOf( mi.getWholeString().charAt( mi.getPos() + 1 ) );
-			if ( BoundConstants.LINE_BREAK_CHARS.contains( new EfficientString( nextSymbol ) ) ) {
-				return true;
-			}
-			if ( nextSymbol.equals( "\r" ) ) {
-				if ( mi.getPos() + 2 < mi.getWholeString().length() ) {
-					if ( mi.getWholeString().charAt( mi.getPos() + 2 ) == '\n' ) {
-						return false;
-					}
-				}
-			}
-			return false;
-		}
-		).and(
-				Regex.str( "\n" )
-						.or( "\r\n" )
-						.or( "\u2029" )
-								//weird Java Pattern logic copied
-						.or( String.valueOf( (char) ('\u2029' | 1) ) )
-						.or( "\u0085" )
-		);
+	static Regex dollar_() {
+		return DOLLAR;
 	}
 
 	static Regex reference(String reference) {
@@ -184,6 +186,10 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 
 	default Regex bind(String name) {
 		return new Binding( name, this.copy() );
+	}
+
+	default Regex dollar() {
+		return this.and( dollar_() );
 	}
 
 	//TODO: this can be done with a Stack and some clever handling

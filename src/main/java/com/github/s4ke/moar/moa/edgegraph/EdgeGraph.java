@@ -290,20 +290,23 @@ public final class EdgeGraph {
 
 			//Bound edges are only allowed
 			//at the beginning or the end
+			//
+			//or we ignore these, as they don't harm anyone. other non-determinism is already
+			//handled
 			{
 				//END-like boundaries
-				if ( state.isBound() ) {
-					if ( edges.size() != 1 && edges.iterator().next() != Moa.SNK ) {
-						return false;
-					}
-				}
+				//if ( state.isBound() ) {
+				//	if ( edges.size() != 1 && edges.iterator().next() != Moa.SNK ) {
+				//		return false;
+				//	}
+				//}
 
 				//START-like boundaries
-				if ( boundState != null ) {
-					//if ( state != Moa.SRC || staticOrSetCount > 0 ) {
-					//	return false;
-					//}
-				}
+				//if ( boundState != null ) {
+				//if ( state != Moa.SRC || staticOrSetCount > 0 ) {
+				//	return false;
+				//}
+				//}
 			}
 
 			//make sure that if there is a VariableState (Binding/Reference)

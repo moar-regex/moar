@@ -5,7 +5,6 @@ import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.MoaMatcher;
 
 import org.junit.Test;
-
 import junit.framework.Assert;
 
 import static org.junit.Assert.assertEquals;
@@ -41,16 +40,35 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testStartOfLineSingleLine() {
-		//quite unnecessary? we only allow the start of line check
-		//at the beginning of the regex? is this okay?
 		Moa moa = Regex.caret().and( "a" ).toMoa();
 		assertTrue( moa.check( "a" ) );
 	}
 
 	@Test
-	public void testStartOfLineInMidOfRegex() {
-		//assertNonDet( Regex.str( "a" ).and( Regex.caret() ) );
-		//assertNonDet( Regex.str( "a" ).and( Regex.caret() ).and( "b" ) );
+	public void testStartOfLineDeterminism() {
+		assertDet( Regex.caret().and( "a" ) );
+		assertNonDet( Regex.caret().or( "a" ).and( "b" ) );
+	}
+
+	@Test
+	public void testEndOfLine() {
+		Moa moa = Regex.str("a").dollar().toMoa();
+		assertMatch(true, moa, "a");
+		{
+			String tmp = "a\nab";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			assertEquals( 1, cnt );
+		}
+	}
+
+	@Test
+	public void testEndOfLineDeterminism() {
+		assertDet( Regex.str( "a" ).dollar() );
+		assertNonDet( Regex.str( "a" ).or( Regex.dollar_() ) );
 	}
 
 	@Test
@@ -325,12 +343,21 @@ public class MoaWithDSLTest {
 		assertFalse( moa.check( "a" ) );
 	}
 
+	private static void assertMatch(boolean shouldMatch, Regex regex, String input) {
+		Assert.assertEquals( shouldMatch, regex.toMoa().check( input ) );
+	}
+
+	private static void assertMatch(boolean shouldMatch, Moa moa, String input) {
+		Assert.assertEquals( shouldMatch, moa.check( input ) );
+	}
+
 	void assertNonDet(Regex regex) {
 		try {
 			regex.toMoa();
 			fail( "regex " + regex + " was not recognized as non-deterministic" );
 		}
 		catch (NonDeterministicException e) {
+			//we catch this one
 		}
 	}
 
