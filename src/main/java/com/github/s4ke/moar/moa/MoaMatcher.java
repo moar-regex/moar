@@ -88,7 +88,6 @@ public final class MoaMatcher implements CurStateHolder {
 		mi.setWholeString( this.str );
 		EfficientString token = new EfficientString();
 		mi.setString( token );
-		mi.setPos( this.pos );
 		int strLen = this.str.length();
 		while ( !this.isFinished() && this.pos < strLen ) {
 			int curStart = this.pos;
@@ -102,6 +101,7 @@ public final class MoaMatcher implements CurStateHolder {
 					++this.pos;
 					break;
 				}
+				mi.setPos( this.pos );
 				token.update( this.str, this.pos, this.pos + tokenLen );
 				{
 					EdgeGraph.StepResult stepResult = this.step( mi );
@@ -115,7 +115,6 @@ public final class MoaMatcher implements CurStateHolder {
 					}
 					if ( stepResult == EdgeGraph.StepResult.CONSUMED ) {
 						this.pos += tokenLen;
-						mi.setPos( this.pos );
 					}
 				}
 			}
@@ -147,6 +146,7 @@ public final class MoaMatcher implements CurStateHolder {
 			if ( this.pos + tokenLen > strLen ) {
 				return false;
 			}
+			mi.setPos( this.pos );
 			token.update( this.str, this.pos, this.pos + tokenLen );
 			{
 				EdgeGraph.StepResult stepResult = this.step( mi );
@@ -155,7 +155,6 @@ public final class MoaMatcher implements CurStateHolder {
 				}
 				if ( stepResult == EdgeGraph.StepResult.CONSUMED ) {
 					this.pos += tokenLen;
-					mi.setPos( this.pos );
 				}
 			}
 		}

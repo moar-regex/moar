@@ -6,6 +6,8 @@ import com.github.s4ke.moar.moa.MoaMatcher;
 
 import org.junit.Test;
 
+import junit.framework.Assert;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +27,15 @@ public class MoaWithDSLTest {
 			MoaMatcher matcher = moa.matcher( "aa" );
 			assertTrue( matcher.nextMatch() );
 			assertFalse( matcher.nextMatch() );
+		}
+		{
+			String tmp = "a\na";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			Assert.assertEquals( 2, cnt );
 		}
 	}
 

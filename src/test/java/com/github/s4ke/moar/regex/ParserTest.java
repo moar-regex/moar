@@ -25,13 +25,22 @@ public class ParserTest {
 		Moa moa = parseRegex( "^a" ).toMoa();
 		assertMatch( true, moa, "a" );
 		{
-			String tmp = "^aa";
+			String tmp = "aa";
 			MoaMatcher matcher = moa.matcher( tmp );
 			int cnt = 0;
 			while ( matcher.nextMatch() ) {
 				++cnt;
 			}
 			assertEquals( 1, cnt );
+		}
+		{
+			String tmp = "a\na";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			assertEquals( 2, cnt );
 		}
 	}
 
