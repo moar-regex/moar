@@ -3,6 +3,8 @@ package com.github.s4ke.moar.moa;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.s4ke.moar.MoaMatcher;
+import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.edgegraph.CurStateHolder;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.states.MatchInfo;
@@ -13,7 +15,7 @@ import com.github.s4ke.moar.strings.EfficientString;
 /**
  * @author Martin Braun
  */
-public final class MoaMatcher implements CurStateHolder {
+final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 
 	private final EdgeGraph edges;
 	private final Map<String, Variable> vars;
@@ -23,7 +25,7 @@ public final class MoaMatcher implements CurStateHolder {
 	private int lastStart = -1;
 	private State state = Moa.SRC;
 
-	MoaMatcher(EdgeGraph edges, Map<String, Variable> vars, CharSequence str) {
+	MoaMatcherImpl(EdgeGraph edges, Map<String, Variable> vars, CharSequence str) {
 		this.edges = edges;
 		this.vars = vars;
 		this.str = str;
@@ -43,6 +45,7 @@ public final class MoaMatcher implements CurStateHolder {
 		this.vars.values().forEach( Variable::reset );
 	}
 
+	@Override
 	public void reuse(String str) {
 		this.reset();
 		this.str = str;
@@ -60,6 +63,7 @@ public final class MoaMatcher implements CurStateHolder {
 
 	//FIXME: allow adding capturing groups to the replacement
 
+	@Override
 	public String replaceFirst(String replacement) {
 		this.reset();
 		if ( this.nextMatch() ) {
@@ -82,6 +86,7 @@ public final class MoaMatcher implements CurStateHolder {
 		}
 	}
 
+	@Override
 	public boolean nextMatch() {
 		this.resetStateAndVars();
 		EdgeGraph.StepResult stepResult = null;
@@ -156,7 +161,8 @@ public final class MoaMatcher implements CurStateHolder {
 		return this.isFinished();
 	}
 
-	public boolean checkAsSingleWord() {
+	@Override
+	public boolean matches() {
 		this.reset();
 		if ( this.nextMatch() ) {
 			if ( this.lastStart == 0 && this.pos >= this.str.length() ) {
@@ -177,6 +183,7 @@ public final class MoaMatcher implements CurStateHolder {
 	/**
 	 * @param occurence 1-based
 	 */
+	@Override
 	public String getVariableContent(int occurence) {
 		Variable var = this.varsByOccurence.get( occurence );
 		if ( var == null ) {
@@ -185,6 +192,7 @@ public final class MoaMatcher implements CurStateHolder {
 		return var.getContents();
 	}
 
+	@Override
 	public String getVariableContent(String name) {
 		Variable var = this.vars.get( name );
 		if ( var == null ) {

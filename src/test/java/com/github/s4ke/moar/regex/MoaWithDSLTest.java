@@ -1,8 +1,9 @@
 package com.github.s4ke.moar.regex;
 
+import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
-import com.github.s4ke.moar.moa.MoaMatcher;
+import com.github.s4ke.moar.strings.EfficientString;
 
 import org.junit.Test;
 import junit.framework.Assert;
@@ -27,8 +28,23 @@ public class MoaWithDSLTest {
 			assertTrue( matcher.nextMatch() );
 			assertFalse( matcher.nextMatch() );
 		}
-		{
-			String tmp = "a\na";
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			String tmp = "a" + eff.toString() + "ab";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			Assert.assertEquals( 2, cnt );
+		}
+	}
+
+	@Test
+	public void testStartAndEndOfLine() {
+		Moa moa = Regex.caret().and( "a" ).dollar().toMoa();
+		assertTrue( moa.check( "a" ) );
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			String tmp = "a" + eff.toString() + "a";
 			MoaMatcher matcher = moa.matcher( tmp );
 			int cnt = 0;
 			while ( matcher.nextMatch() ) {
@@ -52,10 +68,10 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testEndOfLine() {
-		Moa moa = Regex.str("a").dollar().toMoa();
-		assertMatch(true, moa, "a");
-		{
-			String tmp = "a\nab";
+		Moa moa = Regex.str( "a" ).dollar().toMoa();
+		assertMatch( true, moa, "a" );
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			String tmp = "a" + eff.toString() + "ab";
 			MoaMatcher matcher = moa.matcher( tmp );
 			int cnt = 0;
 			while ( matcher.nextMatch() ) {
@@ -138,13 +154,13 @@ public class MoaWithDSLTest {
 		Moa moa = regex.toMoa();
 		{
 			MoaMatcher matcher = moa.matcher( "a|a" );
-			assertTrue( matcher.checkAsSingleWord() );
+			assertTrue( matcher.matches() );
 			assertEquals( "a", matcher.getVariableContent( 1 ) );
 			assertFalse( moa.check( "a|aa" ) );
 		}
 		{
 			MoaMatcher matcher = moa.matcher( "a|aa" );
-			assertFalse( matcher.checkAsSingleWord() );
+			assertFalse( matcher.matches() );
 		}
 	}
 

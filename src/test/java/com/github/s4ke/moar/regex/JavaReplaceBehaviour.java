@@ -3,8 +3,8 @@ package com.github.s4ke.moar.regex;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.moa.Moa;
-import com.github.s4ke.moar.moa.MoaMatcher;
 
 import org.junit.Test;
 

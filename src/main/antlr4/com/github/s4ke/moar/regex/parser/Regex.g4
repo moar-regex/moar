@@ -37,8 +37,7 @@ elementaryRegex :
     | set
     | charOrEscaped
     | stockSets
-    | ANY
-    | EOS;
+    | ANY;
 
 group :
     '(' (capturingGroup | nonCapturingGroup) ')';

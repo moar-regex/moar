@@ -1,6 +1,6 @@
 package com.github.s4ke.moar.regex;
 
-import com.github.s4ke.moar.moa.MoaMatcher;
+import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.moa.Moa;
 
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class FullTextTest {
 			int matchCount = 0;
 			while ( matcher.nextMatch() ) {
 				++matchCount;
-				assertTrue( moa.matcher( matcher.getVariableContent( 1 ) ).checkAsSingleWord() );
+				assertTrue( moa.matcher( matcher.getVariableContent( 1 ) ).matches() );
 			}
 			assertEquals( 2, matchCount );
 		}

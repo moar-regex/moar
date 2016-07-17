@@ -45,6 +45,11 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 			regex = Regex.caret().and( regex );
 			this.regexStack.push( regex );
 		}
+		if ( ctx.EOS() != null ) {
+			Regex regex = this.regexStack.pop();
+			regex = regex.dollar();
+			this.regexStack.push( regex );
+		}
 		if ( this.regexStack.size() != 1 ) {
 			throw new AssertionError();
 		}
@@ -118,9 +123,6 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		else if ( ctx.charOrEscaped() != null ) {
 			Regex regex = Regex.str( getCh( ctx.charOrEscaped() ) );
 			this.regexStack.push( regex );
-		}
-		else if ( ctx.EOS() != null ) {
-			//FIXME: handle this!!
 		}
 	}
 

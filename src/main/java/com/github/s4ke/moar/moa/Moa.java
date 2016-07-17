@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.edgegraph.ActionType;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
@@ -87,11 +88,11 @@ public final class Moa {
 		for ( Map.Entry<String, Variable> entry : this.vars.entrySet() ) {
 			varCopy.put( entry.getKey(), new Variable( entry.getValue() ) );
 		}
-		return new MoaMatcher( this.edges, varCopy, str );
+		return new MoaMatcherImpl( this.edges, varCopy, str );
 	}
 
 	public boolean check(String str) {
-		return this.matcher( str ).checkAsSingleWord();
+		return this.matcher( str ).matches();
 	}
 
 

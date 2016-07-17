@@ -1,14 +1,16 @@
 package com.github.s4ke.moar.regex;
 
+import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.moa.Moa;
-import com.github.s4ke.moar.moa.MoaMatcher;
 import com.github.s4ke.moar.regex.parser.RegexLexer;
 import com.github.s4ke.moar.regex.parser.RegexParser;
 import com.github.s4ke.moar.regex.parser.RegexTreeListener;
+import com.github.s4ke.moar.strings.EfficientString;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -33,14 +35,44 @@ public class ParserTest {
 			}
 			assertEquals( 1, cnt );
 		}
-		{
-			String tmp = "a\na";
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			String tmp = "a" + eff.toString() + "a";
 			MoaMatcher matcher = moa.matcher( tmp );
 			int cnt = 0;
 			while ( matcher.nextMatch() ) {
 				++cnt;
 			}
 			assertEquals( 2, cnt );
+		}
+	}
+
+	@Test
+	public void testDollar() {
+		Moa moa = parseRegex( "a$" ).toMoa();
+		assertMatch( true, moa, "a" );
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			String tmp = "a" + eff.toString() + "ab";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			Assert.assertEquals( 1, cnt );
+		}
+	}
+
+	@Test
+	public void testCaretAndDollar() {
+		Moa moa = parseRegex( "^a$" ).toMoa();
+		assertTrue( moa.check( "a" ) );
+		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
+			String tmp = "a" + eff.toString() + "a";
+			MoaMatcher matcher = moa.matcher( tmp );
+			int cnt = 0;
+			while ( matcher.nextMatch() ) {
+				++cnt;
+			}
+			junit.framework.Assert.assertEquals( 2, cnt );
 		}
 	}
 
@@ -77,7 +109,7 @@ public class ParserTest {
 		{
 			MoaMatcher matcher = moa.matcher( "a" );
 			assertTrue( matcher.nextMatch() );
-			assertTrue( matcher.checkAsSingleWord() );
+			assertTrue( matcher.matches() );
 			assertEquals( "a", matcher.getVariableContent( 1 ) );
 			assertEquals( "a", matcher.getVariableContent( "1" ) );
 		}
