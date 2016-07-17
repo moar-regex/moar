@@ -1,6 +1,7 @@
 package com.github.s4ke.moar.regex;
 
 import com.github.s4ke.moar.MoaMatcher;
+import com.github.s4ke.moar.MoaPattern;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.regex.parser.RegexLexer;
 import com.github.s4ke.moar.regex.parser.RegexParser;
@@ -21,6 +22,14 @@ import static org.junit.Assert.assertTrue;
  * @author Martin Braun
  */
 public class ParserTest {
+
+	@Test
+	public void test() {
+		MoaPattern pattern = MoaPattern.compile( "^Deterministic|OrNot$" );
+		MoaMatcher matcher = pattern.matcher( "Deterministic" );
+		assertTrue( matcher.nextMatch() );
+		assertTrue( matcher.matches() );
+	}
 
 	@Test
 	public void testCaret() {
