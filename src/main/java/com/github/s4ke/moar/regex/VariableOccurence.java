@@ -8,7 +8,7 @@ import com.github.s4ke.moar.moa.states.Variable;
 /**
  * @author Martin Braun
  */
-public interface VariableOccurence {
+interface VariableOccurence {
 
 	void calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier);
 

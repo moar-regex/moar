@@ -17,7 +17,7 @@ import com.github.s4ke.moar.strings.EfficientString;
 /**
  * @author Martin Braun
  */
-public class SetRegex implements Regex {
+class SetRegex implements Regex {
 
 	private static final String SELF_RELEVANT_KEY = "";
 

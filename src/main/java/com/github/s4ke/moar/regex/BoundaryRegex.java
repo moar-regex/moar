@@ -17,7 +17,7 @@ import com.github.s4ke.moar.moa.states.Variable;
 /**
  * @author Martin Braun
  */
-public class BoundaryRegex implements Regex {
+class BoundaryRegex implements Regex {
 
 	private static final String SELF_RELEVANT_KEY = "";
 
