@@ -109,12 +109,16 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 
 	@Override
 	public boolean nextMatch() {
+		return this.nextMatch( true );
+	}
+
+	private boolean nextMatch(boolean advanceOnReject) {
 		this.resetStateAndVars();
 		EdgeGraph.StepResult stepResult = null;
 		int curStart = this.mi.getPos();
-		mi.setWholeString( this.str );
+		this.mi.setWholeString( this.str );
 		EfficientString token = new EfficientString();
-		mi.setString( token );
+		this.mi.setString( token );
 		int strLen = this.str.length();
 
 		while ( !this.isFinished() && this.mi.getPos() < strLen ) {
@@ -133,6 +137,9 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 				{
 					stepResult = this.step( mi );
 					if ( stepResult == EdgeGraph.StepResult.REJECTED ) {
+						if ( !advanceOnReject ) {
+							return false;
+						}
 						if ( tokenLen > 1 ) {
 							//reference
 							this.mi.setPos( curStart );
@@ -192,7 +199,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	@Override
 	public boolean matches() {
 		this.reset();
-		if ( this.nextMatch() ) {
+		if ( this.nextMatch( false ) ) {
 			if ( this.lastStart == 0 && this.mi.getPos() >= this.str.length() ) {
 				return true;
 			}
