@@ -174,7 +174,8 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 			}
 		}
 
-		{
+		//allow to get into the final state for the case we can have an epsilon string (
+		if ( !this.isFinished() && this.mi.getLastMatch() != this.mi.getPos() ) {
 			token.reset();
 			//noinspection StatementWithEmptyBody
 			while ( stepResult != EdgeGraph.StepResult.REJECTED && !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {

@@ -249,6 +249,21 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testEndOfInputOnEmptyString() {
+		Regex regex = Regex.end_();
+		Moa moa = regex.toMoa();
+		int matchCount = 0;
+		MoaMatcher matcher = moa.matcher( "" );
+		while ( matcher.nextMatch() ) {
+			++matchCount;
+			if ( matchCount > 100 ) {
+				break;
+			}
+		}
+		assertEquals( 1, matchCount );
+	}
+
+	@Test
 	public void testStarInBindingMoreComplex() {
 		Regex regex = Regex.str( "a" ).or( "b" ).star().bind( "x" )
 				.and( "|" )
