@@ -108,6 +108,22 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	}
 
 	@Override
+	public int getStart() {
+		if ( !this.isFinished() ) {
+			throw new IllegalStateException( "did not match on the last call" );
+		}
+		return this.lastStart;
+	}
+
+	@Override
+	public int getEnd() {
+		if ( !this.isFinished() ) {
+			throw new IllegalStateException( "did not match on the last call" );
+		}
+		return this.mi.getLastMatch();
+	}
+
+	@Override
 	public boolean nextMatch() {
 		return this.nextMatch( true );
 	}

@@ -11,6 +11,10 @@ public interface MoaMatcher {
 
 	String replaceAll(String replacement);
 
+	int getStart();
+
+	int getEnd();
+
 	boolean nextMatch();
 
 	boolean matches();

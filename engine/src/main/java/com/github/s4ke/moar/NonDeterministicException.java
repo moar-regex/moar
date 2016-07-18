@@ -9,4 +9,7 @@ public class NonDeterministicException extends RuntimeException {
 		super( message );
 	}
 
+	public NonDeterministicException(String message, Throwable cause) {
+		super( message, cause );
+	}
 }
