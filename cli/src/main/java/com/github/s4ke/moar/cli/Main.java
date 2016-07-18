@@ -49,7 +49,13 @@ public class Main {
 
 		if ( cmd.hasOption( "r" ) ) {
 			String regexStr = cmd.getOptionValue( "r" );
-			patterns.add( MoaPattern.compile( regexStr ) );
+			try {
+				patterns.add( MoaPattern.compile( regexStr ) );
+			}
+			catch (Exception e) {
+				System.out.println( e.getMessage() );
+				return;
+			}
 		}
 
 		if ( cmd.hasOption( "rf" ) ) {
@@ -75,7 +81,13 @@ public class Main {
 				}
 			}
 			if ( regexStr.length() > 0 ) {
-				patterns.add( MoaPattern.compile( regexStr.toString() ) );
+				try {
+					patterns.add( MoaPattern.compile( regexStr.toString() ) );
+				}
+				catch (Exception e) {
+					System.out.println( e.getMessage() );
+					return;
+				}
 				regexStr.setLength( 0 );
 			}
 		}
@@ -129,7 +141,7 @@ public class Main {
 					int matchCount = 0;
 					while ( matcher.nextMatch() ) {
 						buffer.replace(
-								matcher.getStart() + matchCount * additionalCharsPerMatch ,
+								matcher.getStart() + matchCount * additionalCharsPerMatch,
 								matcher.getEnd() + matchCount * additionalCharsPerMatch,
 								"<match>" + string.substring(
 										matcher.getStart(),
@@ -148,7 +160,7 @@ public class Main {
 		List<String> ret = new ArrayList<>();
 		try (FileInputStream fis = new FileInputStream( file );
 			 BufferedReader reader = new BufferedReader( new InputStreamReader( fis ) )) {
-			String str = null;
+			String str;
 			while ( (str = reader.readLine()) != null ) {
 				ret.add( str );
 			}
