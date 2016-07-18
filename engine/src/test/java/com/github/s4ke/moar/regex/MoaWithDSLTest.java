@@ -249,6 +249,21 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testMatchEmptyStringAsFullText() {
+		Regex regex = Regex.eps();
+		Moa moa = regex.toMoa();
+		int matchCount = 0;
+		MoaMatcher matcher = moa.matcher( "" );
+		while ( matcher.nextMatch() ) {
+			++matchCount;
+			if ( matchCount > 100 ) {
+				break;
+			}
+		}
+		assertEquals( 1, matchCount );
+	}
+
+	@Test
 	public void testEndOfInputOnEmptyString() {
 		Regex regex = Regex.end_();
 		Moa moa = regex.toMoa();
