@@ -15,8 +15,6 @@ import com.github.s4ke.moar.strings.EfficientString;
 public class RegexTreeListener extends RegexBaseListener implements RegexListener {
 
 	private final Stack<Regex> regexStack = new Stack<>();
-	private final Map<Integer, String> groupNames = new HashMap<>();
-	private final Set<String> usedGroupNames = new HashSet<>();
 	private int groupCount = 0;
 
 	public Regex finalRegex() {
@@ -157,11 +155,6 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		else {
 			regex = this.regexStack.pop();
 		}
-		if ( this.usedGroupNames.contains( regexName ) ) {
-			throw new IllegalArgumentException( "group with name" + regexName + " exists more than once" );
-		}
-		this.usedGroupNames.add( regexName );
-		this.groupNames.put( this.groupCount, regexName );
 		this.regexStack.push( regex.bind( regexName ) );
 	}
 

@@ -13,6 +13,7 @@
     <modules>
         <module>engine</module>
         <module>cli</module>
+        <module>json</module>
     </modules>
     
     <properties>

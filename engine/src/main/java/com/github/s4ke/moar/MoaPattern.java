@@ -2,6 +2,7 @@ package com.github.s4ke.moar;
 
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.regex.parser.RegexCompiler;
+import com.github.s4ke.moar.util.Accessor;
 
 /**
  * @author Martin Braun
@@ -29,8 +30,13 @@ public final class MoaPattern {
 		return this.moa.matcher( str );
 	}
 
+	public void accessMoa(Accessor<Moa> accessor) {
+		accessor.access( this.moa );
+	}
+
 	@Override
 	public String toString() {
 		return this.regex;
 	}
+
 }

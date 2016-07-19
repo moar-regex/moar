@@ -1,7 +1,5 @@
 package com.github.s4ke.moar.regex;
 
-import java.util.regex.Pattern;
-
 import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.MoaPattern;
 import com.github.s4ke.moar.moa.Moa;
@@ -367,22 +365,41 @@ public class ParserTest {
 	}
 
 	private static final String COOL_REGEX = "((?<y>\\k<x>)(?<x>\\k<y>a))+";
+	private static final String COOL_REGEX_2 = "(?<x>)((?<y>\\k<x>)(?<x>\\k<y>a))+";
 
 	@Test
 	public void testCool() {
-		Regex regex = parseRegex( COOL_REGEX );
-		Moa moa = regex.toMoa();
-		assertTrue( moa.check( "aaaa" ) );
-		boolean tmp = false;
-		for ( int i = 0; i < 100; ++i ) {
-			String str = repeat( "a", i );
-			boolean res = moa.check( str );
-			if ( res ) {
-				tmp = true;
-				System.out.println( str );
+		{
+			Regex regex = parseRegex( COOL_REGEX );
+			Moa moa = regex.toMoa();
+			assertTrue( moa.check( "aaaa" ) );
+			boolean tmp = false;
+			for ( int i = 0; i < 100; ++i ) {
+				String str = repeat( "a", i );
+				boolean res = moa.check( str );
+				if ( res ) {
+					tmp = true;
+					System.out.println( str );
+				}
 			}
+			assertTrue( tmp );
 		}
-		assertTrue( tmp );
+		//or alternatively
+		{
+			Regex regex = parseRegex( COOL_REGEX_2 );
+			Moa moa = regex.toMoa();
+			assertTrue( moa.check( "aaaa" ) );
+			boolean tmp = false;
+			for ( int i = 0; i < 100; ++i ) {
+				String str = repeat( "a", i );
+				boolean res = moa.check( str );
+				if ( res ) {
+					tmp = true;
+					System.out.println( str );
+				}
+			}
+			assertTrue( tmp );
+		}
 	}
 
 	private static String repeat(String str, int times) {
