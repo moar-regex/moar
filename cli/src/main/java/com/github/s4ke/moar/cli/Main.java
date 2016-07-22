@@ -48,6 +48,7 @@ public class Main {
 		if ( args.length == 0 || cmd.hasOption( "help" ) ) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp( "moar-cli", options );
+			return;
 		}
 
 		List<String> patternNames = new ArrayList<>();
