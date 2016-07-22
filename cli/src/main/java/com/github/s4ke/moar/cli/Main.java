@@ -1,8 +1,10 @@
 package com.github.s4ke.moar.cli;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.List;
 
 import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.MoaPattern;
+import com.github.s4ke.moar.json.MoarJSONSerializer;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -29,6 +32,9 @@ public class Main {
 		options.addOption( "rf", true, "regexFile" );
 		options.addOption( "r", true, "regex" );
 
+		options.addOption( "mf", true, "moaFile" );
+		options.addOption( "mo", true, "moaOutputFolder (overwrites if existent)" );
+
 		options.addOption( "sf", true, "stringFile" );
 		options.addOption( "s", true, "string" );
 
@@ -44,6 +50,7 @@ public class Main {
 			formatter.printHelp( "moar-cli", options );
 		}
 
+		List<String> patternNames = new ArrayList<>();
 		List<MoaPattern> patterns = new ArrayList<>();
 		List<String> stringsToCheck = new ArrayList<>();
 
@@ -51,6 +58,7 @@ public class Main {
 			String regexStr = cmd.getOptionValue( "r" );
 			try {
 				patterns.add( MoaPattern.compile( regexStr ) );
+				patternNames.add( regexStr );
 			}
 			catch (Exception e) {
 				System.out.println( e.getMessage() );
@@ -67,6 +75,7 @@ public class Main {
 				if ( emptyLineCountAfterRegex >= 1 ) {
 					if ( regexStr.length() > 0 ) {
 						patterns.add( MoaPattern.compile( regexStr.toString() ) );
+						patternNames.add(regexStr.toString());
 					}
 					regexStr.setLength( 0 );
 					emptyLineCountAfterRegex = 0;
@@ -83,12 +92,35 @@ public class Main {
 			if ( regexStr.length() > 0 ) {
 				try {
 					patterns.add( MoaPattern.compile( regexStr.toString() ) );
+					patternNames.add(regexStr.toString());
 				}
 				catch (Exception e) {
 					System.out.println( e.getMessage() );
 					return;
 				}
 				regexStr.setLength( 0 );
+			}
+		}
+
+		if ( cmd.hasOption( "mf" ) ) {
+			String fileName = cmd.getOptionValue( "mf" );
+			File file = new File( fileName );
+			if ( file.isDirectory() ) {
+				System.out.println( fileName + " is a directory, using all *.moar files as patterns" );
+				File[] moarFiles = file.listFiles(
+						pathname -> pathname.getName().endsWith( ".moar" )
+				);
+				for ( File moar : moarFiles ) {
+					String jsonString = readWholeFile( moar );
+					patterns.add( MoarJSONSerializer.fromJSON( jsonString ) );
+					patternNames.add(moar.getAbsolutePath());
+				}
+			}
+			else {
+				System.out.println( fileName + " is a single file. using it directly (no check for *.moar suffix)" );
+				String jsonString = readWholeFile( file );
+				patterns.add( MoarJSONSerializer.fromJSON( jsonString ) );
+				patternNames.add(fileName);
 			}
 		}
 
@@ -115,28 +147,56 @@ public class Main {
 
 		boolean multiLine = cmd.hasOption( "m" );
 
-		if ( stringsToCheck.size() == 0 ) {
-			System.out.println( "no strings to check" );
-			return;
-		}
 		if ( patterns.size() == 0 ) {
 			System.out.println( "no patterns to check" );
 			return;
 		}
 
+		if ( cmd.hasOption( "mo" ) ) {
+			String folder = cmd.getOptionValue( "mo" );
+			File folderFile = new File( folder );
+			if ( !folderFile.exists() ) {
+				System.out.println( folder + " does not exist. creating..." );
+				if ( !folderFile.mkdirs() ) {
+					System.out.println( "folder " + folder + " could not be created" );
+				}
+			}
+			int cnt = 0;
+			for ( MoaPattern pattern : patterns ) {
+				String patternAsJSON = MoarJSONSerializer.toJSON( pattern );
+				try (BufferedWriter writer = new BufferedWriter(
+						new FileWriter(
+								new File(
+										folderFile,
+										"pattern" + ++cnt + ".moar"
+								)
+						)
+				)) {
+					writer.write( patternAsJSON );
+				}
+			}
+			System.out.println( "stored " + cnt + " patterns in " + folder );
+		}
+
+		if ( stringsToCheck.size() == 0 ) {
+			System.out.println( "no strings to check" );
+			return;
+		}
+
 		for ( String string : stringsToCheck ) {
+			int curPattern = 0;
 			for ( MoaPattern pattern : patterns ) {
 				MoaMatcher matcher = pattern.matcher( string );
 				if ( !multiLine ) {
 					if ( matcher.matches() ) {
-						System.out.println( "\"" + pattern + "\" matches \"" + string + "\"" );
+						System.out.println( "\"" + patternNames.get(curPattern) + "\" matches \"" + string + "\"" );
 					}
 					else {
-						System.out.println( "\"" + pattern + "\" does not match \"" + string + "\"" );
+						System.out.println( "\"" + patternNames.get(curPattern) + "\" does not match \"" + string + "\"" );
 					}
 				}
 				else {
-					StringBuffer buffer = new StringBuffer( string );
+					StringBuilder buffer = new StringBuilder( string );
 					int additionalCharsPerMatch = ("<match>" + "</match>").length();
 					int matchCount = 0;
 					while ( matcher.nextMatch() ) {
@@ -153,7 +213,20 @@ public class Main {
 					System.out.println( buffer.toString() );
 				}
 			}
+			++curPattern;
 		}
+	}
+
+	private static String readWholeFile(File file) throws IOException {
+		StringBuilder ret = new StringBuilder();
+		try (FileInputStream fis = new FileInputStream( file );
+			 BufferedReader reader = new BufferedReader( new InputStreamReader( fis ) )) {
+			String str;
+			while ( (str = reader.readLine()) != null ) {
+				ret.append( str ).append( "\n" );
+			}
+		}
+		return ret.toString();
 	}
 
 	private static List<String> readFileContents(File file) throws IOException {

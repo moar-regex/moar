@@ -142,12 +142,18 @@ public final class MoarJSONSerializer {
 							if ( matcher.matches() ) {
 								String action = matcher.getVariableContent( "action" );
 								String variableName = matcher.getVariableContent( "name" );
+								if ( !variables.containsKey( variableName ) ) {
+									throw new IllegalArgumentException( "variable with name " + variableName + " does not exist" );
+								}
 								memoryActionSet.add(
 										new MemoryAction(
 												ActionType.fromString( action ),
 												variableName
 										)
 								);
+							}
+							else {
+								throw new IllegalArgumentException( memoryActionString + " is no valid memoryAction string" );
 							}
 						}
 					}
