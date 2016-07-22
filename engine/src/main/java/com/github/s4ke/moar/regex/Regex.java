@@ -1,12 +1,10 @@
 package com.github.s4ke.moar.regex;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.github.s4ke.moar.NonDeterministicException;
@@ -14,82 +12,31 @@ import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
-import com.github.s4ke.moar.strings.EfficientString;
+import com.github.s4ke.moar.util.Range;
+
+import static com.github.s4ke.moar.regex.CharacterClassesUtils.NON_WORD_CHARACTER_FN;
+import static com.github.s4ke.moar.regex.CharacterClassesUtils.fromTo;
 
 /**
  * @author Martin Braun
  */
 public interface Regex extends StateContributor, EdgeContributor, VariableOccurence {
 
-	Set<Character> WHITE_SPACE_CHARS = new HashSet<>( Arrays.asList( ' ', '\t', '\n', (char) 0x0B, '\f', '\r' ) );
-
 	Regex CARET = new BoundaryRegex(
-			BoundConstants.START_OF_LINE, (mi) -> {
-		// Perl does not match ^ at end of input even after newline
-		if ( mi.getPos() > mi.getWholeString().length() - 1 ) {
-			return false;
-		}
-		if ( mi.getPos() == 0 ) {
-			return true;
-		}
-		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
-			int length = eff.length();
-			CharSequence whole = mi.getWholeString();
-			//zero-based position
-			if ( mi.getPos() >= length ) {
-				boolean eq = true;
-				int charPos = 0;
-				for ( int i = length; i > 0; --i ) {
-					if ( whole.charAt( mi.getPos() - i ) != eff.charAt( charPos++ ) ) {
-						eq = false;
-						break;
-					}
-				}
-				if ( eq ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+			BoundConstants.START_OF_LINE, BoundConstants.CARET_FN
 	);
 
 	Regex DOLLAR = new BoundaryRegex(
-			BoundConstants.END_OF_LINE, (mi) -> {
-		//we are at the end, so match the dollar sign
-		if ( mi.getPos() == mi.getWholeString().length() ) {
-			return true;
-		}
-		//check if the following stuff is the end of input
-		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
-			int length = eff.length();
-			CharSequence whole = mi.getWholeString();
-			//zero-based position
-			if ( mi.getPos() + length <= mi.getWholeString().length() ) {
-				boolean eq = true;
-				for ( int i = 0; i < length; ++i ) {
-					if ( whole.charAt( mi.getPos() + i ) != eff.charAt( i ) ) {
-						eq = false;
-						break;
-					}
-				}
-				if ( eq ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+			BoundConstants.END_OF_LINE, BoundConstants.DOLLAR_FN
 	);
 
 	Regex END_OF_INPUT = new BoundaryRegex(
 			BoundConstants.END_OF_INPUT,
-			(mi) -> mi.getPos() == mi.getWholeString().length()
+			BoundConstants.END_OF_INPUT_FN
 	);
 
 	Regex END_OF_LAST_MATCH = new BoundaryRegex(
-			BoundConstants.END_OF_LAST_MATCH, (mi) ->
-			mi.getLastMatch() == -1 || mi.getPos() == mi.getLastMatch()
+			BoundConstants.END_OF_LAST_MATCH, BoundConstants.END_OF_LAST_MATCH_FN
 	);
 
 	static Regex caret() {
@@ -140,11 +87,13 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		if ( ranges.length == 0 ) {
 			throw new IllegalArgumentException();
 		}
-		Regex regex = set( ranges[0].from, ranges[0].to );
-		for ( int i = 1; i < ranges.length; ++i ) {
-			regex.or( set( ranges[i].from, ranges[i].to ) );
+		StringBuilder stringRepresentation = new StringBuilder();
+		stringRepresentation.append( "[" );
+		for ( Range range : ranges ) {
+			stringRepresentation.append( range.from ).append( "-" ).append( range.to );
 		}
-		return regex;
+		stringRepresentation.append( "]" );
+		return new SetRegex( CharacterClassesUtils.positiveFn( ranges ), stringRepresentation.toString() );
 	}
 
 	static Regex negativeSet(final Range... ranges) {
@@ -158,57 +107,40 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		}
 		stringRepresentation.append( "]" );
 		return new SetRegex(
-				(EfficientString str) -> {
-					if ( str.length() != 1 ) {
-						return false;
-					}
-					for ( Range range : ranges ) {
-						if ( str.charAt( 0 ) >= range.from && str.charAt( 0 ) <= range.to ) {
-							return false;
-						}
-					}
-					return true;
-				}, stringRepresentation.toString()
+				CharacterClassesUtils.negativeFn( ranges ), stringRepresentation.toString()
 		);
 	}
 
-	static Function<EfficientString, Boolean> fromTo(char from, char to) {
-		return (str) ->
-				str.length() == 1 && str.charAt( 0 ) >= from && str.charAt( 0 ) <= to;
-	}
-
 	static Regex any_() {
-		return new SetRegex( (string) -> string.length() == 1, "." );
+		return new SetRegex( CharacterClassesUtils.ANY_FN, CharacterClassesUtils.ANY );
 	}
 
 	static Regex whiteSpace() {
-		return new SetRegex( str -> str.length() == 1 && WHITE_SPACE_CHARS.contains( str.charAt( 0 ) ), "\\s" );
+		return new SetRegex( CharacterClassesUtils.WHITE_SPACE_FN, CharacterClassesUtils.WHITE_SPACE );
 	}
 
 	static Regex nonWhiteSpace() {
-		return new SetRegex( str -> str.length() == 1 && !WHITE_SPACE_CHARS.contains( str.charAt( 0 ) ), "\\S" );
+		return new SetRegex( CharacterClassesUtils.NON_WHITE_SPACE_FN, CharacterClassesUtils.NON_WHITE_SPACE );
 	}
 
 	static Regex digit() {
-		return new SetRegex( str -> str.length() == 1 && Character.isDigit( str.charAt( 0 ) ), "\\d" );
+		return new SetRegex( CharacterClassesUtils.DIGIT_FN, CharacterClassesUtils.DIGIT );
 	}
 
 	static Regex nonDigit() {
-		return new SetRegex( str -> str.length() == 1 && !Character.isDigit( str.charAt( 0 ) ), "\\D" );
+		return new SetRegex( CharacterClassesUtils.NON_DIGIT_FN, CharacterClassesUtils.NON_DIGIT );
 	}
 
 	static Regex wordCharacter() {
 		return new SetRegex(
-				str -> str.length() == 1 && (fromTo( 'a', 'z' ).apply( str ) || fromTo( 'A', 'Z' ).apply(
-						str
-				) || fromTo( '0', '9' ).apply( str ) || fromTo( '_', '_' ).apply( str )), "\\w"
+				CharacterClassesUtils.WORD_CHARACTER_FN
+				, CharacterClassesUtils.WORD_CHARACTER
 		);
 	}
 
 	static Regex nonWordCharacter() {
 		return new SetRegex(
-				str -> str.length() == 1 && !fromTo( 'a', 'z' ).apply( str ) && !fromTo( 'A', 'Z' ).apply( str )
-						&& !fromTo( '0', '9' ).apply( str ) && str.charAt( 0 ) != '_', "\\W"
+				NON_WORD_CHARACTER_FN, CharacterClassesUtils.NON_WORD_CHARACTER
 		);
 	}
 
@@ -286,21 +218,5 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	Regex copy();
 
 	String toString();
-
-	class Range {
-
-		private final char from;
-		private final char to;
-
-		private Range(char from, char to) {
-			this.from = from;
-			this.to = to;
-		}
-
-		public static Range of(char from, char to) {
-			return new Range( from, to );
-		}
-
-	}
 
 }

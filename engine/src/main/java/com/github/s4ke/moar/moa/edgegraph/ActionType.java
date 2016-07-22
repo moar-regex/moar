@@ -16,7 +16,7 @@ public enum ActionType {
 
 		@Override
 		public String toString(String variableName) {
-			return String.format("o(%s)", variableName);
+			return String.format( "o(%s)", variableName );
 		}
 	},
 	CLOSE {
@@ -29,7 +29,7 @@ public enum ActionType {
 
 		@Override
 		public String toString(String variableName) {
-			return String.format("c(%s)", variableName);
+			return String.format( "c(%s)", variableName );
 		}
 	},
 	RESET {
@@ -42,10 +42,24 @@ public enum ActionType {
 
 		@Override
 		public String toString(String variableName) {
-			return String.format("r(%s)", variableName);
+			return String.format( "r(%s)", variableName );
 		}
 	};
 
+	public static ActionType fromString(String str) {
+		switch ( str ) {
+			case "o":
+				return OPEN;
+			case "c":
+				return CLOSE;
+			case "r":
+				return RESET;
+			default:
+				throw new IllegalArgumentException( "unrecognized ActionType String representation: " + str );
+		}
+	}
+
 	public abstract void act(String variableName, Variable val);
+
 	public abstract String toString(String variableName);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import com.github.s4ke.moar.regex.Regex;
+import com.github.s4ke.moar.util.Range;
 
 /**
  * @author Martin Braun
@@ -162,75 +163,33 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	@Override
 	public void exitPositiveSet(RegexParser.PositiveSetContext ctx) {
-		RegexParser.SetItemsContext setItems = ctx.setItems();
-		Regex regex;
-		{
-			RegexParser.SetItemContext setItem = setItems.setItem();
-			if ( setItem.charOrEscaped() != null ) {
-				regex = Regex.str( getCh( setItem.charOrEscaped() ) );
-			}
-			else if ( setItem.range() != null ) {
-				char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
-				char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
+		this.regexStack.push( Regex.set( ranges( ctx.setItems() ) ) );
+	}
 
-				//the explicit set function is really only needed here, and
-				//not above as single tokens in a group can be handled with a simple
-				//or without any real memory usage difference
-				regex = Regex.set( from, to );
-			}
-			else {
-				throw new AssertionError();
-			}
-
-			setItems = setItems.setItems();
-		}
-
+	public static Range[] ranges(RegexParser.SetItemsContext setItems) {
+		List<Range> rangesList = new ArrayList<>();
 		while ( setItems != null ) {
 			RegexParser.SetItemContext setItem = setItems.setItem();
 			if ( setItem.charOrEscaped() != null ) {
-				regex = regex.or( Regex.str( getCh( setItem.charOrEscaped() ) ) );
+				char ch = getCh( setItems.setItem().charOrEscaped() ).charAt( 0 );
+				rangesList.add( Range.of( ch, ch ) );
 			}
 			else if ( setItem.range() != null ) {
 				char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
 				char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
 
-				//the explicit set function is really only needed here, and
-				//not above as single tokens in a group can be handled with a simple
-				//or without any real memory usage difference
-				Regex rangeRegex = Regex.set( from, to );
-				regex = regex.or( rangeRegex );
+				rangesList.add( Range.of( from, to ) );
 			}
-
-			//go on with the next one
 			setItems = setItems.setItems();
 		}
 
-		this.regexStack.push( regex );
+		Range[] ranges = new Range[rangesList.size()];
+		return rangesList.toArray( ranges );
 	}
 
 	@Override
 	public void exitNegativeSet(RegexParser.NegativeSetContext ctx) {
-		List<Regex.Range> excluded = new ArrayList<>();
-		{
-			RegexParser.SetItemsContext setItems = ctx.setItems();
-			while ( setItems != null ) {
-				RegexParser.SetItemContext setItem = setItems.setItem();
-				if ( setItem.charOrEscaped() != null ) {
-					char ch = getCh( setItems.setItem().charOrEscaped() ).charAt( 0 );
-					excluded.add( Regex.Range.of( ch, ch ) );
-				}
-				else if ( setItem.range() != null ) {
-					char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
-					char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
-
-					excluded.add( Regex.Range.of( from, to ) );
-				}
-				setItems = setItems.setItems();
-			}
-		}
-
-		Regex.Range[] ranges = new Regex.Range[excluded.size()];
-		this.regexStack.push( Regex.negativeSet( excluded.toArray( ranges ) ) );
+		this.regexStack.push( Regex.negativeSet( ranges( ctx.setItems() ) ) );
 	}
 
 	@Override

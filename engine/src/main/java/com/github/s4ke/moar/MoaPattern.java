@@ -17,6 +17,10 @@ public final class MoaPattern {
 		this.regex = regex;
 	}
 
+	public String getRegex() {
+		return this.regex;
+	}
+
 	public static MoaPattern compile(String regexStr) {
 		try {
 			return new MoaPattern( RegexCompiler.compile( regexStr ).toMoa(), regexStr );
@@ -26,8 +30,8 @@ public final class MoaPattern {
 		}
 	}
 
-	public static MoaPattern fromJSON(String jsonString) {
-		return null;
+	public static MoaPattern build(Moa moa, String regex) {
+		return new MoaPattern( moa, regex );
 	}
 
 	public MoaMatcher matcher(CharSequence str) {

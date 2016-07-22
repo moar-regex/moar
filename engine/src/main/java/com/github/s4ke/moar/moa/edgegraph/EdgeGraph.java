@@ -79,6 +79,10 @@ public final class EdgeGraph {
 			this.destination = destination.getIdx();
 		}
 
+		public Edge(Set<MemoryAction> memoryActionSet, State toState) {
+			this( memoryActionSet, toState.getIdx() );
+		}
+
 		public Edge(Set<MemoryAction> memoryAction, Integer destination) {
 			this.memoryAction = memoryAction;
 			this.destination = destination;
@@ -406,6 +410,10 @@ public final class EdgeGraph {
 
 	public Collection<State> getStates() {
 		return Collections.unmodifiableCollection( this.states.values() );
+	}
+
+	public State getState(int idx) {
+		return this.states.get( idx );
 	}
 
 	public void addEdge(State from, Edge edge) {
