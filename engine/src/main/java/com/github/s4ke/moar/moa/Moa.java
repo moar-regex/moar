@@ -1,5 +1,6 @@
 package com.github.s4ke.moar.moa;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,6 +53,11 @@ public final class Moa {
 		}
 	}
 
+	public EdgeGraph getEdges() {
+		this.checkFrozen();
+		return this.edges;
+	}
+
 	public void setEdges(EdgeGraph edges) {
 		this.checkNotFrozen();
 		this.edges = edges;
@@ -80,6 +86,10 @@ public final class Moa {
 	public void setVariables(Map<String, Variable> variables) {
 		this.checkNotFrozen();
 		this.vars = variables;
+	}
+
+	public Map<String, Variable> getVars() {
+		return Collections.unmodifiableMap( this.vars );
 	}
 
 	public MoaMatcher matcher(CharSequence str) {

@@ -22,14 +22,16 @@ class SetRegex implements Regex {
 	private static final String SELF_RELEVANT_KEY = "";
 
 	private final Function<EfficientString, Boolean> setDescriptor;
+	private final String stringRepresentation;
 
-	public SetRegex(Function<EfficientString, Boolean> setDescriptor) {
+	public SetRegex(Function<EfficientString, Boolean> setDescriptor, String stringRepresentation) {
 		this.setDescriptor = setDescriptor;
+		this.stringRepresentation = stringRepresentation;
 	}
 
 	@Override
 	public Regex copy() {
-		return new SetRegex( this.setDescriptor );
+		return new SetRegex( this.setDescriptor, this.stringRepresentation );
 	}
 
 	@Override
@@ -50,7 +52,8 @@ class SetRegex implements Regex {
 			Map<Regex, Map<String, State>> selfRelevant,
 			Supplier<Integer> idxSupplier) {
 		//we default to length 1
-		State state = new SetState( idxSupplier.get(), 1, this.setDescriptor );
+		State state = new SetState( idxSupplier.get(), 1, this.setDescriptor, stringRepresentation );
+
 		states.add( state );
 		states.add( Moa.SRC );
 		states.add( Moa.SNK );

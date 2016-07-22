@@ -11,16 +11,16 @@ import com.github.s4ke.moar.strings.EfficientString;
 public class BoundState implements State {
 
 	private final int idx;
-	private final int boundHandled;
+	private final String boundHandled;
 	private final Function<MatchInfo, Boolean> condition;
 
-	public BoundState(int idx, int boundHandled, Function<MatchInfo, Boolean> condition) {
+	public BoundState(int idx, String boundHandled, Function<MatchInfo, Boolean> condition) {
 		this.idx = idx;
-		this.boundHandled = boundHandled;
 		this.condition = condition;
+		this.boundHandled = boundHandled;
 	}
 
-	public int handles() {
+	public String getBoundHandled() {
 		return this.boundHandled;
 	}
 

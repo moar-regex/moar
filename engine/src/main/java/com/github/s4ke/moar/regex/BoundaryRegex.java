@@ -21,10 +21,10 @@ class BoundaryRegex implements Regex {
 
 	private static final String SELF_RELEVANT_KEY = "";
 
-	private final int boundHandled;
+	private final String boundHandled;
 	private final Function<MatchInfo, Boolean> matchDescriptor;
 
-	public BoundaryRegex(int boundHandled, Function<MatchInfo, Boolean> matchDescriptor) {
+	public BoundaryRegex(String boundHandled, Function<MatchInfo, Boolean> matchDescriptor) {
 		this.boundHandled = boundHandled;
 		this.matchDescriptor = matchDescriptor;
 	}

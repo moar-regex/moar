@@ -13,6 +13,11 @@ public enum ActionType {
 				val.open();
 			}
 		}
+
+		@Override
+		public String toString(String variableName) {
+			return String.format("o(%s)", variableName);
+		}
 	},
 	CLOSE {
 		@Override
@@ -20,7 +25,11 @@ public enum ActionType {
 			if ( val.isOpen() ) {
 				val.close();
 			}
+		}
 
+		@Override
+		public String toString(String variableName) {
+			return String.format("c(%s)", variableName);
 		}
 	},
 	RESET {
@@ -29,9 +38,14 @@ public enum ActionType {
 			if ( val.isOpen() ) {
 				val.contents.reset();
 			}
+		}
 
+		@Override
+		public String toString(String variableName) {
+			return String.format("r(%s)", variableName);
 		}
 	};
 
 	public abstract void act(String variableName, Variable val);
+	public abstract String toString(String variableName);
 }

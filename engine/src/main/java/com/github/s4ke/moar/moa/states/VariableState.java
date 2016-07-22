@@ -23,6 +23,10 @@ public class VariableState implements State {
 		this.variableName = variableName;
 	}
 
+	public String getVariableName() {
+		return this.variableName;
+	}
+
 	@Override
 	public int getIdx() {
 		return this.idx;

@@ -26,6 +26,10 @@ public final class MoaPattern {
 		}
 	}
 
+	public static MoaPattern fromJSON(String jsonString) {
+		return null;
+	}
+
 	public MoaMatcher matcher(CharSequence str) {
 		return this.moa.matcher( str );
 	}

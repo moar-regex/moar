@@ -15,11 +15,10 @@ public final class BoundConstants {
 		//can't touch this!
 	}
 
-	public static final int START_OF_LINE = 1;
-	public static final int END_OF_LINE = 2;
-	public static final int START_OF_INPUT = 3;
-	public static final int END_OF_INPUT = 4;
-	public static final int END_OF_LAST_MATCH = 5;
+	public static final String START_OF_LINE = "^";
+	public static final String END_OF_LINE = "$";
+	public static final String END_OF_INPUT = "\\z";
+	public static final String END_OF_LAST_MATCH = "\\G";
 
 	public static final Set<EfficientString> LINE_BREAK_CHARS = Arrays.asList(
 			"\n",

@@ -1,13 +1,10 @@
 package com.github.s4ke.moar.regex.parser;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import com.github.s4ke.moar.regex.Regex;
-import com.github.s4ke.moar.strings.EfficientString;
 
 /**
  * @author Martin Braun
@@ -44,7 +41,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 				regex = Regex.caret().and( regex );
 				this.regexStack.push( regex );
 			}
-			if(ctx.startBoundary().prevMatch() != null) {
+			if ( ctx.startBoundary().prevMatch() != null ) {
 				Regex regex = this.regexStack.pop();
 				regex = Regex.endOfLastMatch().and( regex );
 				this.regexStack.push( regex );
@@ -56,7 +53,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 				regex = regex.dollar();
 				this.regexStack.push( regex );
 			}
-			if(ctx.endBoundary().endOfInput() != null) {
+			if ( ctx.endBoundary().endOfInput() != null ) {
 				Regex regex = this.regexStack.pop();
 				regex = regex.end();
 				this.regexStack.push( regex );
@@ -129,7 +126,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	@Override
 	public void exitElementaryRegex(RegexParser.ElementaryRegexContext ctx) {
 		if ( ctx.ANY() != null ) {
-			Regex regex = Regex.set( (string) -> string.length() == 1 );
+			Regex regex = Regex.any_();
 			this.regexStack.push( regex );
 		}
 		else if ( ctx.charOrEscaped() != null ) {
@@ -169,7 +166,21 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		Regex regex;
 		{
 			RegexParser.SetItemContext setItem = setItems.setItem();
-			regex = Regex.str( getCh( setItem.charOrEscaped() ) );
+			if ( setItem.charOrEscaped() != null ) {
+				regex = Regex.str( getCh( setItem.charOrEscaped() ) );
+			}
+			else if ( setItem.range() != null ) {
+				char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
+				char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
+
+				//the explicit set function is really only needed here, and
+				//not above as single tokens in a group can be handled with a simple
+				//or without any real memory usage difference
+				regex = Regex.set( from, to );
+			}
+			else {
+				throw new AssertionError();
+			}
 
 			setItems = setItems.setItems();
 		}
@@ -199,27 +210,27 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	@Override
 	public void exitNegativeSet(RegexParser.NegativeSetContext ctx) {
-		Set<EfficientString> excluded = new HashSet<>();
+		List<Regex.Range> excluded = new ArrayList<>();
 		{
 			RegexParser.SetItemsContext setItems = ctx.setItems();
 			while ( setItems != null ) {
 				RegexParser.SetItemContext setItem = setItems.setItem();
 				if ( setItem.charOrEscaped() != null ) {
-					excluded.add( new EfficientString( getCh( setItems.setItem().charOrEscaped() ) ) );
+					char ch = getCh( setItems.setItem().charOrEscaped() ).charAt( 0 );
+					excluded.add( Regex.Range.of( ch, ch ) );
 				}
 				else if ( setItem.range() != null ) {
 					char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
 					char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
 
-					for ( int i = from; i <= to; ++i ) {
-						excluded.add( new EfficientString( String.valueOf( (char) i ) ) );
-					}
+					excluded.add( Regex.Range.of( from, to ) );
 				}
 				setItems = setItems.setItems();
 			}
 		}
 
-		this.regexStack.push( Regex.set( (string) -> !excluded.contains( string ) ) );
+		Regex.Range[] ranges = new Regex.Range[excluded.size()];
+		this.regexStack.push( Regex.negativeSet( excluded.toArray( ranges ) ) );
 	}
 
 	@Override

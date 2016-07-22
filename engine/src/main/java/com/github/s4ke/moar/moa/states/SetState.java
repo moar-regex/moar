@@ -13,11 +13,17 @@ public class SetState implements State {
 	public final int idx;
 	public final int length;
 	public final Function<EfficientString, Boolean> criterion;
+	public final String stringRepresentation;
 
-	public SetState(int idx, int length, Function<EfficientString, Boolean> criterion) {
+	public SetState(int idx, int length, Function<EfficientString, Boolean> criterion, String stringRepresentation) {
 		this.idx = idx;
 		this.length = length;
 		this.criterion = criterion;
+		this.stringRepresentation = stringRepresentation;
+	}
+
+	public String getStringRepresentation() {
+		return this.stringRepresentation;
 	}
 
 	@Override

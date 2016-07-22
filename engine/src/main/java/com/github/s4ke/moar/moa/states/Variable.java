@@ -24,6 +24,10 @@ public class Variable {
 		this.name = name;
 	}
 
+	public String getName() {
+		return this.name;
+	}
+
 	public void open() {
 		this.open = true;
 	}

@@ -17,6 +17,10 @@ public class BasicState implements State {
 		this.string = new EfficientString( string );
 	}
 
+	public EfficientString getToken() {
+		return this.string;
+	}
+
 	@Override
 	public int getIdx() {
 		return this.idx;
