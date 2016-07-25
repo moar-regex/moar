@@ -36,6 +36,20 @@ public final class EdgeGraph {
 
 	private boolean frozen = false;
 
+	public EdgeGraph copy() {
+		EdgeGraph edgeGraph = new EdgeGraph();
+		for ( State state : this.getStates() ) {
+			edgeGraph.addState( state );
+		}
+		for ( State state : this.getStates() ) {
+			for ( EdgeGraph.Edge edge : this.getEdges( state ) ) {
+				EdgeGraph.Edge edgeCpy = new EdgeGraph.Edge( new HashSet<>( edge.memoryAction ), edge.destination );
+				edgeGraph.addEdge( state, edgeCpy );
+			}
+		}
+		return edgeGraph;
+	}
+
 	public void freeze() {
 		this.frozen = true;
 		for ( Map.Entry<Integer, Set<Edge>> entry : this.edges.entrySet() ) {
@@ -48,6 +62,7 @@ public final class EdgeGraph {
 			this.boundEdges.put( src, boundEdges );
 			entry.getValue().forEach(
 					(edge) -> {
+						edge.freeze();
 						State state = this.states.get( edge.destination );
 						if ( state.isStatic() ) {
 							//only called for terminals so null is fine
@@ -88,8 +103,12 @@ public final class EdgeGraph {
 			this.destination = destination;
 		}
 
-		public final Set<MemoryAction> memoryAction;
+		public Set<MemoryAction> memoryAction;
 		public final Integer destination;
+
+		public void freeze() {
+			this.memoryAction = Collections.unmodifiableSet( this.memoryAction );
+		}
 
 		@Override
 		public String toString() {
