@@ -202,6 +202,8 @@ public final class MoarJSONSerializer {
 				}
 				else if ( state.isSet() ) {
 					stateObj.put( "set", ((SetState) state).getStringRepresentation() );
+				} else {
+					throw new AssertionError();
 				}
 				stateArray.put( stateObj );
 			}

@@ -29,16 +29,23 @@ public class Main {
 		// create Options object
 		Options options = new Options();
 
-		options.addOption( "rf", true, "regexFile" );
-		options.addOption( "r", true, "regex" );
+		options.addOption(
+				"rf",
+				true,
+				"file containint the regexes to test against (multiple regexes are separated by one empty line)"
+		);
+		options.addOption( "r", true, "regex to test against" );
 
-		options.addOption( "mf", true, "moaFile" );
-		options.addOption( "mo", true, "moaOutputFolder (overwrites if existent)" );
+		options.addOption( "mf", true, "file/folder to read the MOA from" );
+		options.addOption( "mo", true, "folder to export the MOAs to (overwrites if existent)" );
 
-		options.addOption( "sf", true, "stringFile" );
-		options.addOption( "s", true, "string" );
+		options.addOption( "sf", true, "file to read the input string(s) from" );
+		options.addOption( "s", true, "string to test the MOA/Regex against" );
 
-		options.addOption( "m", false, "multiline" );
+		options.addOption( "m", false, "multiline matching mode (search in string for regex)" );
+
+		options.addOption( "ls", false, "treat every line of the input string file as one string" );
+		options.addOption( "t", false, "trim lines if -ls is set" );
 
 		options.addOption( "help", false, "prints this dialog" );
 
@@ -76,7 +83,7 @@ public class Main {
 				if ( emptyLineCountAfterRegex >= 1 ) {
 					if ( regexStr.length() > 0 ) {
 						patterns.add( MoaPattern.compile( regexStr.toString() ) );
-						patternNames.add(regexStr.toString());
+						patternNames.add( regexStr.toString() );
 					}
 					regexStr.setLength( 0 );
 					emptyLineCountAfterRegex = 0;
@@ -93,7 +100,7 @@ public class Main {
 			if ( regexStr.length() > 0 ) {
 				try {
 					patterns.add( MoaPattern.compile( regexStr.toString() ) );
-					patternNames.add(regexStr.toString());
+					patternNames.add( regexStr.toString() );
 				}
 				catch (Exception e) {
 					System.out.println( e.getMessage() );
@@ -114,14 +121,14 @@ public class Main {
 				for ( File moar : moarFiles ) {
 					String jsonString = readWholeFile( moar );
 					patterns.add( MoarJSONSerializer.fromJSON( jsonString ) );
-					patternNames.add(moar.getAbsolutePath());
+					patternNames.add( moar.getAbsolutePath() );
 				}
 			}
 			else {
 				System.out.println( fileName + " is a single file. using it directly (no check for *.moar suffix)" );
 				String jsonString = readWholeFile( file );
 				patterns.add( MoarJSONSerializer.fromJSON( jsonString ) );
-				patternNames.add(fileName);
+				patternNames.add( fileName );
 			}
 		}
 
@@ -131,22 +138,35 @@ public class Main {
 		}
 
 		if ( cmd.hasOption( "sf" ) ) {
+			boolean treatLineAsString = cmd.hasOption( "ls" );
+			boolean trim = cmd.hasOption( "t" );
 			String fileName = cmd.getOptionValue( "sf" );
 			StringBuilder stringBuilder = new StringBuilder();
 			boolean firstLine = true;
 			for ( String str : readFileContents( new File( fileName ) ) ) {
-				if ( !firstLine ) {
-					stringBuilder.append( "\n" );
+				if ( treatLineAsString ) {
+					if ( trim ) {
+						str = str.trim();
+						if ( str.length() == 0 ) {
+							continue;
+						}
+					}
+					stringsToCheck.add( str );
 				}
-				if ( firstLine ) {
-					firstLine = false;
+				else {
+					if ( !firstLine ) {
+						stringBuilder.append( "\n" );
+					}
+					if ( firstLine ) {
+						firstLine = false;
+					}
+					stringBuilder.append( str );
 				}
-				stringBuilder.append( str );
 			}
-			stringsToCheck.add( stringBuilder.toString() );
+			if ( !treatLineAsString ) {
+				stringsToCheck.add( stringBuilder.toString() );
+			}
 		}
-
-		boolean multiLine = cmd.hasOption( "m" );
 
 		if ( patterns.size() == 0 ) {
 			System.out.println( "no patterns to check" );
@@ -184,16 +204,18 @@ public class Main {
 			return;
 		}
 
+		boolean multiline = cmd.hasOption( "m" );
+
 		for ( String string : stringsToCheck ) {
 			int curPattern = 0;
 			for ( MoaPattern pattern : patterns ) {
 				MoaMatcher matcher = pattern.matcher( string );
-				if ( !multiLine ) {
+				if ( !multiline ) {
 					if ( matcher.matches() ) {
-						System.out.println( "\"" + patternNames.get(curPattern) + "\" matches \"" + string + "\"" );
+						System.out.println( "\"" + patternNames.get( curPattern ) + "\" matches \"" + string + "\"" );
 					}
 					else {
-						System.out.println( "\"" + patternNames.get(curPattern) + "\" does not match \"" + string + "\"" );
+						System.out.println( "\"" + patternNames.get( curPattern ) + "\" does not match \"" + string + "\"" );
 					}
 				}
 				else {
