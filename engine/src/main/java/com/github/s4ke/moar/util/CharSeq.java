@@ -22,7 +22,14 @@ public class CharSeq {
 	}
 
 	public String subSequence(int start, int end) {
-		return new String( this.codePoints, start, end );
+		if ( end - start > 0 ) {
+			int[] codePointArr = new int[end - start];
+			System.arraycopy(this.codePoints, start, codePointArr, 0, end - start);
+			return new String( codePointArr, 0, end - start );
+		}
+		else {
+			return "";
+		}
 	}
 
 	@Override

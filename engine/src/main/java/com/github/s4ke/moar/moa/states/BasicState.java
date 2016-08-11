@@ -73,4 +73,23 @@ public class BasicState implements State {
 				", string='" + string + '\'' +
 				'}';
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		BasicState that = (BasicState) o;
+
+		if ( idx != that.idx ) {
+			return false;
+		}
+		return !(string != null ? !string.equals( that.string ) : that.string != null);
+
+	}
+
 }

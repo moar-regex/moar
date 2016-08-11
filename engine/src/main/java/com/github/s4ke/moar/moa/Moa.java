@@ -105,5 +105,32 @@ public final class Moa {
 		return this.matcher( str ).matches();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
 
+		Moa moa = (Moa) o;
+
+		if ( frozen != moa.frozen ) {
+			return false;
+		}
+		if ( vars != null ? !vars.equals( moa.vars ) : moa.vars != null ) {
+			return false;
+		}
+		return !(edges != null ? !edges.equals( moa.edges ) : moa.edges != null);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = vars != null ? vars.hashCode() : 0;
+		result = 31 * result + (edges != null ? edges.hashCode() : 0);
+		result = 31 * result + (frozen ? 1 : 0);
+		return result;
+	}
 }

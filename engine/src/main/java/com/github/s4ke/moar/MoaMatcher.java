@@ -1,11 +1,15 @@
 package com.github.s4ke.moar;
 
+import com.github.s4ke.moar.util.CharSeq;
+
 /**
  * @author Martin Braun
  */
 public interface MoaMatcher {
 
-	void reuse(CharSequence str);
+	MoaMatcher reuse(CharSequence str);
+
+	MoaMatcher reuse(CharSeq seq);
 
 	String replaceFirst(String replacement);
 

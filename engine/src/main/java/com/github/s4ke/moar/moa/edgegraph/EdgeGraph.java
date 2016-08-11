@@ -1,9 +1,11 @@
 package com.github.s4ke.moar.moa.edgegraph;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,9 +31,9 @@ public final class EdgeGraph {
 	public static final State SNK = new BasicState( 1, "" );
 
 	private final Map<Integer, State> states = new HashMap<>();
-	private final Map<Integer, Set<Edge>> edges = new HashMap<>();
-	private final Map<Integer, Set<Edge>> setEdges = new HashMap<>();
-	private final Map<Integer, Set<Edge>> boundEdges = new HashMap<>();
+	private final Map<Integer, List<Edge>> edges = new HashMap<>();
+	private final Map<Integer, List<Edge>> setEdges = new HashMap<>();
+	private final Map<Integer, List<Edge>> boundEdges = new HashMap<>();
 	private final Map<Integer, Map<EfficientString, Edge>> staticEdges = new HashMap<>();
 
 	private boolean frozen = false;
@@ -52,13 +54,13 @@ public final class EdgeGraph {
 
 	public void freeze() {
 		this.frozen = true;
-		for ( Map.Entry<Integer, Set<Edge>> entry : this.edges.entrySet() ) {
+		for ( Map.Entry<Integer, List<Edge>> entry : this.edges.entrySet() ) {
 			Integer src = entry.getKey();
 			Map<EfficientString, Edge> stat = new HashMap<>();
 			this.staticEdges.put( src, stat );
-			Set<Edge> setEdges = new HashSet<>();
+			List<Edge> setEdges = new ArrayList<>();
 			this.setEdges.put( src, setEdges );
-			Set<Edge> boundEdges = new HashSet<>();
+			List<Edge> boundEdges = new ArrayList<>();
 			this.boundEdges.put( src, boundEdges );
 			entry.getValue().forEach(
 					(edge) -> {
@@ -117,6 +119,25 @@ public final class EdgeGraph {
 					", destination=" + destination +
 					'}';
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if ( this == o ) {
+				return true;
+			}
+			if ( o == null || getClass() != o.getClass() ) {
+				return false;
+			}
+
+			Edge edge = (Edge) o;
+
+			if ( memoryAction != null ? !memoryAction.equals( edge.memoryAction ) : edge.memoryAction != null ) {
+				return false;
+			}
+			return !(destination != null ? !destination.equals( edge.destination ) : edge.destination != null);
+
+		}
+
 	}
 
 	public Edge getEdge(State from, MatchInfo matchInfo, Map<String, Variable> variables) {
@@ -144,7 +165,7 @@ public final class EdgeGraph {
 		}
 
 		{
-			Set<Edge> setEdges = this.setEdges.get( from.getIdx() );
+			List<Edge> setEdges = this.setEdges.get( from.getIdx() );
 			if ( setEdges != null ) {
 				for ( Edge edge : setEdges ) {
 					State state = this.states.get( edge.destination );
@@ -155,7 +176,7 @@ public final class EdgeGraph {
 			}
 		}
 
-		Set<Edge> set = this.edges.get( from.getIdx() );
+		List<Edge> set = this.edges.get( from.getIdx() );
 		if ( set == null ) {
 			return null;
 		}
@@ -208,7 +229,7 @@ public final class EdgeGraph {
 
 	public boolean isDeterministic() {
 		for ( State state : this.states.values() ) {
-			Set<Edge> edges = this.edges.get( state.getIdx() );
+			List<Edge> edges = this.edges.get( state.getIdx() );
 			int edgeCnt = edges.size();
 
 			VariableState variableDestinationState = null;
@@ -265,7 +286,7 @@ public final class EdgeGraph {
 
 				//check if the sets contain values from the static states
 				{
-					Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
+					List<Edge> setEdges = this.setEdges.get( state.getIdx() );
 					if ( setEdges != null ) {
 						for ( Edge edge : setEdges ) {
 							State destinationState = this.states.get( edge.destination );
@@ -287,7 +308,7 @@ public final class EdgeGraph {
 				//FIXME: can we do this more efficiently?
 				//FIXME: this does not work with UTF-32
 				{
-					Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
+					List<Edge> setEdges = this.setEdges.get( state.getIdx() );
 					if ( setEdges != null && setEdges.size() > 1 ) {
 						for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
 							char ch = (char) i;
@@ -386,7 +407,7 @@ public final class EdgeGraph {
 		}
 
 		{
-			Set<Edge> setEdges = this.setEdges.get( stateHolder.getState().getIdx() );
+			List<Edge> setEdges = this.setEdges.get( stateHolder.getState().getIdx() );
 			if ( setEdges != null ) {
 				for ( Edge edge : setEdges ) {
 					if ( edge.destination == Moa.SNK.getIdx() || edge.destination == Moa.SRC.getIdx() ) {
@@ -421,11 +442,11 @@ public final class EdgeGraph {
 		return maxLen;
 	}
 
-	public Set<Edge> getEdges(State state) {
+	public List<Edge> getEdges(State state) {
 		if ( !this.edges.containsKey( state.getIdx() ) ) {
-			return Collections.emptySet();
+			return Collections.emptyList();
 		}
-		return Collections.unmodifiableSet( this.edges.get( state.getIdx() ) );
+		return Collections.unmodifiableList( this.edges.get( state.getIdx() ) );
 	}
 
 	public Collection<State> getStates() {
@@ -448,7 +469,37 @@ public final class EdgeGraph {
 			return;
 		}
 		this.states.put( state.getIdx(), state );
-		this.edges.put( state.getIdx(), new HashSet<>() );
+		this.edges.put( state.getIdx(), new ArrayList<>() );
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		EdgeGraph edgeGraph = (EdgeGraph) o;
+
+		if ( frozen != edgeGraph.frozen ) {
+			return false;
+		}
+		if ( states != null ? !states.equals( edgeGraph.states ) : edgeGraph.states != null ) {
+			return false;
+		}
+		if ( edges != null ? !edges.equals( edgeGraph.edges ) : edgeGraph.edges != null ) {
+			return false;
+		}
+		if ( setEdges != null ? !setEdges.equals( edgeGraph.setEdges ) : edgeGraph.setEdges != null ) {
+			return false;
+		}
+		if ( boundEdges != null ? !boundEdges.equals( edgeGraph.boundEdges ) : edgeGraph.boundEdges != null ) {
+			return false;
+		}
+		return !(staticEdges != null ? !staticEdges.equals( edgeGraph.staticEdges ) : edgeGraph.staticEdges != null);
+
 	}
 
 }

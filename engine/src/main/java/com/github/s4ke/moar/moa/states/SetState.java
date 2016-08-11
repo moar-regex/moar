@@ -70,4 +70,28 @@ public class SetState implements State {
 	public void touch() {
 
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		SetState setState = (SetState) o;
+
+		if ( idx != setState.idx ) {
+			return false;
+		}
+		if ( length != setState.length ) {
+			return false;
+		}
+		return !(stringRepresentation != null ?
+				!stringRepresentation.equals( setState.stringRepresentation ) :
+				setState.stringRepresentation != null);
+
+	}
+
 }

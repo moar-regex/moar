@@ -143,7 +143,7 @@ public class EfficientString {
 		if ( this.codePointLength() == this.underlying.codePointLength() ) {
 			return this.underlying.toString();
 		}
-		return this.underlying.subSequence( this.start, this.end ).toString();
+		return this.underlying.subSequence( this.start, this.end );
 	}
 
 }

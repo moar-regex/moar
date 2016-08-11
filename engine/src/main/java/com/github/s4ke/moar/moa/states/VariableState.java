@@ -79,4 +79,23 @@ public class VariableState implements State {
 				", variableName=" + variableName +
 				'}';
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		VariableState that = (VariableState) o;
+
+		if ( idx != that.idx ) {
+			return false;
+		}
+		return !(variableName != null ? !variableName.equals( that.variableName ) : that.variableName != null);
+
+	}
+
 }

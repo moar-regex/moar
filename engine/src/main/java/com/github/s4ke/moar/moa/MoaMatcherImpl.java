@@ -47,9 +47,17 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	}
 
 	@Override
-	public void reuse(CharSequence str) {
+	public MoaMatcher reuse(CharSequence str) {
 		this.reset();
 		this.str = new CharSeq( str );
+		return this;
+	}
+
+	@Override
+	public MoaMatcher reuse(CharSeq seq) {
+		this.reset();
+		this.str = seq;
+		return this;
 	}
 
 	@Override

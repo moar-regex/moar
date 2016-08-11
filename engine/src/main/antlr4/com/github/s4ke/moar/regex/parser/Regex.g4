@@ -99,6 +99,7 @@ escapeSeq : ESC escapee;
 escapee : '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
     | ESC | ANY | EOS | START | UTF_32_MARKER
     | '*' | '+' | '?'
+    | '-'
     | ':' ;
 utf32 : (character | escapeSeq)+;
 

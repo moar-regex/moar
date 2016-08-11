@@ -49,7 +49,7 @@ final class Plus implements Regex {
 			Map<Regex, Map<String, State>> selfRelevant) {
 		this.regex.contributeEdges( edgeGraph, variables, states, selfRelevant );
 
-		Set<EdgeGraph.Edge> srcEdges = edgeGraph.getEdges( Moa.SRC );
+		List<EdgeGraph.Edge> srcEdges = edgeGraph.getEdges( Moa.SRC );
 
 		//used to avoid concurrent modification
 		List<Supplier<Void>> addActions = new ArrayList<>();

@@ -68,4 +68,23 @@ public class BoundState implements State {
 	public void touch() {
 
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		BoundState that = (BoundState) o;
+
+		if ( idx != that.idx ) {
+			return false;
+		}
+		return !(boundHandled != null ? !boundHandled.equals( that.boundHandled ) : that.boundHandled != null);
+
+	}
+
 }

@@ -2,6 +2,7 @@ package com.github.s4ke.moar.regex;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -67,7 +68,7 @@ final class Concat implements Regex {
 		Set<EdgeGraph.Edge> srcEdges = new HashSet<>();
 
 		for ( State state : states ) {
-			Set<EdgeGraph.Edge> edges = eg1.getEdges( state );
+			List<EdgeGraph.Edge> edges = eg1.getEdges( state );
 			for ( EdgeGraph.Edge edge : edges ) {
 				if ( !edge.destination.equals( Moa.SNK.getIdx() ) ) {
 					edgeGraph.addEdge( state, edge );
@@ -79,7 +80,7 @@ final class Concat implements Regex {
 		}
 
 		for ( State state : states ) {
-			Set<EdgeGraph.Edge> edges = eg2.getEdges( state );
+			List<EdgeGraph.Edge> edges = eg2.getEdges( state );
 			for ( EdgeGraph.Edge edge : edges ) {
 				if ( state.getIdx() != (Moa.SRC.getIdx()) ) {
 					edgeGraph.addEdge( state, edge );
