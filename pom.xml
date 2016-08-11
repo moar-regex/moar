@@ -14,6 +14,7 @@
         <module>engine</module>
         <module>cli</module>
         <module>json</module>
+        <module>lucene</module>
     </modules>
     
     <properties>

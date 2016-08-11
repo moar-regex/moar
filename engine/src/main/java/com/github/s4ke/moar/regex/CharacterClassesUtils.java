@@ -13,14 +13,16 @@ import com.github.s4ke.moar.util.Range;
  */
 public class CharacterClassesUtils {
 
-	private static final Set<Character> WHITE_SPACE_CHARS = new HashSet<>(
+	private static final Set<Integer> WHITE_SPACE_CHARS = new HashSet<>(
 			Arrays.asList(
-					' ',
-					'\t',
-					'\n',
-					(char) 0x0B,
-					'\f',
-					'\r'
+					new Integer[] {
+							(int) ' ',
+							(int) '\t',
+							(int) '\n',
+							0x0B,
+							(int) '\f',
+							(int) '\r'
+					}
 			)
 	);
 
@@ -37,7 +39,7 @@ public class CharacterClassesUtils {
 	public static final String NON_WORD_CHARACTER = "\\W";
 
 	public static Function<EfficientString, Boolean> getFn(String identifier) {
-		switch (identifier) {
+		switch ( identifier ) {
 			case ANY:
 				return ANY_FN;
 			case WHITE_SPACE:
@@ -57,49 +59,49 @@ public class CharacterClassesUtils {
 		}
 	}
 
-	public static final Function<EfficientString, Boolean> ANY_FN = (string) -> string.length() == 1;
+	public static final Function<EfficientString, Boolean> ANY_FN = (string) -> string.codePointLength() == 1;
 
-	public static final Function<EfficientString, Boolean> WHITE_SPACE_FN = str -> str.length() == 1 && WHITE_SPACE_CHARS
-			.contains( str.charAt( 0 ) );
+	public static final Function<EfficientString, Boolean> WHITE_SPACE_FN = str -> str.codePointLength() == 1 && WHITE_SPACE_CHARS
+			.contains( str.codePointAt( 0 ) );
 
-	public static final Function<EfficientString, Boolean> NON_WHITE_SPACE_FN = str -> str.length() == 1 && !WHITE_SPACE_CHARS
-			.contains( str.charAt( 0 ) );
+	public static final Function<EfficientString, Boolean> NON_WHITE_SPACE_FN = str -> str.codePointLength() == 1 && !WHITE_SPACE_CHARS
+			.contains( str.codePointAt( 0 ) );
 
-	public static final Function<EfficientString, Boolean> DIGIT_FN = str -> str.length() == 1 && Character.isDigit(
-			str.charAt(
+	public static final Function<EfficientString, Boolean> DIGIT_FN = str -> str.codePointLength() == 1 && Character.isDigit(
+			str.codePointAt(
 					0
 			)
 	);
 
-	public static final Function<EfficientString, Boolean> NON_DIGIT_FN = str -> str.length() == 1 && !Character.isDigit(
-			str.charAt( 0 )
+	public static final Function<EfficientString, Boolean> NON_DIGIT_FN = str -> str.codePointLength() == 1 && !Character.isDigit(
+			str.codePointAt( 0 )
 	);
 
-	public static final Function<EfficientString, Boolean> WORD_CHARACTER_FN = str -> str.length() == 1 && (fromTo(
+	public static final Function<EfficientString, Boolean> WORD_CHARACTER_FN = str -> str.codePointLength() == 1 && (fromTo(
 			'a',
 			'z'
 	).apply( str ) || fromTo( 'A', 'Z' ).apply(
 			str
 	) || fromTo( '0', '9' ).apply( str ) || fromTo( '_', '_' ).apply( str ));
 
-	public static final Function<EfficientString, Boolean> NON_WORD_CHARACTER_FN = str -> str.length() == 1 && !fromTo(
+	public static final Function<EfficientString, Boolean> NON_WORD_CHARACTER_FN = str -> str.codePointLength() == 1 && !fromTo(
 			'a',
 			'z'
 	).apply( str ) && !fromTo( 'A', 'Z' ).apply( str )
-			&& !fromTo( '0', '9' ).apply( str ) && str.charAt( 0 ) != '_';
+			&& !fromTo( '0', '9' ).apply( str ) && str.codePointAt( 0 ) != '_';
 
-	static Function<EfficientString, Boolean> fromTo(char from, char to) {
+	static Function<EfficientString, Boolean> fromTo(int from, int to) {
 		return (str) ->
-				str.length() == 1 && str.charAt( 0 ) >= from && str.charAt( 0 ) <= to;
+				str.codePointLength() == 1 && str.codePointAt( 0 ) >= from && str.codePointAt( 0 ) <= to;
 	}
 
 	public static Function<EfficientString, Boolean> negativeFn(Range[] ranges) {
 		return (EfficientString str) -> {
-			if ( str.length() != 1 ) {
+			if ( str.codePointLength() != 1 ) {
 				return false;
 			}
 			for ( Range range : ranges ) {
-				if ( str.charAt( 0 ) >= range.from && str.charAt( 0 ) <= range.to ) {
+				if ( str.codePointAt( 0 ) >= range.from && str.codePointAt( 0 ) <= range.to ) {
 					return false;
 				}
 			}
@@ -109,11 +111,11 @@ public class CharacterClassesUtils {
 
 	public static Function<EfficientString, Boolean> positiveFn(Range[] ranges) {
 		return (EfficientString str) -> {
-			if ( str.length() != 1 ) {
+			if ( str.codePointLength() != 1 ) {
 				return false;
 			}
 			for ( Range range : ranges ) {
-				if ( str.charAt( 0 ) >= range.from && str.charAt( 0 ) <= range.to ) {
+				if ( str.codePointAt( 0 ) >= range.from && str.codePointAt( 0 ) <= range.to ) {
 					return true;
 				}
 			}

@@ -171,12 +171,12 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		while ( setItems != null ) {
 			RegexParser.SetItemContext setItem = setItems.setItem();
 			if ( setItem.charOrEscaped() != null ) {
-				char ch = getCh( setItems.setItem().charOrEscaped() ).charAt( 0 );
+				int ch = getCh( setItems.setItem().charOrEscaped() ).codePointAt( 0 );
 				rangesList.add( Range.of( ch, ch ) );
 			}
 			else if ( setItem.range() != null ) {
-				char from = getCh( setItem.range().charOrEscaped( 0 ) ).charAt( 0 );
-				char to = getCh( setItem.range().charOrEscaped( 1 ) ).charAt( 0 );
+				int from = getCh( setItem.range().charOrEscaped( 0 ) ).codePointAt( 0 );
+				int to = getCh( setItem.range().charOrEscaped( 1 ) ).codePointAt( 0 );
 
 				rangesList.add( Range.of( from, to ) );
 			}

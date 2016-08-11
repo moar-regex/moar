@@ -1,5 +1,7 @@
 package com.github.s4ke.moar.strings;
 
+import com.github.s4ke.moar.util.CharSeq;
+
 /**
  * <p>
  * A CharSequence implementation that allows us to
@@ -16,7 +18,7 @@ package com.github.s4ke.moar.strings;
  */
 public class EfficientString {
 
-	private CharSequence underlying;
+	private CharSeq underlying;
 	private int start;
 	private int end;
 
@@ -26,16 +28,20 @@ public class EfficientString {
 		this.end = 0;
 	}
 
-	public EfficientString(CharSequence underlying, int start, int end) {
+	public EfficientString(CharSeq underlying, int start, int end) {
 		this.underlying = underlying;
 		this.start = start;
 		this.end = end;
 	}
 
-	public EfficientString(CharSequence underlying) {
+	public EfficientString(CharSeq underlying) {
 		this.underlying = underlying;
 		this.start = 0;
-		this.end = underlying.length();
+		this.end = underlying.codePointLength();
+	}
+
+	public EfficientString(CharSequence underlying) {
+		this( new CharSeq( underlying ) );
 	}
 
 	public void update(EfficientString underlying, int start, int end) {
@@ -56,7 +62,7 @@ public class EfficientString {
 		}
 	}
 
-	public void update(CharSequence underlying, int start, int end) {
+	public void update(CharSeq underlying, int start, int end) {
 		this.underlying = underlying;
 		this.start = start;
 		this.end = end;
@@ -86,12 +92,12 @@ public class EfficientString {
 	}
 
 	public boolean equalTo(EfficientString str) {
-		int ownLength = this.length();
-		if ( ownLength != str.length() ) {
+		int ownLength = this.codePointLength();
+		if ( ownLength != str.codePointLength() ) {
 			return false;
 		}
 		for ( int i = 0; i < ownLength; ++i ) {
-			if ( this.charAt( i ) != str.charAt( i ) ) {
+			if ( this.codePointAt( i ) != str.codePointAt( i ) ) {
 				return false;
 			}
 		}
@@ -101,26 +107,26 @@ public class EfficientString {
 	@Override
 	public int hashCode() {
 		int result = 0;
-		for ( int i = 0; i < this.length(); ++i ) {
-			result = 31 * result + Character.hashCode( this.charAt( i ) );
+		for ( int i = 0; i < this.codePointLength(); ++i ) {
+			result = 31 * result + Integer.hashCode( this.codePointAt( i ) );
 		}
-		result = 31 * result + Integer.hashCode( this.length() );
+		result = 31 * result + Integer.hashCode( this.codePointLength() );
 		return result;
 	}
 
-	public int length() {
+	public int codePointLength() {
 		return this.end - start;
 	}
 
-	public char charAt(int index) {
+	public int codePointAt(int index) {
 		if ( this.underlying == null ) {
 			throw new IndexOutOfBoundsException();
 		}
-		return this.underlying.charAt( this.start + index );
+		return this.underlying.codePointAt( this.start + index );
 	}
 
 	public EfficientString subSequence(int start, int end) {
-		if ( end - start > this.length() ) {
+		if ( end - start > this.codePointLength() ) {
 			throw new IndexOutOfBoundsException();
 		}
 		return new EfficientString( this.underlying, this.start + start, this.end + end );
@@ -131,7 +137,7 @@ public class EfficientString {
 		if ( this.underlying == null ) {
 			return "";
 		}
-		if ( this.length() == this.underlying.length() ) {
+		if ( this.codePointLength() == this.underlying.codePointLength() ) {
 			return this.underlying.toString();
 		}
 		return this.underlying.subSequence( this.start, this.end ).toString();

@@ -5,7 +5,7 @@ package com.github.s4ke.moar;
  */
 public interface MoaMatcher {
 
-	void reuse(String str);
+	void reuse(CharSequence str);
 
 	String replaceFirst(String replacement);
 

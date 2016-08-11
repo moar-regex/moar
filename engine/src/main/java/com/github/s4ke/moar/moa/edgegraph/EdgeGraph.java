@@ -376,7 +376,7 @@ public final class EdgeGraph {
 						continue;
 					}
 					State state = this.states.get( edge.destination );
-					maxLen = Math.max( maxLen, state.getEdgeString( vars ).length() );
+					maxLen = Math.max( maxLen, state.getEdgeString( vars ).codePointLength() );
 					if ( maxLen > 0 ) {
 						return maxLen;
 					}
@@ -414,7 +414,7 @@ public final class EdgeGraph {
 		{
 			for ( Edge edge : this.edges.get( stateHolder.getState().getIdx() ) ) {
 				State otherEnd = this.states.get( edge.destination );
-				maxLen = Math.max( maxLen, otherEnd.getEdgeString( vars ).length() );
+				maxLen = Math.max( maxLen, otherEnd.getEdgeString( vars ).codePointLength() );
 			}
 		}
 		return maxLen;

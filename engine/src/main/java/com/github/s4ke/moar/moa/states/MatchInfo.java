@@ -1,6 +1,7 @@
 package com.github.s4ke.moar.moa.states;
 
 import com.github.s4ke.moar.strings.EfficientString;
+import com.github.s4ke.moar.util.CharSeq;
 
 /**
  * @author Martin Braun
@@ -8,7 +9,7 @@ import com.github.s4ke.moar.strings.EfficientString;
 public class MatchInfo {
 
 	private EfficientString string;
-	private CharSequence wholeString;
+	private CharSeq wholeString;
 	private int pos = 0;
 	private int lastMatch = -1;
 
@@ -24,11 +25,11 @@ public class MatchInfo {
 		return string;
 	}
 
-	public CharSequence getWholeString() {
+	public CharSeq getWholeString() {
 		return wholeString;
 	}
 
-	public void setWholeString(CharSequence wholeString) {
+	public void setWholeString(CharSeq wholeString) {
 		this.wholeString = wholeString;
 	}
 

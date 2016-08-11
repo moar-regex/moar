@@ -79,7 +79,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		return ret;
 	}
 
-	static Regex set(char from, char to) {
+	static Regex set(int from, int to) {
 		return new SetRegex( fromTo( from, to ), "[" + from + "-" + to + "]" );
 	}
 
@@ -145,7 +145,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	}
 
 	static Regex set(String from, String to) {
-		return set( from.charAt( 0 ), to.charAt( 0 ) );
+		return set( from.codePointAt( 0 ), to.codePointAt( 0 ) );
 	}
 
 	default Regex or(Regex other) {
