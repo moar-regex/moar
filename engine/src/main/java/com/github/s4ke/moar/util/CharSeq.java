@@ -1,51 +1,33 @@
 package com.github.s4ke.moar.util;
 
-import java.util.stream.IntStream;
-
 /**
  * @author Martin Braun
  */
 public class CharSeq {
-	private final CharSequence seq;
-	private int len = -1;
+	private final int[] codePoints;
 
 	public CharSeq(CharSequence seq) {
-		this.seq = seq;
+		this.codePoints = seq.codePoints().toArray();
 	}
 
 	public int codePointLength() {
-		if ( this.len == -1 ) {
-			this.len = Character.codePointCount( this.seq, 0, this.seq.length() );
-		}
-		return this.len;
+		return this.codePoints.length;
 	}
 
-	public int length() {
-		throw new AssertionError( "hey don't use deprecated APIs!" );
+	/**
+	 * @param index the nth codepoint
+	 */
+	public int codePoint(int index) {
+		return this.codePoints[index];
 	}
 
-	public char charAt(int index) {
-		throw new AssertionError( "hey don't use deprecated APIs!" );
-	}
-
-	public int codePointAt(int index) {
-		return Character.codePointAt( this.seq, index );
-	}
-
-	public CharSequence subSequence(int start, int end) {
-		return seq.subSequence( start, end );
+	public String subSequence(int start, int end) {
+		return new String( this.codePoints, start, end );
 	}
 
 	@Override
 	public String toString() {
-		return seq.toString();
+		return new String( this.codePoints, 0, this.codePoints.length );
 	}
 
-	public IntStream chars() {
-		return seq.chars();
-	}
-
-	public IntStream codePoints() {
-		return seq.codePoints();
-	}
 }

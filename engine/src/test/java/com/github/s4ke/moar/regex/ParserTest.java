@@ -126,7 +126,20 @@ public class ParserTest {
 			while ( matcher.nextMatch() ) {
 				++cnt;
 			}
-			junit.framework.Assert.assertEquals( 2, cnt );
+			assertEquals( 2, cnt );
+		}
+	}
+
+	@Test
+	public void testUTF32() {
+		Moa moa;
+		{
+			int[] codePoints = "someStuff~\uD801\uDC28~someOtherStuff".codePoints().toArray();
+			moa = parseRegex( new String( codePoints, 0, codePoints.length ) ).toMoa();
+		}
+		{
+			int[] codePoints = "someStuff\uD801\uDC28someOtherStuff".codePoints().toArray();
+			assertMatch( true, moa, new String( codePoints, 0, codePoints.length ) );
 		}
 	}
 

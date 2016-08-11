@@ -26,6 +26,10 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		else if ( charOrEscaped.escapeSeq() != null ) {
 			return charOrEscaped.escapeSeq().escapee().getText();
 		}
+		else if ( charOrEscaped.utf32() != null ) {
+			int[] codePoints = charOrEscaped.utf32().getText().codePoints().toArray();
+			return new String( codePoints, 0, codePoints.length );
+		}
 		else {
 			throw new AssertionError();
 		}

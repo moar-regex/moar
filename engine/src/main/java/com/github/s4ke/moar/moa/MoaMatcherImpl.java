@@ -72,11 +72,11 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 			int retLength = this.str.codePointLength() - matchLength + replacement.length();
 			StringBuilder ret = new StringBuilder( retLength );
 			for ( int i = 0; i < this.lastStart; ++i ) {
-				ret.appendCodePoint( this.str.codePointAt( i ) );
+				ret.appendCodePoint( this.str.codePoint( i ) );
 			}
 			ret.append( replacement );
 			for ( int i = this.mi.getPos(); i < this.str.codePointLength(); ++i ) {
-				ret.appendCodePoint( this.str.codePointAt( i ) );
+				ret.appendCodePoint( this.str.codePoint( i ) );
 			}
 			return ret.toString();
 		}
@@ -93,13 +93,13 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 		int prefixStart = 0;
 		while ( this.nextMatch() ) {
 			for ( int i = prefixStart; i < this.lastStart; ++i ) {
-				ret.appendCodePoint( this.str.codePointAt( i ) );
+				ret.appendCodePoint( this.str.codePoint( i ) );
 			}
 			ret.append( replacement );
 			prefixStart = this.mi.getLastMatch();
 		}
 		for ( int i = this.mi.getLastMatch(); i < this.str.codePointLength(); ++i ) {
-			ret.appendCodePoint( this.str.codePointAt( i ) );
+			ret.appendCodePoint( this.str.codePoint( i ) );
 		}
 		return ret.toString();
 	}
@@ -133,8 +133,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 		EfficientString token = new EfficientString();
 		this.mi.setString( token );
 
-		int[] arr = str.codePoints().toArray();
-		int strLen = arr.length;
+		int strLen = this.str.codePointLength();
 
 		while ( !this.isFinished() && this.mi.getPos() < strLen ) {
 			curStart = this.mi.getPos();

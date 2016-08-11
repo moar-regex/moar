@@ -285,6 +285,7 @@ public final class EdgeGraph {
 
 				//check for overlapping SetStates
 				//FIXME: can we do this more efficiently?
+				//FIXME: this does not work with UTF-32
 				{
 					Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
 					if ( setEdges != null && setEdges.size() > 1 ) {

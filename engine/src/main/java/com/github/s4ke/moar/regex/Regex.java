@@ -65,12 +65,14 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 
 	static Regex str(String str) {
 		Regex ret = null;
-		for ( char ch : str.toCharArray() ) {
+		int[] codePoints = str.codePoints().toArray();
+		for ( int codePoint : codePoints ) {
+			String codePointStr = new String( new int[] {codePoint}, 0, 1 );
 			if ( ret == null ) {
-				ret = new Primitive( new Symbol( String.valueOf( ch ) ) );
+				ret = new Primitive( new Symbol( codePointStr ) );
 			}
 			else {
-				ret = ret.and( new Primitive( new Symbol( String.valueOf( ch ) ) ) );
+				ret = ret.and( new Primitive( new Symbol( codePointStr ) ) );
 			}
 		}
 		if ( ret == null ) {

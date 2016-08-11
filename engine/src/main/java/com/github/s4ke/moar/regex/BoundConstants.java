@@ -54,7 +54,7 @@ public final class BoundConstants {
 				boolean eq = true;
 				int charPos = 0;
 				for ( int i = length; i > 0; --i ) {
-					if ( whole.codePointAt( mi.getPos() - i ) != eff.codePointAt( charPos++ ) ) {
+					if ( whole.codePoint( mi.getPos() - i ) != eff.codePoint( charPos++ ) ) {
 						eq = false;
 						break;
 					}
@@ -80,7 +80,7 @@ public final class BoundConstants {
 			if ( mi.getPos() + length <= mi.getWholeString().codePointLength() ) {
 				boolean eq = true;
 				for ( int i = 0; i < length; ++i ) {
-					if ( whole.codePointAt( mi.getPos() + i ) != eff.codePointAt( i ) ) {
+					if ( whole.codePoint( mi.getPos() + i ) != eff.codePoint( i ) ) {
 						eq = false;
 						break;
 					}

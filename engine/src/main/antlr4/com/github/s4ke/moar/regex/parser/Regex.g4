@@ -92,13 +92,15 @@ nonWordCharacter : ESC 'W';
 
 charOrEscaped :
     character
-    | escapeSeq;
+    | escapeSeq
+    | UTF_32_MARKER utf32 UTF_32_MARKER;
 character : (UNUSED_CHARS | ZERO | ONE_TO_NINE | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G' );
 escapeSeq : ESC escapee;
 escapee : '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
-    | ESC | ANY | EOS | START
+    | ESC | ANY | EOS | START | UTF_32_MARKER
     | '*' | '+' | '?'
     | ':' ;
+utf32 : (character | escapeSeq)+;
 
 number :  ONE_TO_NINE (ZERO | ONE_TO_NINE)*;
 
@@ -108,10 +110,13 @@ ESC : '\\';
 ANY : '.';
 EOS : '$';
 START : '^';
+UTF_32_MARKER : '~';
+
 UNUSED_CHARS :
     ~('0' .. '9'
     | '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
     | '\\' | '.' | '$' | '^'
     | '*' | '+' | '?'
     | ':'
-    | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G');
+    | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G'
+    | '~');

@@ -4,9 +4,9 @@ import com.github.s4ke.moar.util.CharSeq;
 
 /**
  * <p>
- * A CharSequence implementation that allows us to
- * create SubSequences of CharSequences without
- * having to build a string.
+ * A String representation implementation that allows us to
+ * create SubSequences without
+ * having to reallocate arrays.
  * <p/>
  * <p>
  * This helps to reduce the amount of time spent
@@ -97,7 +97,7 @@ public class EfficientString {
 			return false;
 		}
 		for ( int i = 0; i < ownLength; ++i ) {
-			if ( this.codePointAt( i ) != str.codePointAt( i ) ) {
+			if ( this.codePoint( i ) != str.codePoint( i ) ) {
 				return false;
 			}
 		}
@@ -108,7 +108,7 @@ public class EfficientString {
 	public int hashCode() {
 		int result = 0;
 		for ( int i = 0; i < this.codePointLength(); ++i ) {
-			result = 31 * result + Integer.hashCode( this.codePointAt( i ) );
+			result = 31 * result + Integer.hashCode( this.codePoint( i ) );
 		}
 		result = 31 * result + Integer.hashCode( this.codePointLength() );
 		return result;
@@ -118,11 +118,14 @@ public class EfficientString {
 		return this.end - start;
 	}
 
-	public int codePointAt(int index) {
+	/**
+	 * @param index the nth codepoint
+	 */
+	public int codePoint(int index) {
 		if ( this.underlying == null ) {
 			throw new IndexOutOfBoundsException();
 		}
-		return this.underlying.codePointAt( this.start + index );
+		return this.underlying.codePoint( this.start + index );
 	}
 
 	public EfficientString subSequence(int start, int end) {

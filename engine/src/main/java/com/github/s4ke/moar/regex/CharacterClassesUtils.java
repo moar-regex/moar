@@ -62,19 +62,19 @@ public class CharacterClassesUtils {
 	public static final Function<EfficientString, Boolean> ANY_FN = (string) -> string.codePointLength() == 1;
 
 	public static final Function<EfficientString, Boolean> WHITE_SPACE_FN = str -> str.codePointLength() == 1 && WHITE_SPACE_CHARS
-			.contains( str.codePointAt( 0 ) );
+			.contains( str.codePoint( 0 ) );
 
 	public static final Function<EfficientString, Boolean> NON_WHITE_SPACE_FN = str -> str.codePointLength() == 1 && !WHITE_SPACE_CHARS
-			.contains( str.codePointAt( 0 ) );
+			.contains( str.codePoint( 0 ) );
 
 	public static final Function<EfficientString, Boolean> DIGIT_FN = str -> str.codePointLength() == 1 && Character.isDigit(
-			str.codePointAt(
+			str.codePoint(
 					0
 			)
 	);
 
 	public static final Function<EfficientString, Boolean> NON_DIGIT_FN = str -> str.codePointLength() == 1 && !Character.isDigit(
-			str.codePointAt( 0 )
+			str.codePoint( 0 )
 	);
 
 	public static final Function<EfficientString, Boolean> WORD_CHARACTER_FN = str -> str.codePointLength() == 1 && (fromTo(
@@ -88,11 +88,11 @@ public class CharacterClassesUtils {
 			'a',
 			'z'
 	).apply( str ) && !fromTo( 'A', 'Z' ).apply( str )
-			&& !fromTo( '0', '9' ).apply( str ) && str.codePointAt( 0 ) != '_';
+			&& !fromTo( '0', '9' ).apply( str ) && str.codePoint( 0 ) != '_';
 
 	static Function<EfficientString, Boolean> fromTo(int from, int to) {
 		return (str) ->
-				str.codePointLength() == 1 && str.codePointAt( 0 ) >= from && str.codePointAt( 0 ) <= to;
+				str.codePointLength() == 1 && str.codePoint( 0 ) >= from && str.codePoint( 0 ) <= to;
 	}
 
 	public static Function<EfficientString, Boolean> negativeFn(Range[] ranges) {
@@ -101,7 +101,7 @@ public class CharacterClassesUtils {
 				return false;
 			}
 			for ( Range range : ranges ) {
-				if ( str.codePointAt( 0 ) >= range.from && str.codePointAt( 0 ) <= range.to ) {
+				if ( str.codePoint( 0 ) >= range.from && str.codePoint( 0 ) <= range.to ) {
 					return false;
 				}
 			}
@@ -115,7 +115,7 @@ public class CharacterClassesUtils {
 				return false;
 			}
 			for ( Range range : ranges ) {
-				if ( str.codePointAt( 0 ) >= range.from && str.codePointAt( 0 ) <= range.to ) {
+				if ( str.codePoint( 0 ) >= range.from && str.codePoint( 0 ) <= range.to ) {
 					return true;
 				}
 			}
