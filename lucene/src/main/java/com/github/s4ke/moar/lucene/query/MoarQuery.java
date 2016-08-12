@@ -30,20 +30,6 @@ public class MoarQuery extends MultiTermQuery {
 		return this.moaPattern.toString();
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if ( this == o ) {
-			return true;
-		}
-		if ( o == null || getClass() != o.getClass() ) {
-			return false;
-		}
-
-		MoarQuery moarQuery = (MoarQuery) o;
-
-		return !(moaPattern != null ? !moaPattern.equals( moarQuery.moaPattern ) : moarQuery.moaPattern != null);
-	}
-
 
 	@Override
 	protected TermsEnum getTermsEnum(
@@ -71,6 +57,20 @@ public class MoarQuery extends MultiTermQuery {
 			}
 			return AcceptStatus.NO;
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		MoarQuery moarQuery = (MoarQuery) o;
+
+		return !(moaPattern != null ? !moaPattern.equals( moarQuery.moaPattern ) : moarQuery.moaPattern != null);
 	}
 
 	@Override
