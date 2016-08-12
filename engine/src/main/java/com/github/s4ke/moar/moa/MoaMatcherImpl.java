@@ -11,6 +11,7 @@ import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
 import com.github.s4ke.moar.strings.EfficientString;
 import com.github.s4ke.moar.util.CharSeq;
+import com.github.s4ke.moar.util.IntCharSeq;
 
 /**
  * @author Martin Braun
@@ -29,7 +30,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	MoaMatcherImpl(EdgeGraph edges, Map<String, Variable> vars, CharSequence str) {
 		this.edges = edges;
 		this.vars = vars;
-		this.str = new CharSeq( str );
+		this.str = new IntCharSeq( str );
 		this.varsByOccurence = new HashMap<>();
 		for ( Variable var : vars.values() ) {
 			this.varsByOccurence.put( var.getOccurenceInRegex(), var );
@@ -49,7 +50,7 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	@Override
 	public MoaMatcher reuse(CharSequence str) {
 		this.reset();
-		this.str = new CharSeq( str );
+		this.str = new IntCharSeq( str );
 		return this;
 	}
 

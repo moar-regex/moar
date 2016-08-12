@@ -35,6 +35,7 @@ public final class EdgeGraph {
 	private final Map<Integer, List<Edge>> setEdges = new HashMap<>();
 	private final Map<Integer, List<Edge>> boundEdges = new HashMap<>();
 	private final Map<Integer, Map<EfficientString, Edge>> staticEdges = new HashMap<>();
+	private final Map<Integer, List<Edge>> backRefOrEpsilonEdges = new HashMap<>();
 
 	private boolean frozen = false;
 
@@ -62,6 +63,8 @@ public final class EdgeGraph {
 			this.setEdges.put( src, setEdges );
 			List<Edge> boundEdges = new ArrayList<>();
 			this.boundEdges.put( src, boundEdges );
+			List<Edge> backRefOrEpsilonEdges = new ArrayList<>();
+			this.backRefOrEpsilonEdges.put( src, backRefOrEpsilonEdges );
 			entry.getValue().forEach(
 					(edge) -> {
 						edge.freeze();
@@ -76,8 +79,14 @@ public final class EdgeGraph {
 						else if ( state.isBound() ) {
 							boundEdges.add( edge );
 						}
+						else {
+							backRefOrEpsilonEdges.add( edge );
+						}
 					}
 			);
+			if ( backRefOrEpsilonEdges.size() > 2 ) {
+				throw new AssertionError( "backRfOrEpsilonEdges had size greater 2 for state " + src );
+			}
 		}
 	}
 
@@ -186,7 +195,7 @@ public final class EdgeGraph {
 		//in this case we have at most 2 edges (the backref or possibly epsilon)
 		//so this doesn't change the overall runtime
 		Edge edgeRes = null;
-		for ( Edge edge : set ) {
+		for ( Edge edge : this.backRefOrEpsilonEdges.get( from.getIdx() ) ) {
 			State state = this.states.get( edge.destination );
 			if ( state.isVariable() && state.getEdgeString( variables ).equalTo( matchInfo.getString() ) ) {
 				if ( edgeRes != null ) {
@@ -433,6 +442,7 @@ public final class EdgeGraph {
 		//fallback to "bruteforce", but this is only needed
 		//in case we find a backreference
 		//in which case there are at most 2 edges (=> O(n))
+		assert this.edges.get( stateHolder.getState().getIdx() ).size() <= 2;
 		{
 			for ( Edge edge : this.edges.get( stateHolder.getState().getIdx() ) ) {
 				State otherEnd = this.states.get( edge.destination );

@@ -1,6 +1,7 @@
 package com.github.s4ke.moar.strings;
 
 import com.github.s4ke.moar.util.CharSeq;
+import com.github.s4ke.moar.util.IntCharSeq;
 
 /**
  * <p>
@@ -41,7 +42,7 @@ public class EfficientString {
 	}
 
 	public EfficientString(CharSequence underlying) {
-		this( new CharSeq( underlying ) );
+		this( new IntCharSeq( underlying ) );
 	}
 
 	public void update(EfficientString underlying, int start, int end) {

@@ -8,16 +8,17 @@ import java.util.Random;
 
 import com.github.s4ke.moar.MoaPattern;
 import com.github.s4ke.moar.lucene.query.MoarQuery;
+import com.github.s4ke.moar.util.Perf;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.RegexpQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -27,16 +28,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Martin Braun
  */
-public class MoarQueryTest extends BaseLuceneTest {
+public class MoarQueryPerfTest extends BaseLuceneTest {
 
 	private static final Version VERSION = Version.LUCENE_6_1_0;
 
-	private static final String UNIQUE = "unique";
 
 	private static final List<String> WORDS = Arrays.asList(
 			"toast",
@@ -73,7 +71,7 @@ public class MoarQueryTest extends BaseLuceneTest {
 	@Before
 	public void setup() throws IOException {
 		RANDOM = new Random( 16812875 );
-		this.d = FSDirectory.open( Paths.get( "lucene_dir", "moarquery" ) );
+		this.d = FSDirectory.open( Paths.get( "lucene_dir", "moarquery_perf" ) );
 		this.setupData();
 	}
 
@@ -94,24 +92,14 @@ public class MoarQueryTest extends BaseLuceneTest {
 		IndexWriterConfig iwc = new IndexWriterConfig( analyzer );
 		try (IndexWriter iw = new IndexWriter( this.d, iwc )) {
 
-
-			{
-				Document doc = createDocument();
-				Field idField = new Field( "id", String.valueOf( -1 ), ID_FIELD_TYPE );
-				Field field = new Field( "tag", UNIQUE, TAGS_FIELD_TYPE );
-				doc.add( field );
-				doc.add( idField );
-				iw.addDocument( doc );
-			}
-
-			for ( int i = 0; i < 100; ++i ) {
+			for ( int i = 0; i < 1000; ++i ) {
 				Document doc = createDocument();
 				Field idField = new Field( "id", String.valueOf( i ), ID_FIELD_TYPE );
 				Field field = new Field( "tag", randomString( WORD_COUNT_PER_DOCUMENT ), TAGS_FIELD_TYPE );
 				doc.add( field );
 				doc.add( idField );
 				iw.addDocument( doc );
-				if ( i % 10 == 0 ) {
+				if ( i % 100 == 0 ) {
 					System.out.println( i );
 				}
 
@@ -125,12 +113,36 @@ public class MoarQueryTest extends BaseLuceneTest {
 	public void testBasics() throws IOException {
 		try (IndexReader ir = DirectoryReader.open( d )) {
 			IndexSearcher is = new IndexSearcher( ir );
+			Perf perf = new Perf( true );
 
-			MoaPattern pattern = MoaPattern.compile( UNIQUE );
-			MoarQuery tq = new MoarQuery( "tag", pattern );
+			for ( int i = 0; i < 1000; ++i ) {
+				String wordOfChoice = WORDS.get( RANDOM.nextInt( WORDS.size() ) );
+				wordOfChoice = wordOfChoice.substring( 0, RANDOM.nextInt( wordOfChoice.length() - 1 ) + 1 );
+				wordOfChoice += ".*";
+				System.out.println( wordOfChoice );
+				{
+					perf.pre();
+					MoaPattern pattern = MoaPattern.compile( wordOfChoice );
+					MoarQuery tq = new MoarQuery( "tag", pattern );
 
-			TopDocs td = is.search( tq, 10 );
-			assertEquals( 1, td.totalHits );
+					TopDocs td = is.search( tq, 10 );
+					System.out.println( td.totalHits + " moar query hits" );
+					perf.after();
+					perf.report( "searching with moar" );
+				}
+
+				{
+					RegexpQuery regexpQuery = new RegexpQuery( new Term( "tag", wordOfChoice ) );
+					perf.pre();
+					TopDocs td = is.search(
+							regexpQuery
+							, 10
+					);
+					System.out.println( td.totalHits + " regexp query hits" );
+					perf.after();
+					perf.report( "searching with regexp" );
+				}
+			}
 		}
 	}
 
