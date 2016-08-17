@@ -82,7 +82,10 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	}
 
 	static Regex set(int from, int to) {
-		return new SetRegex( fromTo( from, to ), "[" + from + "-" + to + "]" );
+		return new SetRegex(
+				fromTo( from, to ),
+				"[" + new String( Character.toChars( from ) ) + "-" + new String( Character.toChars( to ) ) + "]"
+		);
 	}
 
 	static Regex set(Range... ranges) {
