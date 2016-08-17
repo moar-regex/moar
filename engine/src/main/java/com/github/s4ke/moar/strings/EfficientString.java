@@ -17,7 +17,7 @@ import com.github.s4ke.moar.util.IntCharSeq;
  *
  * @author Martin Braun
  */
-public class EfficientString {
+public class EfficientString implements Comparable<EfficientString> {
 
 	private CharSeq underlying;
 	private int start;
@@ -147,4 +147,23 @@ public class EfficientString {
 		return this.underlying.subSequence( this.start, this.end );
 	}
 
+	@Override
+	public int compareTo(EfficientString o) {
+		//similar to Java's String comparison fn
+
+		int len1 = this.codePointLength();
+		int len2 = o.codePointLength();
+		int lim = Math.min( len1, len2 );
+
+		int k = 0;
+		while ( k < lim ) {
+			int c1 = this.codePoint( k );
+			int c2 = o.codePoint( k );
+			if ( c1 != c2 ) {
+				return c1 - c2;
+			}
+			k++;
+		}
+		return len1 - len2;
+	}
 }
