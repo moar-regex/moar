@@ -319,6 +319,13 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testEmail() {
+		Moa moa = parseRegex( "\\w+@\\w\\w+\\.\\w\\w+" ).toMoa();
+		assertMatch( true, moa, "test@email.com" );
+		assertMatch( false, moa, "test.com" );
+	}
+
+	@Test
 	public void testWordCharacter() {
 		Moa moa = parseRegex( "\\w" ).toMoa();
 		assertMatch( false, moa, " " );
