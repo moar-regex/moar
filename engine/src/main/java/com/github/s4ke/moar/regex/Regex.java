@@ -84,7 +84,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	static Regex set(int from, int to) {
 		return new SetRegex(
 				fromTo( from, to ),
-				"[" + new String( Character.toChars( from ) ) + "-" + new String( Character.toChars( to ) ) + "]"
+				"[" + Range.of( from, to ).toString() + "]"
 		);
 	}
 
@@ -95,7 +95,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		StringBuilder stringRepresentation = new StringBuilder();
 		stringRepresentation.append( "[" );
 		for ( Range range : ranges ) {
-			stringRepresentation.append( range.from ).append( "-" ).append( range.to );
+			range.append( stringRepresentation );
 		}
 		stringRepresentation.append( "]" );
 		return new SetRegex( CharacterClassesUtils.positiveFn( ranges ), stringRepresentation.toString() );
@@ -108,7 +108,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		StringBuilder stringRepresentation = new StringBuilder();
 		stringRepresentation.append( "[^" );
 		for ( Range range : ranges ) {
-			stringRepresentation.append( range.from ).append( "-" ).append( range.to );
+			range.append( stringRepresentation );
 		}
 		stringRepresentation.append( "]" );
 		return new SetRegex(

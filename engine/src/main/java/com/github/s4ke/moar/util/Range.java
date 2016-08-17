@@ -17,4 +17,12 @@ public class Range {
 		return new Range( from, to );
 	}
 
+	public StringBuilder append(StringBuilder builder) {
+		return builder.appendCodePoint( this.from ).append( "-" ).appendCodePoint( this.to );
+	}
+
+	@Override
+	public String toString() {
+		return this.append( new StringBuilder() ).toString();
+	}
 }
