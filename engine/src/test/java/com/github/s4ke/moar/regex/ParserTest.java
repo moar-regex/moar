@@ -381,7 +381,7 @@ public class ParserTest {
 			fail( "failed to recognize a non deterministic regex as non deterministic" );
 		}
 		catch (NonDeterministicException e) {
-			System.out.println( "successfully got regex while building the MOA: " + e.getMessage() );
+			System.out.println( "successfully got Exception while building the MOA: " + e.getMessage() );
 		}
 	}
 

@@ -66,36 +66,8 @@ public final class EdgeGraph {
 	public void freeze() {
 		this.frozen = true;
 		for ( Map.Entry<Integer, List<Edge>> entry : this.edges.entrySet() ) {
-			Integer src = entry.getKey();
-			Map<EfficientString, Edge> stat = new HashMap<>();
-			this.staticEdges.put( src, stat );
-			List<Edge> setEdges = new ArrayList<>();
-			this.setEdges.put( src, setEdges );
-			List<Edge> boundEdges = new ArrayList<>();
-			this.boundEdges.put( src, boundEdges );
-			List<Edge> backRefOrEpsilonEdges = new ArrayList<>();
-			this.backRefOrEpsilonEdges.put( src, backRefOrEpsilonEdges );
-			entry.getValue().forEach(
-					(edge) -> {
-						edge.freeze();
-						State state = this.states.get( edge.destination );
-						if ( state.isStatic() ) {
-							//only called for terminals so null is fine
-							stat.put( state.getEdgeString( null ), edge );
-						}
-						else if ( state.isSet() ) {
-							setEdges.add( edge );
-						}
-						else if ( state.isBound() ) {
-							boundEdges.add( edge );
-						}
-						else {
-							backRefOrEpsilonEdges.add( edge );
-						}
-					}
-			);
-			if ( backRefOrEpsilonEdges.size() > 2 ) {
-				throw new AssertionError( "backRfOrEpsilonEdges had size greater 2 for state " + src );
+			if ( backRefOrEpsilonEdges.get( entry.getKey() ).size() > 2 ) {
+				throw new AssertionError( "backRfOrEpsilonEdges had size greater 2 for state " + entry.getKey() );
 			}
 		}
 	}
@@ -330,7 +302,7 @@ public final class EdgeGraph {
 			//FIXME: this does not work with UTF-32
 			{
 				List<Edge> setEdges = this.setEdges.get( state.getIdx() );
-				if ( setEdges != null && setEdges.size() > 1 ) {
+				if ( setEdges.size() > 1 ) {
 					for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
 						char ch = (char) i;
 						boolean foundOne = false;
@@ -490,10 +462,10 @@ public final class EdgeGraph {
 	public void addEdgesWithDeterminismCheck(State from, Collection<Edge> edges) {
 		this.checkNotFrozen();
 		for ( Edge edge : edges ) {
-			this.edges.get( from.getIdx() ).add( edge );
+			this.addEdge( from, edge );
 		}
 		if ( !this.checkDeterminism( from ) ) {
-			throw new NonDeterministicException( "inserting " + edges + "as edges edges for " + from + " would make this EdgeGraph non-deterministic" );
+			throw new NonDeterministicException( "inserting " + edges + "as edges edges for " + from + " would make this MOA non-deterministic" );
 		}
 	}
 
@@ -501,7 +473,7 @@ public final class EdgeGraph {
 		this.addEdge( from, edge );
 		if ( !this.checkDeterminism( from ) ) {
 			throw new NonDeterministicException(
-					"inserting an edge from " + from + " to " + this.states.get( edge.destination ) + " would make this EdgeGraph non-deterministic. This was caused by " + source
+					"inserting an edge from " + from + " to " + this.states.get( edge.destination ) + " would make this MOA non-deterministic. This was caused by " + source
 							.toString()
 			);
 		}
@@ -510,6 +482,23 @@ public final class EdgeGraph {
 	private void addEdge(State from, Edge edge) {
 		this.checkNotFrozen();
 		this.edges.get( from.getIdx() ).add( edge );
+		{
+			State state = this.states.get( edge.destination );
+			Integer src = from.getIdx();
+			if ( state.isStatic() ) {
+				//only called for terminals so null is fine
+				this.staticEdges.get( src ).put( state.getEdgeString( null ), edge );
+			}
+			else if ( state.isSet() ) {
+				this.setEdges.get( src ).add( edge );
+			}
+			else if ( state.isBound() ) {
+				this.boundEdges.get( src ).add( edge );
+			}
+			else {
+				this.backRefOrEpsilonEdges.get( src ).add( edge );
+			}
+		}
 	}
 
 	public void addState(State state) {
@@ -520,6 +509,13 @@ public final class EdgeGraph {
 		}
 		this.states.put( state.getIdx(), state );
 		this.edges.put( state.getIdx(), new ArrayList<>() );
+		this.staticEdges.computeIfAbsent( state.getIdx(), key -> new HashMap<>() );
+		this.setEdges.computeIfAbsent( state.getIdx(), key -> new ArrayList<>() );
+		this.boundEdges.computeIfAbsent( state.getIdx(), key -> new ArrayList<>() );
+		this.backRefOrEpsilonEdges.computeIfAbsent(
+				state.getIdx(),
+				key -> new ArrayList<>()
+		);
 	}
 
 	@Override
