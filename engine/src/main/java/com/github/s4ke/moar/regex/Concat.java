@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.Moa;
+import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
 
@@ -27,7 +27,7 @@ final class Concat implements Regex {
 
 	@Override
 	public String toString() {
-		return "{" + this.fst.toString() + "{AND}" + this.snd.toString() + "}";
+		return this.fst.toString() + this.snd.toString();
 	}
 
 	@Override
@@ -71,7 +71,7 @@ final class Concat implements Regex {
 			List<EdgeGraph.Edge> edges = eg1.getEdges( state );
 			for ( EdgeGraph.Edge edge : edges ) {
 				if ( !edge.destination.equals( Moa.SNK.getIdx() ) ) {
-					edgeGraph.addEdge( state, edge );
+					edgeGraph.addEdgeWithDeterminismCheck( state, edge, this );
 				}
 				else {
 					snkEdges.computeIfAbsent( state, (key) -> new HashSet<>() ).add( edge );
@@ -83,7 +83,7 @@ final class Concat implements Regex {
 			List<EdgeGraph.Edge> edges = eg2.getEdges( state );
 			for ( EdgeGraph.Edge edge : edges ) {
 				if ( state.getIdx() != (Moa.SRC.getIdx()) ) {
-					edgeGraph.addEdge( state, edge );
+					edgeGraph.addEdgeWithDeterminismCheck( state, edge, this );
 				}
 				else {
 					srcEdges.add( edge );
@@ -96,13 +96,14 @@ final class Concat implements Regex {
 			for ( EdgeGraph.Edge snkEdge : snkEdgeEntry.getValue() ) {
 				for ( EdgeGraph.Edge srcEdge : srcEdges ) {
 					Integer fromSrcState = srcEdge.destination;
-					edgeGraph.addEdge(
+					edgeGraph.addEdgeWithDeterminismCheck(
 							toSnkState, new EdgeGraph.Edge(
 									Moa.f(
 											snkEdge.memoryAction,
 											srcEdge.memoryAction
 									), fromSrcState
-							)
+							),
+							this
 					);
 				}
 			}

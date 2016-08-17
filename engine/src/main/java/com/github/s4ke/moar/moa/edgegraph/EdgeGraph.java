@@ -26,9 +26,19 @@ import com.github.s4ke.moar.strings.EfficientString;
  */
 public final class EdgeGraph {
 
-	public static final State SRC = new BasicState( 0, "SRC" );
+	public static final State SRC = new BasicState( 0, "SRC" ) {
+		@Override
+		public String toString() {
+			return "SRC";
+		}
+	};
 	//SNK's name must be equal to "" so that epsilon works
-	public static final State SNK = new BasicState( 1, "" );
+	public static final State SNK = new BasicState( 1, "" ) {
+		@Override
+		public String toString() {
+			return "SNK";
+		}
+	};
 
 	private final Map<Integer, State> states = new HashMap<>();
 	private final Map<Integer, List<Edge>> edges = new HashMap<>();
@@ -236,104 +246,105 @@ public final class EdgeGraph {
 		return StepResult.REJECTED;
 	}
 
-	public boolean isDeterministic() {
-		for ( State state : this.states.values() ) {
-			List<Edge> edges = this.edges.get( state.getIdx() );
-			int edgeCnt = edges.size();
+	/**
+	 * checks determinism in a single state
+	 */
+	public boolean checkDeterminism(State state) {
+		List<Edge> edges = this.edges.get( state.getIdx() );
+		int edgeCnt = edges.size();
 
-			VariableState variableDestinationState = null;
-			BoundState boundState = null;
-			Map<String, State> staticDestinationStates = new HashMap<>( edgeCnt );
-			int staticOrSetCount;
+		VariableState variableDestinationState = null;
+		BoundState boundState = null;
+		Map<String, State> staticDestinationStates = new HashMap<>( edgeCnt );
+		int staticOrSetCount;
 
-			{
-				Set<String> staticEdgeStrings = new HashSet<>();
-				Map<State, AtomicInteger> destinationStateCount = new HashMap<>();
+		{
+			Set<String> staticEdgeStrings = new HashSet<>();
+			Map<State, AtomicInteger> destinationStateCount = new HashMap<>();
 
-				//check if there are edges to different states with the same
-				//terminal
-				for ( Edge edge : edges ) {
-					State destinationState = this.states.get( edge.destination );
+			//check if there are edges to different states with the same
+			//terminal
+			for ( Edge edge : edges ) {
+				State destinationState = this.states.get( edge.destination );
 
-					if ( destinationStateCount.computeIfAbsent(
-							destinationState,
-							(key) -> new AtomicInteger( 0 )
-					)
-							.incrementAndGet() >= 2 ) {
-						return false;
-					}
-
-					if ( destinationState.isVariable() ) {
-						if ( variableDestinationState != null ) {
-							return false;
-						}
-						variableDestinationState = (VariableState) destinationState;
-						continue;
-					}
-
-					if ( destinationState.isStatic() ) {
-						//only called for terminals, so null is fine
-						String edgeString = destinationState.getEdgeString( null ).toString();
-						staticEdgeStrings.add( edgeString );
-						State knownDestinationState = staticDestinationStates.get( edgeString );
-						if ( knownDestinationState != null && knownDestinationState != destinationState ) {
-							//duplicated edge to
-							return false;
-						}
-						staticDestinationStates.put( edgeString, destinationState );
-					}
-
-					if ( destinationState.isBound() ) {
-						if ( boundState != null ) {
-							return false;
-						}
-						boundState = (BoundState) destinationState;
-					}
+				if ( destinationStateCount.computeIfAbsent(
+						destinationState,
+						(key) -> new AtomicInteger( 0 )
+				)
+						.incrementAndGet() >= 2 ) {
+					return false;
 				}
 
-				staticOrSetCount = staticDestinationStates.size();
+				if ( destinationState.isVariable() ) {
+					if ( variableDestinationState != null ) {
+						return false;
+					}
+					variableDestinationState = (VariableState) destinationState;
+					continue;
+				}
 
-				//check if the sets contain values from the static states
-				{
-					List<Edge> setEdges = this.setEdges.get( state.getIdx() );
-					if ( setEdges != null ) {
-						for ( Edge edge : setEdges ) {
+				if ( destinationState.isStatic() ) {
+					//only called for terminals, so null is fine
+					String edgeString = destinationState.getEdgeString( null ).toString();
+					staticEdgeStrings.add( edgeString );
+					State knownDestinationState = staticDestinationStates.get( edgeString );
+					if ( knownDestinationState != null && knownDestinationState != destinationState ) {
+						//duplicated edge to
+						return false;
+					}
+					staticDestinationStates.put( edgeString, destinationState );
+				}
+
+				if ( destinationState.isBound() ) {
+					if ( boundState != null ) {
+						return false;
+					}
+					boundState = (BoundState) destinationState;
+				}
+			}
+
+			staticOrSetCount = staticDestinationStates.size();
+
+			//check if the sets contain values from the static states
+			{
+				List<Edge> setEdges = this.setEdges.get( state.getIdx() );
+				if ( setEdges != null ) {
+					for ( Edge edge : setEdges ) {
+						State destinationState = this.states.get( edge.destination );
+						if ( destinationState.isSet() ) {
+							for ( String edgeString : staticEdgeStrings ) {
+								if ( destinationState.canConsume( new EfficientString( edgeString ) ) ) {
+									//if a set exists that contains a string from another static
+									//state, we are nondeterministic
+									return false;
+								}
+							}
+							++staticOrSetCount;
+						}
+					}
+				}
+			}
+
+			//check for overlapping SetStates
+			//FIXME: can we do this more efficiently?
+			//FIXME: this does not work with UTF-32
+			{
+				List<Edge> setEdges = this.setEdges.get( state.getIdx() );
+				if ( setEdges != null && setEdges.size() > 1 ) {
+					for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
+						char ch = (char) i;
+						boolean foundOne = false;
+						for ( Edge edge : edges ) {
 							State destinationState = this.states.get( edge.destination );
 							if ( destinationState.isSet() ) {
-								for ( String edgeString : staticEdgeStrings ) {
-									if ( destinationState.canConsume( new EfficientString( edgeString ) ) ) {
-										//if a set exists that contains a string from another static
-										//state, we are nondeterministic
+								if ( destinationState.canConsume( new EfficientString( String.valueOf( ch ) ) ) ) {
+									//if a set exists that contains a string from another set
+									//state, we are nondeterministic
+									if ( foundOne ) {
 										return false;
 									}
-								}
-								++staticOrSetCount;
-							}
-						}
-					}
-				}
-
-				//check for overlapping SetStates
-				//FIXME: can we do this more efficiently?
-				//FIXME: this does not work with UTF-32
-				{
-					List<Edge> setEdges = this.setEdges.get( state.getIdx() );
-					if ( setEdges != null && setEdges.size() > 1 ) {
-						for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
-							char ch = (char) i;
-							boolean foundOne = false;
-							for ( Edge edge : edges ) {
-								State destinationState = this.states.get( edge.destination );
-								if ( destinationState.isSet() ) {
-									if ( destinationState.canConsume( new EfficientString( String.valueOf( ch ) ) ) ) {
-										//if a set exists that contains a string from another set
-										//state, we are nondeterministic
-										if ( foundOne ) {
-											return false;
-										}
-										else {
-											foundOne = true;
-										}
+									else {
+										foundOne = true;
 									}
 								}
 							}
@@ -341,45 +352,54 @@ public final class EdgeGraph {
 					}
 				}
 			}
+		}
 
-			//Bound edges are only allowed
-			//at the beginning or the end
-			//
-			//or we ignore these, as they don't harm anyone. other non-determinism is already
-			//handled
-			{
-				//END-like boundaries
-				//if ( state.isBound() ) {
-				//	if ( edges.size() != 1 && edges.iterator().next() != Moa.SNK ) {
-				//		return false;
-				//	}
-				//}
+		//Bound edges are only allowed
+		//at the beginning or the end
+		//
+		//or we ignore these, as they don't harm anyone. other non-determinism is already
+		//handled
+		{
+			//END-like boundaries
+			//if ( state.isBound() ) {
+			//	if ( edges.size() != 1 && edges.iterator().next() != Moa.SNK ) {
+			//		return false;
+			//	}
+			//}
 
-				//START-like boundaries
-				//if ( boundState != null ) {
-				//if ( state != Moa.SRC || staticOrSetCount > 0 ) {
-				//	return false;
-				//}
-				//}
+			//START-like boundaries
+			//if ( boundState != null ) {
+			//if ( state != Moa.SRC || staticOrSetCount > 0 ) {
+			//	return false;
+			//}
+			//}
+		}
+
+		//make sure that if there is a VariableState (Binding/Reference)
+		//there is no other destination than SNK
+		if ( variableDestinationState != null ) {
+			if ( staticOrSetCount >= 2 || boundState != null ) {
+				return false;
 			}
-
-			//make sure that if there is a VariableState (Binding/Reference)
-			//there is no other destination than SNK
-			if ( variableDestinationState != null ) {
-				if ( staticOrSetCount >= 2 || boundState != null ) {
+			if ( staticOrSetCount == 1 ) {
+				if ( staticDestinationStates.values().iterator().next() != SNK ) {
 					return false;
 				}
-				if ( staticOrSetCount == 1 ) {
-					if ( staticDestinationStates.values().iterator().next() != SNK ) {
-						return false;
-					}
-				}
 			}
+		}
 
-			if ( boundState != null ) {
-				if ( staticOrSetCount > 0 ) {
-					return false;
-				}
+		if ( boundState != null ) {
+			if ( staticOrSetCount > 0 ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean isDeterministic() {
+		for ( State state : this.states.values() ) {
+			if ( !this.checkDeterminism( state ) ) {
+				return false;
 			}
 		}
 		return true;
@@ -467,7 +487,27 @@ public final class EdgeGraph {
 		return this.states.get( idx );
 	}
 
-	public void addEdge(State from, Edge edge) {
+	public void addEdgesWithDeterminismCheck(State from, Collection<Edge> edges) {
+		this.checkNotFrozen();
+		for ( Edge edge : edges ) {
+			this.edges.get( from.getIdx() ).add( edge );
+		}
+		if ( !this.checkDeterminism( from ) ) {
+			throw new NonDeterministicException( "inserting " + edges + "as edges edges for " + from + " would make this EdgeGraph non-deterministic" );
+		}
+	}
+
+	public void addEdgeWithDeterminismCheck(State from, Edge edge, Object source) {
+		this.addEdge( from, edge );
+		if ( !this.checkDeterminism( from ) ) {
+			throw new NonDeterministicException(
+					"inserting an edge from " + from + " to " + this.states.get( edge.destination ) + " would make this EdgeGraph non-deterministic. This was caused by " + source
+							.toString()
+			);
+		}
+	}
+
+	private void addEdge(State from, Edge edge) {
 		this.checkNotFrozen();
 		this.edges.get( from.getIdx() ).add( edge );
 	}

@@ -87,4 +87,12 @@ public class BoundState implements State {
 
 	}
 
+	@Override
+	public String toString() {
+		return "BoundState{" +
+				"idx=" + idx +
+				", boundHandled='" + boundHandled + '\'' +
+				", condition=" + condition +
+				'}';
+	}
 }

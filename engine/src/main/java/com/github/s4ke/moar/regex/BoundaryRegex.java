@@ -36,8 +36,8 @@ class BoundaryRegex implements Regex {
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
 		State state = selfRelevant.get( this ).get( SELF_RELEVANT_KEY );
-		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, state ) );
-		edgeGraph.addEdge( state, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
+		edgeGraph.addEdgeWithDeterminismCheck( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, state ), this );
+		edgeGraph.addEdgeWithDeterminismCheck( state, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ), this );
 	}
 
 	@Override
@@ -63,5 +63,15 @@ class BoundaryRegex implements Regex {
 	@Override
 	public Regex copy() {
 		return new BoundaryRegex( this.boundHandled, this.matchDescriptor );
+	}
+
+	@Override
+	public String toString() {
+		if ( this.boundHandled != null ) {
+			return this.boundHandled;
+		}
+		else {
+			return this.matchDescriptor.toString();
+		}
 	}
 }

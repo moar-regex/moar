@@ -41,8 +41,8 @@ class SetRegex implements Regex {
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
 		State state = selfRelevant.get( this ).get( SELF_RELEVANT_KEY );
-		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, state ) );
-		edgeGraph.addEdge( state, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
+		edgeGraph.addEdgeWithDeterminismCheck( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, state ), this );
+		edgeGraph.addEdgeWithDeterminismCheck( state, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ), this );
 	}
 
 	@Override
@@ -65,5 +65,15 @@ class SetRegex implements Regex {
 	public void calculateVariableOccurences(
 			Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) {
 
+	}
+
+	@Override
+	public String toString() {
+		if ( this.stringRepresentation != null ) {
+			return this.stringRepresentation;
+		}
+		else {
+			return this.setDescriptor.toString();
+		}
 	}
 }

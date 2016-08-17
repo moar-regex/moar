@@ -23,7 +23,7 @@ final class Choice implements Regex {
 
 	@Override
 	public String toString() {
-		return "{" + this.fst.toString() + "{or}" + this.snd.toString() + "}";
+		return this.fst.toString() + "|" + this.snd.toString();
 	}
 
 	@Override

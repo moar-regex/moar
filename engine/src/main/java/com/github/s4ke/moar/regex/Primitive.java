@@ -54,8 +54,8 @@ final class Primitive implements Regex {
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
 		State state = selfRelevant.get( this ).get( this.symbol.symbol );
-		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, state ) );
-		edgeGraph.addEdge( state, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
+		edgeGraph.addEdgeWithDeterminismCheck( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, state ), this );
+		edgeGraph.addEdgeWithDeterminismCheck( state, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ), this );
 	}
 
 	@Override

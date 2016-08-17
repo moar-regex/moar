@@ -24,7 +24,7 @@ final class Plus implements Regex {
 
 	@Override
 	public String toString() {
-		return "{" + this.regex.toString() + "{+}" + "}";
+		return this.regex.toString() + "+";
 	}
 
 	@Override
@@ -61,13 +61,14 @@ final class Plus implements Regex {
 					for ( EdgeGraph.Edge srcEdge : srcEdges ) {
 						Integer fromSrcState = srcEdge.destination;
 						Supplier<Void> val = () -> {
-							edgeGraph.addEdge(
+							edgeGraph.addEdgeWithDeterminismCheck(
 									toSnkState, new EdgeGraph.Edge(
 											Moa.f(
 													snkEdge.memoryAction,
 													srcEdge.memoryAction
 											), fromSrcState
-									)
+									),
+									this
 							);
 							return null;
 						};

@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.edgegraph.MemoryAction;
-import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
 import com.github.s4ke.moar.moa.states.VariableState;
@@ -25,7 +25,7 @@ final class Reference implements Regex {
 
 	@Override
 	public String toString() {
-		return "{Reference{" + this.reference + "}";
+		return "\\k<" + this.reference + ">";
 	}
 
 	@Override
@@ -59,8 +59,8 @@ final class Reference implements Regex {
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
 		VariableState varState = (VariableState) selfRelevant.get( this ).get( this.reference );
-		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, varState ) );
-		edgeGraph.addEdge( varState, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
+		edgeGraph.addEdgeWithDeterminismCheck( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, varState ), this );
+		edgeGraph.addEdgeWithDeterminismCheck( varState, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ), this );
 	}
 
 	@Override

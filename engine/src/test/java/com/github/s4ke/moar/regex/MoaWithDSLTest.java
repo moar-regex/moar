@@ -455,7 +455,7 @@ public class MoaWithDSLTest {
 			fail( "regex " + regex + " was not recognized as non-deterministic" );
 		}
 		catch (NonDeterministicException e) {
-			//we catch this one
+			System.out.println( "successfully got regex while building the MOA: " + e.getMessage() );
 		}
 	}
 

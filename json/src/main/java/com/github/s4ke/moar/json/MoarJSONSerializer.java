@@ -1,5 +1,7 @@
 package com.github.s4ke.moar.json;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -114,6 +116,7 @@ public final class MoarJSONSerializer {
 
 		{
 			JSONArray edgesArray = jsonObject.getJSONArray( "edges" );
+			Map<State, Collection<EdgeGraph.Edge>> edges = new HashMap<>();
 			for ( int i = 0; i < edgesArray.length(); ++i ) {
 				State fromState;
 				State toState;
@@ -158,8 +161,12 @@ public final class MoarJSONSerializer {
 						}
 					}
 				}
-
-				edgeGraph.addEdge( fromState, new EdgeGraph.Edge( memoryActionSet, toState ) );
+				edges.computeIfAbsent(
+						fromState, (state) -> new ArrayList<>()
+				).add( new EdgeGraph.Edge( memoryActionSet, toState ) );
+			}
+			for ( Map.Entry<State, Collection<EdgeGraph.Edge>> entry : edges.entrySet() ) {
+				edgeGraph.addEdgesWithDeterminismCheck( entry.getKey(), entry.getValue() );
 			}
 		}
 
@@ -202,7 +209,8 @@ public final class MoarJSONSerializer {
 				}
 				else if ( state.isSet() ) {
 					stateObj.put( "set", ((SetState) state).getStringRepresentation() );
-				} else {
+				}
+				else {
 					throw new AssertionError();
 				}
 				stateArray.put( stateObj );

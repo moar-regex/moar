@@ -47,7 +47,7 @@ final class Epsilon implements Regex {
 			Map<String, Variable> variables,
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
-		edgeGraph.addEdge( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ) );
+		edgeGraph.addEdgeWithDeterminismCheck( Moa.SRC, new EdgeGraph.Edge( MemoryAction.NO_OP, Moa.SNK ), this );
 	}
 
 	@Override

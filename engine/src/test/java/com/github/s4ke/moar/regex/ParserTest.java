@@ -5,6 +5,7 @@ import java.util.regex.PatternSyntaxException;
 
 import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.MoaPattern;
+import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.regex.parser.RegexLexer;
 import com.github.s4ke.moar.regex.parser.RegexParser;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Martin Braun
@@ -362,6 +364,24 @@ public class ParserTest {
 			Moa moa = parseRegex( String.valueOf( specialChar ) ).toMoa();
 			assertMatch( false, moa, "" );
 			assertMatch( true, moa, String.valueOf( specialChar ) );
+		}
+	}
+
+	@Test
+	public void testDeterminismPreMoa() {
+		//The one that failed while Dominik tested the cli tool
+		Regex regex = parseRegex(
+				"(?<1>)(?<2>)(?<3>)(?<4>)(?<5>)(?<6>)(?<7>)(?<8>)(?<9>)(?<10>)(?<11>)(?<12>)(?<13>)(?<14>)(?<15>)(?<16>)(?<17>)(?<18>)(?<19>)(?<20>)" +
+						"a" +
+						"(()|(?<1>))(()|(?<2>))(()|(?<3>))(()|(?<4>))(()|(?<5>))(()|(?<6>))(()|(?<7>))(()|(?<8>))(()|(?<9>))(()|(?<10>))(()|(?<11>))(()|(?<12>))(()|(?<13>))(()|(?<14>))(()|(?<15>))(()|(?<16>))(()|(?<17>))(()|(?<18>))(()|(?<19>))(()|(?<20>))" +
+						"b"
+		);
+		try {
+			regex.toMoa();
+			fail( "failed to recognize a non deterministic regex as non deterministic" );
+		}
+		catch (NonDeterministicException e) {
+			System.out.println( "successfully got regex while building the MOA: " + e.getMessage() );
 		}
 	}
 
