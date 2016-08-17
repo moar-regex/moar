@@ -29,7 +29,7 @@ public class CodePointSet {
 		for ( RangeRep rangeRep : ranges ) {
 			rangeSet.addAll( rangeRep.getRangeSet() );
 		}
-		return new CodePointSet( null, new RangeRep( rangeSet ) );
+		return new CodePointSet( null, RangeRep.of( rangeSet ) );
 	}
 
 	public static CodePointSet set(Set<Integer> set) {

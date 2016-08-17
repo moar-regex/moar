@@ -16,8 +16,20 @@ public class RangeRep {
 		this.rangeSet.add( Range.closed( from, to ) );
 	}
 
-	public RangeRep(RangeSet<Integer> rangeSet) {
+	private RangeRep(RangeSet<Integer> rangeSet) {
 		this.rangeSet = rangeSet;
+	}
+
+	public static RangeRep of(RangeSet<Integer> rangeSet) {
+		return new RangeRep( rangeSet );
+	}
+
+	public static RangeRep of(int from, int to) {
+		return new RangeRep( from, to );
+	}
+
+	public RangeRep negative() {
+		return of( this.rangeSet.complement() );
 	}
 
 	public RangeSet<Integer> getRangeSet() {
@@ -28,23 +40,8 @@ public class RangeRep {
 		return !intersect( this.rangeSet, range.rangeSet ).isEmpty();
 	}
 
-	public RangeRep union(RangeRep range) {
-		RangeSet<Integer> union = TreeRangeSet.create();
-		union.addAll(this.rangeSet);
-		union.addAll(range.rangeSet);
-		return new RangeRep( union );
-	}
-
 	public boolean intersects(int value) {
 		return this.rangeSet.contains( value );
-	}
-
-	public static RangeRep of(int from, int to) {
-		return new RangeRep( from, to );
-	}
-
-	public RangeRep negative() {
-		return new RangeRep( this.rangeSet.complement() );
 	}
 
 	public StringBuilder append(StringBuilder builder) {

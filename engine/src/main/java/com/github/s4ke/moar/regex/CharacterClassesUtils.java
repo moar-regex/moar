@@ -95,6 +95,6 @@ public class CharacterClassesUtils {
 		for ( RangeRep rangeRep : ranges ) {
 			rangeSet.addAll( rangeRep.getRangeSet() );
 		}
-		return CodePointSet.range( new RangeRep( rangeSet ) );
+		return CodePointSet.range( RangeRep.of( rangeSet ) );
 	}
 }
