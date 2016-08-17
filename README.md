@@ -3,6 +3,9 @@ Deterministic Regular Expressions with Backreferences. Uses Memory Occurence Aut
 
 ANTLR is used for Pattern compilation.
 
+# Why?
+Java's Patterns are not deterministic. But all alternatives that are deterministic dont support backreferences. this library does
+
 # Theoretical Background
 
 A Paper explaining the theoretical background is currently being written.
