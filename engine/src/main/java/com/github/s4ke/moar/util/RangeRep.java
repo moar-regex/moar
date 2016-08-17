@@ -1,0 +1,92 @@
+package com.github.s4ke.moar.util;
+
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
+
+/**
+ * @author Martin Braun
+ */
+public class RangeRep {
+
+	private final RangeSet<Integer> rangeSet;
+
+	private RangeRep(int from, int to) {
+		this.rangeSet = TreeRangeSet.create();
+		this.rangeSet.add( Range.closed( from, to ) );
+	}
+
+	public RangeRep(RangeSet<Integer> rangeSet) {
+		this.rangeSet = rangeSet;
+	}
+
+	public RangeSet<Integer> getRangeSet() {
+		return this.rangeSet;
+	}
+
+	public boolean intersects(RangeRep range) {
+		return !intersect( this.rangeSet, range.rangeSet ).isEmpty();
+	}
+
+	public RangeRep union(RangeRep range) {
+		RangeSet<Integer> union = TreeRangeSet.create();
+		union.addAll(this.rangeSet);
+		union.addAll(range.rangeSet);
+		return new RangeRep( union );
+	}
+
+	public boolean intersects(int value) {
+		return this.rangeSet.contains( value );
+	}
+
+	public static RangeRep of(int from, int to) {
+		return new RangeRep( from, to );
+	}
+
+	public RangeRep negative() {
+		return new RangeRep( this.rangeSet.complement() );
+	}
+
+	public StringBuilder append(StringBuilder builder) {
+		//this is only ever called for things in the normal char range so we dont
+		//have to check whether the the range is valid
+		for ( Range range : this.rangeSet.asRanges() ) {
+			builder = builder.appendCodePoint( (Integer) range.lowerEndpoint() ).append( "-" ).appendCodePoint(
+					(Integer) range.upperEndpoint()
+			);
+		}
+		return builder;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		RangeRep rangeRep = (RangeRep) o;
+
+		return !(rangeSet != null ? !rangeSet.equals( rangeRep.rangeSet ) : rangeRep.rangeSet != null);
+
+	}
+
+	@Override
+	public int hashCode() {
+		return rangeSet != null ? rangeSet.hashCode() : 0;
+	}
+
+	@Override
+	public String toString() {
+		return this.append( new StringBuilder() ).toString();
+	}
+
+	static <T extends Comparable> RangeSet<T> intersect(RangeSet<T> a, RangeSet<T> b) {
+		RangeSet<T> copy = TreeRangeSet.create( a );
+		copy.removeAll( b.complement() );
+		return copy;
+	}
+
+}

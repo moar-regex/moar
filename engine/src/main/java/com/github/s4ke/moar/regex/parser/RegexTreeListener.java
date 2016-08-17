@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import com.github.s4ke.moar.regex.Regex;
-import com.github.s4ke.moar.util.Range;
+import com.github.s4ke.moar.util.RangeRep;
 
 /**
  * @author Martin Braun
@@ -170,24 +170,24 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		this.regexStack.push( Regex.set( ranges( ctx.setItems() ) ) );
 	}
 
-	public static Range[] ranges(RegexParser.SetItemsContext setItems) {
-		List<Range> rangesList = new ArrayList<>();
+	public static RangeRep[] ranges(RegexParser.SetItemsContext setItems) {
+		List<RangeRep> rangesList = new ArrayList<>();
 		while ( setItems != null ) {
 			RegexParser.SetItemContext setItem = setItems.setItem();
 			if ( setItem.charOrEscaped() != null ) {
 				int ch = getCh( setItems.setItem().charOrEscaped() ).codePointAt( 0 );
-				rangesList.add( Range.of( ch, ch ) );
+				rangesList.add( RangeRep.of( ch, ch ) );
 			}
 			else if ( setItem.range() != null ) {
 				int from = getCh( setItem.range().charOrEscaped( 0 ) ).codePointAt( 0 );
 				int to = getCh( setItem.range().charOrEscaped( 1 ) ).codePointAt( 0 );
 
-				rangesList.add( Range.of( from, to ) );
+				rangesList.add( RangeRep.of( from, to ) );
 			}
 			setItems = setItems.setItems();
 		}
 
-		Range[] ranges = new Range[rangesList.size()];
+		RangeRep[] ranges = new RangeRep[rangesList.size()];
 		return rangesList.toArray( ranges );
 	}
 

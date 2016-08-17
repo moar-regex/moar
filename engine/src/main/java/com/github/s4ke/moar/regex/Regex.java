@@ -12,10 +12,10 @@ import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
-import com.github.s4ke.moar.util.Range;
+import com.github.s4ke.moar.strings.CodePointSet;
+import com.github.s4ke.moar.util.RangeRep;
 
 import static com.github.s4ke.moar.regex.CharacterClassesUtils.NON_WORD_CHARACTER_FN;
-import static com.github.s4ke.moar.regex.CharacterClassesUtils.fromTo;
 
 /**
  * @author Martin Braun
@@ -83,36 +83,40 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 
 	static Regex set(int from, int to) {
 		return new SetRegex(
-				fromTo( from, to ),
-				"[" + Range.of( from, to ).toString() + "]"
+				CodePointSet.range( RangeRep.of( from, to ) ),
+				"[" + RangeRep.of( from, to ).toString() + "]"
 		);
 	}
 
-	static Regex set(Range... ranges) {
+	static Regex set(RangeRep... ranges) {
 		if ( ranges.length == 0 ) {
 			throw new IllegalArgumentException();
 		}
 		StringBuilder stringRepresentation = new StringBuilder();
 		stringRepresentation.append( "[" );
-		for ( Range range : ranges ) {
+		for ( RangeRep range : ranges ) {
 			range.append( stringRepresentation );
 		}
 		stringRepresentation.append( "]" );
-		return new SetRegex( CharacterClassesUtils.positiveFn( ranges ), stringRepresentation.toString() );
+		return new SetRegex(
+				CodePointSet.range( ranges ),
+				stringRepresentation.toString()
+		);
 	}
 
-	static Regex negativeSet(final Range... ranges) {
+	static Regex negativeSet(final RangeRep... ranges) {
 		if ( ranges.length == 0 ) {
 			throw new IllegalArgumentException( "ranges.length was equal to zero" );
 		}
 		StringBuilder stringRepresentation = new StringBuilder();
 		stringRepresentation.append( "[^" );
-		for ( Range range : ranges ) {
+		for ( RangeRep range : ranges ) {
 			range.append( stringRepresentation );
 		}
 		stringRepresentation.append( "]" );
 		return new SetRegex(
-				CharacterClassesUtils.negativeFn( ranges ), stringRepresentation.toString()
+				CodePointSet.range( ranges ).negative(),
+				stringRepresentation.toString()
 		);
 	}
 

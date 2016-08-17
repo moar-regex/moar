@@ -1,12 +1,12 @@
 package com.github.s4ke.moar.json;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.MoaPattern;
@@ -25,8 +25,8 @@ import com.github.s4ke.moar.regex.CharacterClassesUtils;
 import com.github.s4ke.moar.regex.parser.RegexLexer;
 import com.github.s4ke.moar.regex.parser.RegexParser;
 import com.github.s4ke.moar.regex.parser.RegexTreeListener;
-import com.github.s4ke.moar.strings.EfficientString;
-import com.github.s4ke.moar.util.Range;
+import com.github.s4ke.moar.strings.CodePointSet;
+import com.github.s4ke.moar.util.RangeRep;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -96,7 +96,7 @@ public final class MoarJSONSerializer {
 				else if ( stateObj.has( "set" ) ) {
 					//TODO: this is a bit hacky, maybe do this better?
 					String setString = stateObj.getString( "set" );
-					Function<EfficientString, Boolean> setDescriptor;
+					CodePointSet setDescriptor;
 					if ( setString.startsWith( "[" ) ) {
 						setDescriptor = buildFnFromSetExpression( setString );
 					}
@@ -241,7 +241,7 @@ public final class MoarJSONSerializer {
 		return obj;
 	}
 
-	private static Function<EfficientString, Boolean> buildFnFromSetExpression(String setExpression) {
+	private static CodePointSet buildFnFromSetExpression(String setExpression) {
 		RegexLexer lexer = new RegexLexer( new ANTLRInputStream( setExpression ) );
 		RegexParser parser = new RegexParser( new CommonTokenStream( lexer ) );
 		parser.setBuildParseTree( true );
@@ -264,25 +264,24 @@ public final class MoarJSONSerializer {
 		if ( parser.getNumberOfSyntaxErrors() > 0 ) {
 			throw new IllegalArgumentException( "malformed set expression: " + setExpression );
 		}
-		Range[] ranges;
+		Set<RangeRep> ranges = new HashSet<>();
 		boolean negative;
 		if ( setContext.negativeSet() != null ) {
-			ranges = RegexTreeListener.ranges( setContext.negativeSet().setItems() );
+			ranges.addAll( Arrays.asList( RegexTreeListener.ranges( setContext.negativeSet().setItems() ) ) );
 			negative = true;
 		}
 		else if ( setContext.positiveSet() != null ) {
-			ranges = RegexTreeListener.ranges( setContext.positiveSet().setItems() );
+			ranges.addAll( Arrays.asList( RegexTreeListener.ranges( setContext.positiveSet().setItems() ) ) );
 			negative = false;
 		}
 		else {
 			throw new AssertionError();
 		}
+		CodePointSet ret = CharacterClassesUtils.positiveFn( ranges );
 		if ( negative ) {
-			return CharacterClassesUtils.negativeFn( ranges );
+			ret = ret.negative();
 		}
-		else {
-			return CharacterClassesUtils.positiveFn( ranges );
-		}
+		return ret;
 	}
 
 }

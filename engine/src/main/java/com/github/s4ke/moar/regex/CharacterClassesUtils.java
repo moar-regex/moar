@@ -3,10 +3,12 @@ package com.github.s4ke.moar.regex;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import com.github.s4ke.moar.strings.EfficientString;
-import com.github.s4ke.moar.util.Range;
+import com.github.s4ke.moar.strings.CodePointSet;
+import com.github.s4ke.moar.util.RangeRep;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 /**
  * @author Martin Braun
@@ -26,6 +28,12 @@ public class CharacterClassesUtils {
 			)
 	);
 
+	private static final Set<Integer> DIGITS =
+			Arrays.asList( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 )
+					.stream()
+					.map( String::valueOf )
+					.map( (str) -> str.codePointAt( 0 ) ).collect( Collectors.toSet() );
+
 	private CharacterClassesUtils() {
 		//can't touch this!
 	}
@@ -38,14 +46,14 @@ public class CharacterClassesUtils {
 	public static final String WORD_CHARACTER = "\\w";
 	public static final String NON_WORD_CHARACTER = "\\W";
 
-	public static Function<EfficientString, Boolean> getFn(String identifier) {
+	public static CodePointSet getFn(String identifier) {
 		switch ( identifier ) {
 			case ANY:
 				return ANY_FN;
 			case WHITE_SPACE:
 				return WHITE_SPACE_FN;
 			case NON_WHITE_SPACE:
-				return NON_WORD_CHARACTER_FN;
+				return NON_WHITE_SPACE_FN;
 			case DIGIT:
 				return DIGIT_FN;
 			case NON_DIGIT:
@@ -59,68 +67,34 @@ public class CharacterClassesUtils {
 		}
 	}
 
-	public static final Function<EfficientString, Boolean> ANY_FN = (string) -> string.codePointLength() == 1;
+	public static final CodePointSet ANY_FN = CodePointSet.range( RangeRep.of( Integer.MIN_VALUE, Integer.MAX_VALUE ) );
 
-	public static final Function<EfficientString, Boolean> WHITE_SPACE_FN = str -> str.codePointLength() == 1 && WHITE_SPACE_CHARS
-			.contains( str.codePoint( 0 ) );
+	public static final CodePointSet WHITE_SPACE_FN = CodePointSet.set( WHITE_SPACE_CHARS );
 
-	public static final Function<EfficientString, Boolean> NON_WHITE_SPACE_FN = str -> str.codePointLength() == 1 && !WHITE_SPACE_CHARS
-			.contains( str.codePoint( 0 ) );
+	public static final CodePointSet NON_WHITE_SPACE_FN = WHITE_SPACE_FN.negative();
 
-	public static final Function<EfficientString, Boolean> DIGIT_FN = str -> str.codePointLength() == 1 && Character.isDigit(
-			str.codePoint(
-					0
-			)
+	public static final CodePointSet DIGIT_FN = CodePointSet.set( DIGITS );
+
+	public static final CodePointSet NON_DIGIT_FN = DIGIT_FN.negative();
+
+	public static final CodePointSet WORD_CHARACTER_FN = CodePointSet.range(
+			fromTo(
+					'a',
+					'z'
+			), fromTo( 'A', 'Z' ), fromTo( '0', '9' ), fromTo( '_', '_' )
 	);
 
-	public static final Function<EfficientString, Boolean> NON_DIGIT_FN = str -> str.codePointLength() == 1 && !Character.isDigit(
-			str.codePoint( 0 )
-	);
+	public static final CodePointSet NON_WORD_CHARACTER_FN = WORD_CHARACTER_FN.negative();
 
-	public static final Function<EfficientString, Boolean> WORD_CHARACTER_FN = str -> str.codePointLength() == 1 && (fromTo(
-			'a',
-			'z'
-	).apply( str ) || fromTo( 'A', 'Z' ).apply(
-			str
-	) || fromTo( '0', '9' ).apply( str ) || fromTo( '_', '_' ).apply( str ));
-
-	public static final Function<EfficientString, Boolean> NON_WORD_CHARACTER_FN = str -> str.codePointLength() == 1 && !fromTo(
-			'a',
-			'z'
-	).apply( str ) && !fromTo( 'A', 'Z' ).apply( str )
-			&& !fromTo( '0', '9' ).apply( str ) && str.codePoint( 0 ) != '_';
-
-	static Function<EfficientString, Boolean> fromTo(int from, int to) {
-		return (str) ->
-				str.codePointLength() == 1 && str.codePoint( 0 ) >= from && str.codePoint( 0 ) <= to;
+	static RangeRep fromTo(int from, int to) {
+		return RangeRep.of( from, to );
 	}
 
-	public static Function<EfficientString, Boolean> negativeFn(Range[] ranges) {
-		return (EfficientString str) -> {
-			if ( str.codePointLength() != 1 ) {
-				return false;
-			}
-			for ( Range range : ranges ) {
-				if ( str.codePoint( 0 ) >= range.from && str.codePoint( 0 ) <= range.to ) {
-					return false;
-				}
-			}
-			return true;
-		};
+	public static CodePointSet positiveFn(Set<RangeRep> ranges) {
+		RangeSet<Integer> rangeSet = TreeRangeSet.create();
+		for ( RangeRep rangeRep : ranges ) {
+			rangeSet.addAll( rangeRep.getRangeSet() );
+		}
+		return CodePointSet.range( new RangeRep( rangeSet ) );
 	}
-
-	public static Function<EfficientString, Boolean> positiveFn(Range[] ranges) {
-		return (EfficientString str) -> {
-			if ( str.codePointLength() != 1 ) {
-				return false;
-			}
-			for ( Range range : ranges ) {
-				if ( str.codePoint( 0 ) >= range.from && str.codePoint( 0 ) <= range.to ) {
-					return true;
-				}
-			}
-			return false;
-		};
-	}
-
 }

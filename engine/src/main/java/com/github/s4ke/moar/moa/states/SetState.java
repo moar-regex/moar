@@ -1,8 +1,8 @@
 package com.github.s4ke.moar.moa.states;
 
 import java.util.Map;
-import java.util.function.Function;
 
+import com.github.s4ke.moar.strings.CodePointSet;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
@@ -12,10 +12,10 @@ public class SetState implements State {
 
 	public final int idx;
 	public final int length;
-	public final Function<EfficientString, Boolean> criterion;
+	public final CodePointSet criterion;
 	public final String stringRepresentation;
 
-	public SetState(int idx, int length, Function<EfficientString, Boolean> criterion, String stringRepresentation) {
+	public SetState(int idx, int length, CodePointSet criterion, String stringRepresentation) {
 		this.idx = idx;
 		this.length = length;
 		this.criterion = criterion;
@@ -38,7 +38,13 @@ public class SetState implements State {
 
 	@Override
 	public boolean canConsume(EfficientString string) {
-		return this.criterion.apply( string );
+		if ( string.codePointLength() == 0 ) {
+			return false;
+		}
+		if ( string.codePointLength() > 1 ) {
+			throw new AssertionError( "string's codePointLength was greater than 1" );
+		}
+		return this.criterion.intersects( string.codePoint( 0 ) );
 	}
 
 	@Override

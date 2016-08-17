@@ -227,11 +227,11 @@ public final class EdgeGraph {
 
 		VariableState variableDestinationState = null;
 		BoundState boundState = null;
-		Map<String, State> staticDestinationStates = new HashMap<>( edgeCnt );
+		Map<EfficientString, State> staticDestinationStates = new HashMap<>( edgeCnt );
 		int staticOrSetCount;
 
 		{
-			Set<String> staticEdgeStrings = new HashSet<>();
+			Set<EfficientString> staticEdgeStrings = new HashSet<>();
 			Map<State, AtomicInteger> destinationStateCount = new HashMap<>();
 
 			//check if there are edges to different states with the same
@@ -257,7 +257,7 @@ public final class EdgeGraph {
 
 				if ( destinationState.isStatic() ) {
 					//only called for terminals, so null is fine
-					String edgeString = destinationState.getEdgeString( null ).toString();
+					EfficientString edgeString = destinationState.getEdgeString( null );
 					staticEdgeStrings.add( edgeString );
 					State knownDestinationState = staticDestinationStates.get( edgeString );
 					if ( knownDestinationState != null && knownDestinationState != destinationState ) {
@@ -284,8 +284,8 @@ public final class EdgeGraph {
 					for ( Edge edge : setEdges ) {
 						State destinationState = this.states.get( edge.destination );
 						if ( destinationState.isSet() ) {
-							for ( String edgeString : staticEdgeStrings ) {
-								if ( destinationState.canConsume( new EfficientString( edgeString ) ) ) {
+							for ( EfficientString edgeString : staticEdgeStrings ) {
+								if ( destinationState.canConsume( edgeString ) ) {
 									//if a set exists that contains a string from another static
 									//state, we are nondeterministic
 									return false;
@@ -293,32 +293,35 @@ public final class EdgeGraph {
 							}
 							++staticOrSetCount;
 						}
+						else {
+							throw new AssertionError( "found non set edge in SetEdges: " + edge );
+						}
 					}
 				}
 			}
 
-			//check for overlapping SetStates
-			//FIXME: can we do this more efficiently?
-			//FIXME: this does not work with UTF-32
 			{
 				List<Edge> setEdges = this.setEdges.get( state.getIdx() );
 				if ( setEdges.size() > 1 ) {
-					for ( int i = 0; i <= Character.MAX_VALUE; ++i ) {
-						char ch = (char) i;
-						boolean foundOne = false;
-						for ( Edge edge : edges ) {
-							State destinationState = this.states.get( edge.destination );
-							if ( destinationState.isSet() ) {
-								if ( destinationState.canConsume( new EfficientString( String.valueOf( ch ) ) ) ) {
-									//if a set exists that contains a string from another set
-									//state, we are nondeterministic
-									if ( foundOne ) {
-										return false;
-									}
-									else {
-										foundOne = true;
-									}
-								}
+					for ( Edge fst : setEdges ) {
+						State destinationStateFst = this.states.get( fst.destination );
+						if(!destinationStateFst.isSet()) {
+							throw new AssertionError( "found non set edge in SetEdges: " + fst );
+						}
+						SetState setStateFst = (SetState) destinationStateFst;
+
+						for ( Edge snd : setEdges ) {
+							if ( fst == snd ) {
+								//they are the same object don't check that
+								continue;
+							}
+							State destinationStateSnd = this.states.get( snd.destination );
+							if(!destinationStateSnd.isSet()) {
+								throw new AssertionError( "found non set edge in SetEdges: " + snd );
+							}
+							SetState setStateSnd = (SetState) destinationStateSnd;
+							if(setStateFst.criterion.intersects( setStateSnd.criterion )) {
+								return false;
 							}
 						}
 					}

@@ -12,6 +12,7 @@ import com.github.s4ke.moar.moa.edgegraph.MemoryAction;
 import com.github.s4ke.moar.moa.states.SetState;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
+import com.github.s4ke.moar.strings.CodePointSet;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
@@ -21,10 +22,10 @@ class SetRegex implements Regex {
 
 	private static final String SELF_RELEVANT_KEY = "";
 
-	private final Function<EfficientString, Boolean> setDescriptor;
+	private final CodePointSet setDescriptor;
 	private final String stringRepresentation;
 
-	public SetRegex(Function<EfficientString, Boolean> setDescriptor, String stringRepresentation) {
+	public SetRegex(CodePointSet setDescriptor, String stringRepresentation) {
 		this.setDescriptor = setDescriptor;
 		this.stringRepresentation = stringRepresentation;
 	}
