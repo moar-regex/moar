@@ -12,6 +12,8 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 /**
+ * ANTLR based Regex compiler (end users should probably use {@link com.github.s4ke.moar.MoaPattern#compile(String)} instead of manually using this class)
+ *
  * @author Martin Braun
  */
 public final class RegexCompiler {

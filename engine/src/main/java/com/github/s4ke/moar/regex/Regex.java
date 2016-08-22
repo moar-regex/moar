@@ -18,6 +18,16 @@ import com.github.s4ke.moar.util.RangeRep;
 import static com.github.s4ke.moar.regex.CharacterClassesUtils.NON_WORD_CHARACTER_FN;
 
 /**
+ * Interface representing a Regex in Java Code. This interface serves two purposes:
+ * <ol>
+ * <li>representation of parsed Regex Strings</li>
+ * <li>DSL-style creation of Regexes in Java Code</li>
+ * </ol>
+ * <br />
+ * <br />
+ * The DSL style for the Regex (a|b)c looks like this:
+ * {@code Regex.str("a").or("b").and("c")}.
+ *
  * @author Martin Braun
  */
 public interface Regex extends StateContributor, EdgeContributor, VariableOccurence {
@@ -198,7 +208,7 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 	}
 
 	//TODO: this can be done with a Stack and some clever handling
-	//instead of recursion
+	//instead of recursion (or with a Trampoline)
 	default Moa toMoa() {
 		Moa moa = new Moa();
 		Map<String, Variable> variables = new HashMap<>();

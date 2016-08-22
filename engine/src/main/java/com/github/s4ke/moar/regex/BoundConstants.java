@@ -10,6 +10,8 @@ import com.github.s4ke.moar.strings.EfficientString;
 import com.github.s4ke.moar.util.CharSeq;
 
 /**
+ * Constants for the supported boundary checks
+ *
  * @author Martin Braun
  */
 public final class BoundConstants {

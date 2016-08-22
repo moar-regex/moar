@@ -8,6 +8,9 @@ import com.github.s4ke.moar.regex.Regex;
 import com.github.s4ke.moar.util.RangeRep;
 
 /**
+ * ANTLR parser detail. Implements the TreeListener contract used for
+ * extracting information out of the ParseTree.
+ *
  * @author Martin Braun
  */
 public class RegexTreeListener extends RegexBaseListener implements RegexListener {

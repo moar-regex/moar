@@ -11,6 +11,8 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 /**
+ * Utilities for Character Classes
+ *
  * @author Martin Braun
  */
 public class CharacterClassesUtils {
