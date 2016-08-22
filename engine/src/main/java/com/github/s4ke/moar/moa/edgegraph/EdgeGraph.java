@@ -22,6 +22,19 @@ import com.github.s4ke.moar.moa.states.VariableState;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
+ * The actual graph representation of a Memory Occurence Automaton.
+ * Uses some special states for lower memory usage and real-world
+ * implementation of theoretical concepts.
+ *
+ * Supported Types of states are:
+ *
+ * <ul>
+ *     <li>{@link BasicState}</li>
+ *     <li>{@link BoundState}</li>
+ *     <li>{@link SetState}</li>
+ *     <li>{@link VariableState}</li>
+ * </ul>
+ *
  * @author Martin Braun
  */
 public final class EdgeGraph {

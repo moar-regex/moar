@@ -6,6 +6,10 @@ import com.github.s4ke.moar.strings.CodePointSet;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
+ * Implementation of a {@link State} that represents a whole range of characters. These
+ * are represented by a {@link CodePointSet}. With this we don't have to create that
+ * many states if we just want to allow every character that is part of a set (like [a-z], 1 state instead of 26)
+ *
  * @author Martin Braun
  */
 public class SetState implements State {

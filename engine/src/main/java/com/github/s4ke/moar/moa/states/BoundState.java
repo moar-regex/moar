@@ -6,6 +6,8 @@ import java.util.function.Function;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
+ * Implementation of {@link State} that represents boundary matches like the start of input or the end of input.
+ *
  * @author Martin Braun
  */
 public class BoundState implements State {

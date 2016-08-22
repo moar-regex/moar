@@ -38,7 +38,7 @@ public class MatchInfo {
 	}
 
 	public int getLastMatch() {
-		return lastMatch;
+		return this.lastMatch;
 	}
 
 	public void setLastMatch(int lastMatch) {

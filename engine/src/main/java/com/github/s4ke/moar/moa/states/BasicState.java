@@ -5,6 +5,10 @@ import java.util.Map;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
+ * Basic implementation of {@link State} that represents a
+ * a String as a token. Currently this is expected to be a String
+ * of length 1.
+ *
  * @author Martin Braun
  */
 public class BasicState implements State {

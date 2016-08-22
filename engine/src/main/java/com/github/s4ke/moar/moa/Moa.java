@@ -13,9 +13,14 @@ import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
 import com.github.s4ke.moar.moa.edgegraph.MemoryAction;
 import com.github.s4ke.moar.moa.states.State;
 import com.github.s4ke.moar.moa.states.Variable;
+import com.github.s4ke.moar.util.CharSeq;
+import com.github.s4ke.moar.util.IntCharSeq;
 
 
 /**
+ * Basic implementation of a Memory Occurence Automaton with support
+ * for backreferences using Variable States.
+ *
  * @author Martin Braun
  */
 public final class Moa {
@@ -92,13 +97,17 @@ public final class Moa {
 		return Collections.unmodifiableMap( this.vars );
 	}
 
-	public MoaMatcher matcher(CharSequence str) {
+	public MoaMatcherImpl matcher(CharSeq charSeq) {
 		this.checkFrozen();
 		Map<String, Variable> varCopy = new HashMap<>( this.vars.size() );
 		for ( Map.Entry<String, Variable> entry : this.vars.entrySet() ) {
 			varCopy.put( entry.getKey(), new Variable( entry.getValue() ) );
 		}
-		return new MoaMatcherImpl( this.edges, varCopy, str );
+		return new MoaMatcherImpl( this.edges, varCopy, charSeq );
+	}
+
+	public MoaMatcher matcher(CharSequence str) {
+		return this.matcher( new IntCharSeq( str ) );
 	}
 
 	public boolean check(String str) {

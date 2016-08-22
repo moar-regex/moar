@@ -27,10 +27,10 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 	private int lastStart = -1;
 	private State state = Moa.SRC;
 
-	MoaMatcherImpl(EdgeGraph edges, Map<String, Variable> vars, CharSequence str) {
+	MoaMatcherImpl(EdgeGraph edges, Map<String, Variable> vars, CharSeq str) {
 		this.edges = edges;
 		this.vars = vars;
-		this.str = new IntCharSeq( str );
+		this.str = str;
 		this.varsByOccurence = new HashMap<>();
 		for ( Variable var : vars.values() ) {
 			this.varsByOccurence.put( var.getOccurenceInRegex(), var );

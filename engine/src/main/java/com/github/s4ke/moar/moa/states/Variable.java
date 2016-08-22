@@ -3,6 +3,8 @@ package com.github.s4ke.moar.moa.states;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
+ * This represents a Variable in a Memory Occurence Automaton
+ *
  * @author Martin Braun
  */
 public class Variable {
