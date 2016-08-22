@@ -24,6 +24,7 @@ public class ByteCharSeq implements CharSeq {
 
 	@Override
 	public int codePoint(int index) {
+		//FIXME: is this the correct behaviour?
 		this.tmpByte[0] = this.contents.bytes[index];
 		UnicodeUtil.UTF8toUTF16( this.tmpByte, 0, 1, this.tmpChar );
 		return this.tmpChar[0] & 0xFFFF;
