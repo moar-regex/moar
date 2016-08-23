@@ -24,7 +24,6 @@
 package com.github.s4ke.moar.regex;
 
 import com.github.s4ke.moar.MoaMatcher;
-import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.strings.EfficientString;
 
@@ -127,14 +126,14 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testStartOfLineDeterminism() {
-		assertDet( Regex.caret().and( "a" ) );
-		assertNonDet( Regex.caret().or( "a" ).and( "b" ) );
+		TestUtil.assertDet( Regex.caret().and( "a" ) );
+		TestUtil.assertNonDet( Regex.caret().or( "a" ).and( "b" ) );
 	}
 
 	@Test
 	public void testEndOfLine() {
 		Moa moa = Regex.str( "a" ).dollar().toMoa();
-		assertMatch( true, moa, "a" );
+		TestUtil.assertMatch( true, moa, "a" );
 		for ( EfficientString eff : BoundConstants.LINE_BREAK_CHARS ) {
 			String tmp = "a" + eff.toString() + "ab";
 			MoaMatcher matcher = moa.matcher( tmp );
@@ -158,8 +157,8 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testEndOfLineDeterminism() {
-		assertDet( Regex.str( "a" ).dollar() );
-		assertNonDet( Regex.str( "a" ).or( Regex.dollar_() ) );
+		TestUtil.assertDet( Regex.str( "a" ).dollar() );
+		TestUtil.assertNonDet( Regex.str( "a" ).or( Regex.dollar_() ) );
 	}
 
 	@Test
@@ -266,7 +265,7 @@ public class MoaWithDSLTest {
 				.and( Regex.reference( "x" ) );
 		Moa moa = regex.toMoa();
 		for ( int i = 0; i < 10; ++i ) {
-			String str = repeat( "a", i ) + "|" + repeat( "a", i );
+			String str = TestUtil.repeat( "a", i ) + "|" + TestUtil.repeat( "a", i );
 			assertTrue( str + " was not accepted by x{a*}|&x", moa.check( str ) );
 		}
 	}
@@ -308,7 +307,7 @@ public class MoaWithDSLTest {
 				.and( Regex.reference( "x" ) );
 		Moa moa = regex.toMoa();
 		for ( int i = 0; i < 10; ++i ) {
-			String str = repeat( "ab", i ) + "|" + repeat( "ab", i );
+			String str = TestUtil.repeat( "ab", i ) + "|" + TestUtil.repeat( "ab", i );
 			assertTrue( str + " was not accepted by x{(a or b)*}|&x*", moa.check( str ) );
 		}
 	}
@@ -357,7 +356,7 @@ public class MoaWithDSLTest {
 		assertTrue( moa.check( "aaaa" ) );
 		boolean tmp = false;
 		for ( int i = 0; i < 100; ++i ) {
-			String str = repeat( "a", i );
+			String str = TestUtil.repeat( "a", i );
 			boolean res = moa.check( str );
 			if ( res ) {
 				tmp = true;
@@ -365,14 +364,6 @@ public class MoaWithDSLTest {
 			}
 		}
 		assertTrue( tmp );
-	}
-
-	private static String repeat(String str, int times) {
-		String ret = "";
-		for ( int i = 0; i < times; ++i ) {
-			ret += str;
-		}
-		return ret;
 	}
 
 	@Test
@@ -410,15 +401,15 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testNotDeterministic() {
-		assertNonDet( Regex.str( "a" ).bind( "x" ).or( "a" ) );
-		assertNonDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( Regex.reference( "x" ) ) );
-		assertDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( "c" ).and( Regex.reference( "x" ) ) );
-		assertDet( Regex.str( "a" ).plus().or( Regex.eps() ) );
-		assertNonDet( Regex.str( "a" ).star().or( Regex.eps() ) );
-		assertDet( Regex.str( "a" ).bind( "x" ).plus() );
-		assertNonDet( Regex.str( "a" ).plus().bind( "x" ).plus() );
-		assertDet( Regex.str( "a" ).plus().bind( "x" ).and( "b" ).plus() );
-		assertNonDet(
+		TestUtil.assertNonDet( Regex.str( "a" ).bind( "x" ).or( "a" ) );
+		TestUtil.assertNonDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( Regex.reference( "x" ) ) );
+		TestUtil.assertDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( "c" ).and( Regex.reference( "x" ) ) );
+		TestUtil.assertDet( Regex.str( "a" ).plus().or( Regex.eps() ) );
+		TestUtil.assertNonDet( Regex.str( "a" ).star().or( Regex.eps() ) );
+		TestUtil.assertDet( Regex.str( "a" ).bind( "x" ).plus() );
+		TestUtil.assertNonDet( Regex.str( "a" ).plus().bind( "x" ).plus() );
+		TestUtil.assertDet( Regex.str( "a" ).plus().bind( "x" ).and( "b" ).plus() );
+		TestUtil.assertNonDet(
 				Regex.str( "a" )
 						.plus()
 						.bind( "x" )
@@ -426,7 +417,7 @@ public class MoaWithDSLTest {
 						.or( Regex.str( "b" ).plus().bind( "y" ).and( Regex.str( "a" ).plus().bind( "x" ) ) )
 						.and( Regex.reference( "x" ).and( Regex.reference( "y" ) ) )
 		);
-		assertDet(
+		TestUtil.assertDet(
 				Regex.str( "a" )
 						.plus()
 						.bind( "x" )
@@ -434,7 +425,7 @@ public class MoaWithDSLTest {
 						.or( Regex.str( "b" ).plus().bind( "y" ).and( Regex.str( "a" ).plus().bind( "x" ) ) )
 						.and( "c" ).and( Regex.reference( "x" ).and( Regex.reference( "y" ) ) )
 		);
-		assertNonDet(
+		TestUtil.assertNonDet(
 				Regex.str( "a" )
 						.plus()
 						.bind( "x" )
@@ -442,7 +433,7 @@ public class MoaWithDSLTest {
 						.or( Regex.str( "b" ).plus().bind( "y" ).and( Regex.str( "a" ).plus().bind( "x" ) ) )
 						.and( Regex.reference( "x" ).or( Regex.reference( "y" ) ) )
 		);
-		assertDet(
+		TestUtil.assertDet(
 				Regex.reference( "x" )
 						.bind( "y" )
 						.and( Regex.reference( "y" ).and( "a" ).bind( "x" ) )
@@ -453,8 +444,8 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testDeterminismWithRange() {
-		assertNonDet( Regex.set( "a", "c" ).or( "a" ) );
-		assertNonDet( Regex.set( "a", "c" ).or( Regex.set( "a", "c" ) ) );
+		TestUtil.assertNonDet( Regex.set( "a", "c" ).or( "a" ) );
+		TestUtil.assertNonDet( Regex.set( "a", "c" ).or( Regex.set( "a", "c" ) ) );
 	}
 
 	@Test
@@ -462,28 +453,6 @@ public class MoaWithDSLTest {
 		Moa moa = Regex.eps().toMoa();
 		assertTrue( moa.check( "" ) );
 		assertFalse( moa.check( "a" ) );
-	}
-
-	private static void assertMatch(boolean shouldMatch, Regex regex, String input) {
-		Assert.assertEquals( shouldMatch, regex.toMoa().check( input ) );
-	}
-
-	private static void assertMatch(boolean shouldMatch, Moa moa, String input) {
-		Assert.assertEquals( shouldMatch, moa.check( input ) );
-	}
-
-	void assertNonDet(Regex regex) {
-		try {
-			regex.toMoa();
-			fail( "regex " + regex + " was not recognized as non-deterministic" );
-		}
-		catch (NonDeterministicException e) {
-			System.out.println( "successfully got Exception while building the MOA: " + e.getMessage() );
-		}
-	}
-
-	void assertDet(Regex regex) {
-		regex.toMoa();
 	}
 
 }

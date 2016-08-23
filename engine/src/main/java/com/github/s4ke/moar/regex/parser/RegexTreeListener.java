@@ -24,7 +24,9 @@
 package com.github.s4ke.moar.regex.parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import com.github.s4ke.moar.regex.Regex;
@@ -39,6 +41,8 @@ import com.github.s4ke.moar.util.RangeRep;
 public class RegexTreeListener extends RegexBaseListener implements RegexListener {
 
 	private final Stack<Regex> regexStack = new Stack<>();
+	private final Stack<Integer> groupCountStack = new Stack<>();
+	private final Map<Integer, String> groupNames = new HashMap<>();
 	private int groupCount = 0;
 
 	public Regex finalRegex() {
@@ -102,7 +106,7 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 			regex = Regex.reference( ctx.groupName().getText() );
 		}
 		else {
-			regex = Regex.reference( ctx.number().getText() );
+			regex = Regex.reference( this.groupNames.get( Integer.parseInt( ctx.number().getText() ) ) );
 		}
 		this.regexStack.push( regex );
 	}
@@ -167,11 +171,24 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	}
 
 	@Override
-	public void exitCapturingGroup(RegexParser.CapturingGroupContext ctx) {
-		++this.groupCount;
+	public void enterCapturingGroup(RegexParser.CapturingGroupContext ctx) {
+		int groupIdx = ++this.groupCount;
+		this.groupCountStack.add( groupIdx );
 		String regexName;
 		if ( ctx.groupName() == null ) {
-			regexName = String.valueOf( this.groupCount );
+			regexName = String.valueOf( groupIdx );
+		}
+		else {
+			regexName = ctx.groupName().getText();
+		}
+		this.groupNames.put( groupIdx, regexName );
+	}
+
+	@Override
+	public void exitCapturingGroup(RegexParser.CapturingGroupContext ctx) {
+		String regexName;
+		if ( ctx.groupName() == null ) {
+			regexName = String.valueOf( this.groupCountStack.pop() );
 		}
 		else {
 			regexName = ctx.groupName().getText();

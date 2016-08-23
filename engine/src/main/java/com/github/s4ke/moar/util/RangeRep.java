@@ -71,9 +71,13 @@ public class RangeRep {
 		//this is only ever called for things in the normal char range so we dont
 		//have to check whether the the range is valid
 		for ( Range range : this.rangeSet.asRanges() ) {
-			builder = builder.appendCodePoint( (Integer) range.lowerEndpoint() ).append( "-" ).appendCodePoint(
-					(Integer) range.upperEndpoint()
-			);
+			if(range.lowerEndpoint().equals( range.upperEndpoint() )) {
+				builder = builder.appendCodePoint( (Integer) range.lowerEndpoint() );
+			} else {
+				builder = builder.appendCodePoint( (Integer) range.lowerEndpoint() ).append( "-" ).appendCodePoint(
+						(Integer) range.upperEndpoint()
+				);
+			}
 		}
 		return builder;
 	}

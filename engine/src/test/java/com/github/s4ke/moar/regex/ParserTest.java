@@ -23,6 +23,7 @@
  */
 package com.github.s4ke.moar.regex;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -57,6 +58,13 @@ public class ParserTest {
 		MoaMatcher matcher = pattern.matcher( "Deterministic" );
 		assertTrue( matcher.nextMatch() );
 		assertTrue( matcher.matches() );
+	}
+
+	@Test
+	public void testTusker() {
+		//from: http://tusker.org/regex/regex_benchmark.html
+		Regex regex = parseRegex( "(\\w+)(\\s+\\1)+" );
+		TestUtil.assertNonDet( regex );
 	}
 
 	@Test
@@ -417,7 +425,7 @@ public class ParserTest {
 
 	@Test
 	public void testEscapeNonBrackets() {
-		char[] escapees = {'*', '+', '?', ':', '\\', '.' | '$'};
+		char[] escapees = {'*', '+', '?', '\\', '.' | '$'};
 		for ( char escapee : escapees ) {
 			{
 				Moa moa = parseRegex( "\\" + escapee ).toMoa();
@@ -455,6 +463,15 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testSpecialCharsWithoutEscaping() {
+		for ( String str : Arrays.asList( ":", "<", ">" ) ) {
+			Regex regex = parseRegex( str );
+			Moa moa = regex.toMoa();
+			assertTrue( moa.check( str ) );
+		}
+	}
+
+	@Test
 	public void testCoolLanguagesJava() {
 		for ( String regexStr : COOL_REGEXES ) {
 			try {
@@ -488,7 +505,7 @@ public class ParserTest {
 
 	@Test
 	public void testEscapeBrackets() {
-		char[] brackets = {'[', ']', '(', ')', '{', '}', '<', '>'};
+		char[] brackets = {'[', ']', '(', ')'};
 		for ( char bracket : brackets ) {
 			{
 				Moa moa = parseRegex( "\\" + bracket ).toMoa();

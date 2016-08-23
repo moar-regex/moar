@@ -105,6 +105,15 @@ public class SetState implements State {
 	}
 
 	@Override
+	public String toString() {
+		if(this.stringRepresentation != null) {
+			return this.stringRepresentation;
+		} else {
+			return this.criterion.toString();
+		}
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if ( this == o ) {
 			return true;

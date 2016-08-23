@@ -94,13 +94,12 @@ charOrEscaped :
     character
     | escapeSeq
     | UTF_32_MARKER utf32 UTF_32_MARKER;
-character : (UNUSED_CHARS | ZERO | ONE_TO_NINE | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G' );
+character : (UNUSED_CHARS | ZERO | ONE_TO_NINE | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G' | ':' | '<' | '>' );
 escapeSeq : ESC escapee;
-escapee : '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
+escapee : '[' | ']' | '(' | ')'
     | ESC | ANY | EOS | START | UTF_32_MARKER
     | '*' | '+' | '?'
-    | '-'
-    | ':' ;
+    | '-' ;
 utf32 : (character | escapeSeq)+;
 
 number :  ONE_TO_NINE (ZERO | ONE_TO_NINE)*;
@@ -115,7 +114,7 @@ UTF_32_MARKER : '~';
 
 UNUSED_CHARS :
     ~('0' .. '9'
-    | '[' | ']' | '(' | ')' | '{' | '}' | '<' | '>'
+    | '[' | ']' | '(' | ')'
     | '\\' | '.' | '$' | '^'
     | '*' | '+' | '?'
     | ':'

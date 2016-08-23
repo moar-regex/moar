@@ -48,14 +48,14 @@ import com.github.s4ke.moar.strings.EfficientString;
  * The actual graph representation of a Memory Occurence Automaton.
  * Uses some special states for lower memory usage and real-world
  * implementation of theoretical concepts.
- *
+ * <p/>
  * Supported Types of states are:
- *
+ * <p/>
  * <ul>
- *     <li>{@link BasicState}</li>
- *     <li>{@link BoundState}</li>
- *     <li>{@link SetState}</li>
- *     <li>{@link VariableState}</li>
+ * <li>{@link BasicState}</li>
+ * <li>{@link BoundState}</li>
+ * <li>{@link SetState}</li>
+ * <li>{@link VariableState}</li>
  * </ul>
  *
  * @author Martin Braun
@@ -341,7 +341,7 @@ public final class EdgeGraph {
 				if ( setEdges.size() > 1 ) {
 					for ( Edge fst : setEdges ) {
 						State destinationStateFst = this.states.get( fst.destination );
-						if(!destinationStateFst.isSet()) {
+						if ( !destinationStateFst.isSet() ) {
 							throw new AssertionError( "found non set edge in SetEdges: " + fst );
 						}
 						SetState setStateFst = (SetState) destinationStateFst;
@@ -352,11 +352,11 @@ public final class EdgeGraph {
 								continue;
 							}
 							State destinationStateSnd = this.states.get( snd.destination );
-							if(!destinationStateSnd.isSet()) {
+							if ( !destinationStateSnd.isSet() ) {
 								throw new AssertionError( "found non set edge in SetEdges: " + snd );
 							}
 							SetState setStateSnd = (SetState) destinationStateSnd;
-							if(setStateFst.criterion.intersects( setStateSnd.criterion )) {
+							if ( setStateFst.criterion.intersects( setStateSnd.criterion ) ) {
 								return false;
 							}
 						}
@@ -393,6 +393,10 @@ public final class EdgeGraph {
 				return false;
 			}
 			if ( staticOrSetCount == 1 ) {
+				//the other one was a set, can't be SNK
+				if ( staticDestinationStates.size() == 0 ) {
+					return false;
+				}
 				if ( staticDestinationStates.values().iterator().next() != SNK ) {
 					return false;
 				}

@@ -1,4 +1,4 @@
-/*
+package com.github.s4ke.moar.regex;/*
  The MIT License (MIT)
 
  Copyright (c) 2016 Martin Braun
@@ -21,21 +21,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-package com.github.s4ke.moar.regex;
+
+import com.github.s4ke.moar.NonDeterministicException;
+import com.github.s4ke.moar.moa.Moa;
+import com.github.s4ke.moar.regex.Regex;
+
+import junit.framework.Assert;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Martin Braun
  */
-final class Symbol {
-
-	public final String symbol;
-
-	Symbol(String symbol) {
-		this.symbol = symbol;
+public class TestUtil {
+	public static String repeat(String str, int times) {
+		String ret = "";
+		for ( int i = 0; i < times; ++i ) {
+			ret += str;
+		}
+		return ret;
 	}
 
-	@Override
-	public String toString() {
-		return this.symbol;
+	private static void assertMatch(boolean shouldMatch, Regex regex, String input) {
+		Assert.assertEquals( shouldMatch, regex.toMoa().check( input ) );
+	}
+
+	public static void assertMatch(boolean shouldMatch, Moa moa, String input) {
+		Assert.assertEquals( shouldMatch, moa.check( input ) );
+	}
+
+	public static void assertNonDet(Regex regex) {
+		try {
+			regex.toMoa();
+			fail( "regex " + regex + " was not recognized as non-deterministic" );
+		}
+		catch (NonDeterministicException e) {
+			System.out.println( "successfully got Exception while building the MOA: " + e.getMessage() );
+		}
+	}
+
+	public static void assertDet(Regex regex) {
+		regex.toMoa();
 	}
 }
