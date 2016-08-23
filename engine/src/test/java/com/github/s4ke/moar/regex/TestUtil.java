@@ -1,4 +1,4 @@
-package com.github.s4ke.moar.regex;/*
+/*
  The MIT License (MIT)
 
  Copyright (c) 2016 Martin Braun
@@ -21,12 +21,12 @@ package com.github.s4ke.moar.regex;/*
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+package com.github.s4ke.moar.regex;
 
 import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
-import com.github.s4ke.moar.regex.Regex;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import static org.junit.Assert.fail;
 

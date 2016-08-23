@@ -90,9 +90,18 @@ public class ParserTest {
 			//we also treat the dot as the any metachar.
 			Regex regex = parseRegex( "usd [\\+\\-]?[0-9]+\\.[0-9][0-9]" );
 			TestUtil.assertDet( regex );
-			TestUtil.assertMatch( true, regex.toMoa(), "usd 1234.00" );
-			TestUtil.assertMatch( true, regex.toMoa(), "usd +1234.00" );
-			TestUtil.assertMatch( true, regex.toMoa(), "usd -1234.00" );
+			Moa moa = regex.toMoa();
+			TestUtil.assertMatch( true, moa, "usd 1234.00" );
+			TestUtil.assertMatch( true, moa, "usd +1234.00" );
+			TestUtil.assertMatch( true, moa, "usd -1234.00" );
+			TestUtil.assertMatch( true, moa, "usd 1.00" );
+			TestUtil.assertMatch( true, moa, "usd +1.00" );
+			TestUtil.assertMatch( true, moa, "usd -1.00" );
+			TestUtil.assertMatch( false, moa, "1234.00" );
+			TestUtil.assertMatch( false, moa, "usd .00" );
+			TestUtil.assertMatch( false, moa, "usd +.00" );
+			TestUtil.assertMatch( false, moa, "usd -.00" );
+			TestUtil.assertMatch( false, moa, "usd 1." );
 		}
 	}
 
