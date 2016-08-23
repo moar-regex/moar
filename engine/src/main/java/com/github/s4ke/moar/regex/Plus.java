@@ -24,6 +24,7 @@
 package com.github.s4ke.moar.regex;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +73,7 @@ final class Plus implements Regex {
 			Map<Regex, Map<String, State>> selfRelevant) {
 		this.regex.contributeEdges( edgeGraph, variables, states, selfRelevant );
 
-		List<EdgeGraph.Edge> srcEdges = edgeGraph.getEdges( Moa.SRC );
+		Collection<EdgeGraph.Edge> srcEdges = edgeGraph.getEdges( Moa.SRC );
 
 		//used to avoid concurrent modification
 		List<Supplier<Void>> addActions = new ArrayList<>();

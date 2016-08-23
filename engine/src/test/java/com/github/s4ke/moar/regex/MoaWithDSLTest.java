@@ -33,7 +33,6 @@ import junit.framework.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Martin Braun
@@ -391,6 +390,17 @@ public class MoaWithDSLTest {
 		assertFalse( moa.check( "" ) );
 	}
 
+	@Test
+	public void testTooHarshDeterminism() {
+		TestUtil.assertDet( Regex.eps().or( Regex.eps() ) );
+		TestUtil.assertNonDet( Regex.eps().bind( "1" ).or( Regex.eps().bind( "2" ) ) );
+
+		TestUtil.assertDet( Regex.str( "a" ).plus().plus() );
+		TestUtil.assertNonDet( Regex.str( "a" ).plus().bind( "2" ).plus() );
+
+		TestUtil.assertDet( Regex.str( "a" ).or( Regex.eps() ).plus() );
+		TestUtil.assertNonDet( Regex.str( "a" ).or( Regex.eps().bind( "2" ) ).bind( "1" ).plus() );
+	}
 
 	@Test
 	public void testNonExistingReference() {
@@ -404,8 +414,16 @@ public class MoaWithDSLTest {
 		TestUtil.assertNonDet( Regex.str( "a" ).bind( "x" ).or( "a" ) );
 		TestUtil.assertNonDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( Regex.reference( "x" ) ) );
 		TestUtil.assertDet( Regex.str( "a" ).or( "b" ).plus().bind( "x" ).and( "c" ).and( Regex.reference( "x" ) ) );
-		TestUtil.assertDet( Regex.str( "a" ).plus().or( Regex.eps() ) );
-		TestUtil.assertNonDet( Regex.str( "a" ).star().or( Regex.eps() ) );
+
+		{
+			//this is deterministic
+			TestUtil.assertDet( Regex.str( "a" ).plus().or( Regex.eps() ) );
+			//but this is not as we can't know whether to bind epsilon or not
+			TestUtil.assertNonDet( Regex.str( "a" ).star().bind( "x" ).or( Regex.eps() ) );
+			//the binding makes the above non deterministic
+			TestUtil.assertDet( Regex.str( "a" ).star().or( Regex.eps() ) );
+		}
+
 		TestUtil.assertDet( Regex.str( "a" ).bind( "x" ).plus() );
 		TestUtil.assertNonDet( Regex.str( "a" ).plus().bind( "x" ).plus() );
 		TestUtil.assertDet( Regex.str( "a" ).plus().bind( "x" ).and( "b" ).plus() );

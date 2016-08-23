@@ -105,6 +105,21 @@ public class ParserTest {
 		}
 	}
 
+
+	@Test
+	public void testTooHarshDeterminism() {
+		//these were wrongly identified as non deterministic
+		//but this was only wrong for non matching groups
+		TestUtil.assertDet( parseRegex( "(?:)|(?:)" ) );
+		TestUtil.assertNonDet( parseRegex( "()|()" ) );
+
+		TestUtil.assertDet( parseRegex( "(?:a+)+" ) );
+		TestUtil.assertNonDet( parseRegex( "(a+)+" ) );
+
+		TestUtil.assertDet( parseRegex( "(?:a|(?:))+" ) );
+		TestUtil.assertNonDet( parseRegex( "(a|())+" ) );
+	}
+
 	@Test
 	public void testCaret() {
 		Moa moa = parseRegex( "^a" ).toMoa();

@@ -117,9 +117,15 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		if ( ctx.union() != null ) {
 			additionalPop = true;
 		}
-		Regex regex = this.regexStack.pop();
-		if ( additionalPop ) {
-			regex = this.regexStack.pop().or( regex );
+		Regex regex;
+		if ( !this.regexStack.isEmpty() ) {
+			regex = this.regexStack.pop();
+			if ( additionalPop ) {
+				regex = this.regexStack.pop().or( regex );
+			}
+		}
+		else {
+			regex = Regex.eps();
 		}
 		this.regexStack.push( regex );
 	}
@@ -130,11 +136,13 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 		if ( ctx.concatenation() != null ) {
 			additionalPop = true;
 		}
-		Regex regex = this.regexStack.pop();
-		if ( additionalPop ) {
-			regex = this.regexStack.pop().and( regex );
+		if ( !this.regexStack.isEmpty() ) {
+			Regex regex = this.regexStack.pop();
+			if ( additionalPop ) {
+				regex = this.regexStack.pop().and( regex );
+			}
+			this.regexStack.push( regex );
 		}
-		this.regexStack.push( regex );
 	}
 
 	@Override
@@ -205,7 +213,14 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	@Override
 	public void exitNonCapturingGroup(RegexParser.NonCapturingGroupContext ctx) {
-		//no-op
+		Regex regex;
+		if ( ctx.union() == null ) {
+			regex = Regex.eps();
+		}
+		else {
+			regex = this.regexStack.pop();
+		}
+		this.regexStack.push( regex );
 	}
 
 	@Override

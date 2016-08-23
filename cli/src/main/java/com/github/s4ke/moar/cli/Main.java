@@ -70,6 +70,8 @@ public class Main {
 		options.addOption( "ls", false, "treat every line of the input string file as one string" );
 		options.addOption( "t", false, "trim lines if -ls is set" );
 
+		options.addOption( "d", false, "only do determinism check" );
+
 		options.addOption( "help", false, "prints this dialog" );
 
 		CommandLineParser parser = new DefaultParser();
@@ -93,7 +95,6 @@ public class Main {
 			}
 			catch (Exception e) {
 				System.out.println( e.getMessage() );
-				return;
 			}
 		}
 
@@ -189,6 +190,13 @@ public class Main {
 			if ( !treatLineAsString ) {
 				stringsToCheck.add( stringBuilder.toString() );
 			}
+		}
+
+		if ( cmd.hasOption( "d" ) ) {
+			//at this point we have already built the Patterns
+			//so just give the user a short note.
+			System.out.println( "All Regexes seem to be deterministic." );
+			return;
 		}
 
 		if ( patterns.size() == 0 ) {

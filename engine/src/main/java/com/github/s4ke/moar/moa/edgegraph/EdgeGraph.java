@@ -23,12 +23,10 @@
  */
 package com.github.s4ke.moar.moa.edgegraph;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -77,11 +75,11 @@ public final class EdgeGraph {
 	};
 
 	private final Map<Integer, State> states = new HashMap<>();
-	private final Map<Integer, List<Edge>> edges = new HashMap<>();
-	private final Map<Integer, List<Edge>> setEdges = new HashMap<>();
-	private final Map<Integer, List<Edge>> boundEdges = new HashMap<>();
+	private final Map<Integer, Set<Edge>> edges = new HashMap<>();
+	private final Map<Integer, Set<Edge>> setEdges = new HashMap<>();
+	private final Map<Integer, Set<Edge>> boundEdges = new HashMap<>();
 	private final Map<Integer, Map<EfficientString, Edge>> staticEdges = new HashMap<>();
-	private final Map<Integer, List<Edge>> backRefOrEpsilonEdges = new HashMap<>();
+	private final Map<Integer, Set<Edge>> backRefOrEpsilonEdges = new HashMap<>();
 
 	private boolean frozen = false;
 
@@ -101,7 +99,7 @@ public final class EdgeGraph {
 
 	public void freeze() {
 		this.frozen = true;
-		for ( Map.Entry<Integer, List<Edge>> entry : this.edges.entrySet() ) {
+		for ( Map.Entry<Integer, Set<Edge>> entry : this.edges.entrySet() ) {
 			if ( backRefOrEpsilonEdges.get( entry.getKey() ).size() > 2 ) {
 				throw new AssertionError( "backRfOrEpsilonEdges had size greater 2 for state " + entry.getKey() );
 			}
@@ -165,6 +163,15 @@ public final class EdgeGraph {
 
 		}
 
+		@Override
+		public int hashCode() {
+			//important to have the custom hashCode method a) be implemented to safely recognize stuff like
+			//a|a or ()|() as the same.
+			//we also compare the memory actions for this exact reason
+			int result = memoryAction != null ? memoryAction.hashCode() : 0;
+			result = 31 * result + (destination != null ? destination.hashCode() : 0);
+			return result;
+		}
 	}
 
 	public Edge getEdge(State from, MatchInfo matchInfo, Map<String, Variable> variables) {
@@ -192,7 +199,7 @@ public final class EdgeGraph {
 		}
 
 		{
-			List<Edge> setEdges = this.setEdges.get( from.getIdx() );
+			Set<Edge> setEdges = this.setEdges.get( from.getIdx() );
 			if ( setEdges != null ) {
 				for ( Edge edge : setEdges ) {
 					State state = this.states.get( edge.destination );
@@ -203,7 +210,7 @@ public final class EdgeGraph {
 			}
 		}
 
-		List<Edge> set = this.edges.get( from.getIdx() );
+		Set<Edge> set = this.edges.get( from.getIdx() );
 		if ( set == null ) {
 			return null;
 		}
@@ -258,7 +265,7 @@ public final class EdgeGraph {
 	 * checks determinism in a single state
 	 */
 	public boolean checkDeterminism(State state) {
-		List<Edge> edges = this.edges.get( state.getIdx() );
+		Set<Edge> edges = this.edges.get( state.getIdx() );
 		int edgeCnt = edges.size();
 
 		VariableState variableDestinationState = null;
@@ -315,7 +322,7 @@ public final class EdgeGraph {
 
 			//check if the sets contain values from the static states
 			{
-				List<Edge> setEdges = this.setEdges.get( state.getIdx() );
+				Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
 				if ( setEdges != null ) {
 					for ( Edge edge : setEdges ) {
 						State destinationState = this.states.get( edge.destination );
@@ -337,7 +344,7 @@ public final class EdgeGraph {
 			}
 
 			{
-				List<Edge> setEdges = this.setEdges.get( state.getIdx() );
+				Set<Edge> setEdges = this.setEdges.get( state.getIdx() );
 				if ( setEdges.size() > 1 ) {
 					for ( Edge fst : setEdges ) {
 						State destinationStateFst = this.states.get( fst.destination );
@@ -451,7 +458,7 @@ public final class EdgeGraph {
 		}
 
 		{
-			List<Edge> setEdges = this.setEdges.get( stateHolder.getState().getIdx() );
+			Set<Edge> setEdges = this.setEdges.get( stateHolder.getState().getIdx() );
 			if ( setEdges != null ) {
 				for ( Edge edge : setEdges ) {
 					if ( edge.destination == Moa.SNK.getIdx() || edge.destination == Moa.SRC.getIdx() ) {
@@ -487,11 +494,11 @@ public final class EdgeGraph {
 		return maxLen;
 	}
 
-	public List<Edge> getEdges(State state) {
+	public Set<Edge> getEdges(State state) {
 		if ( !this.edges.containsKey( state.getIdx() ) ) {
-			return Collections.emptyList();
+			return Collections.emptySet();
 		}
-		return Collections.unmodifiableList( this.edges.get( state.getIdx() ) );
+		return Collections.unmodifiableSet( this.edges.get( state.getIdx() ) );
 	}
 
 	public Collection<State> getStates() {
@@ -551,13 +558,13 @@ public final class EdgeGraph {
 			return;
 		}
 		this.states.put( state.getIdx(), state );
-		this.edges.put( state.getIdx(), new ArrayList<>() );
+		this.edges.put( state.getIdx(), new HashSet<>() );
 		this.staticEdges.computeIfAbsent( state.getIdx(), key -> new HashMap<>() );
-		this.setEdges.computeIfAbsent( state.getIdx(), key -> new ArrayList<>() );
-		this.boundEdges.computeIfAbsent( state.getIdx(), key -> new ArrayList<>() );
+		this.setEdges.computeIfAbsent( state.getIdx(), key -> new HashSet<>() );
+		this.boundEdges.computeIfAbsent( state.getIdx(), key -> new HashSet<>() );
 		this.backRefOrEpsilonEdges.computeIfAbsent(
 				state.getIdx(),
-				key -> new ArrayList<>()
+				key -> new HashSet<>()
 		);
 	}
 
