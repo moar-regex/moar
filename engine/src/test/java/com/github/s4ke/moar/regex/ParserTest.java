@@ -63,8 +63,37 @@ public class ParserTest {
 	@Test
 	public void testTusker() {
 		//from: http://tusker.org/regex/regex_benchmark.html
-		Regex regex = parseRegex( "(\\w+)(\\s+\\1)+" );
-		TestUtil.assertNonDet( regex );
+		//adapted the syntax though
+		//FIXME: fix syntax of our regexes to be more compatible?
+		//or just throw out the PCRE syntax alltogether in favour
+		//of a more readable alternative
+		{
+			Regex regex = parseRegex( "^(([^:]+)://)?([^:/]+)(:([0-9]+))?(/.*)" );
+			TestUtil.assertNonDet( regex );
+		}
+
+		{
+			//this is non deterministic (see the start)
+			Regex regex = parseRegex( "(([^:]+)://)?([^:/]+)(:([0-9]+))?(/.*)" );
+			TestUtil.assertNonDet( regex );
+		}
+
+		{
+			//the original has this bounded by word: \\b(\\w+)(\\s+\\1)+\\b
+			//this is non deterministic by our current definition
+			Regex regex = parseRegex( "(\\w+)(\\s+\\1)+" );
+			TestUtil.assertNonDet( regex );
+		}
+
+		{
+			//adapted the [+-] to [\\+\\-] (our ANTLR grammar is not that clever
+			//we also treat the dot as the any metachar.
+			Regex regex = parseRegex( "usd [\\+\\-]?[0-9]+\\.[0-9][0-9]" );
+			TestUtil.assertDet( regex );
+			TestUtil.assertMatch( true, regex.toMoa(), "usd 1234.00" );
+			TestUtil.assertMatch( true, regex.toMoa(), "usd +1234.00" );
+			TestUtil.assertMatch( true, regex.toMoa(), "usd -1234.00" );
+		}
 	}
 
 	@Test
