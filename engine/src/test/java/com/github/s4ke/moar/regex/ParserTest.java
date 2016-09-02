@@ -279,6 +279,17 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testMultipleStars() {
+		//Regex regex = parseRegex( "a***" );
+	}
+
+	@Test
+	public void testAStarBStarStar() {
+		Regex regex = parseRegex( "(?:a*b*)*" );
+		TestUtil.assertDet( regex );
+	}
+
+	@Test
 	public void testRangePositiveSet() {
 		Moa moa = parseRegex( "[ac-zAC-Z]" ).toMoa();
 		for ( char c = 'a'; c <= 'z'; ++c ) {
