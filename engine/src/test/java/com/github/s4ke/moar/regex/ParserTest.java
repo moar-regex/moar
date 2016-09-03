@@ -277,7 +277,7 @@ public class ParserTest {
 		assertMatch( false, regex, "d" );
 		assertMatch( false, regex, "" );
 	}
-
+	
 	@Test
 	public void testAStarBStarStar() {
 		Regex regex = parseRegex( "(?:a*b*)*" );
