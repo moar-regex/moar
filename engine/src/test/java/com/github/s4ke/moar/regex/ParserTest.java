@@ -279,11 +279,6 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testMultipleStars() {
-		//Regex regex = parseRegex( "a***" );
-	}
-
-	@Test
 	public void testAStarBStarStar() {
 		Regex regex = parseRegex( "(?:a*b*)*" );
 		TestUtil.assertDet( regex );
