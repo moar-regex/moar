@@ -69,4 +69,12 @@ Bound states are used to represent boundary checks in Regexes. We can think of t
 
 The edges of the MOAs are represented by a simple Edge object in the EdgeGraph:
 
+![EdgeGraph](img/Edges.png)
+
+Every Edge has a set of MemoryActions that determine just like in the theoretical model how the variable state(s) should change if the edge is used.
+
+#### EdgeGraph
+
 ![EdgeGraph](img/EdgeGraph.png)
+
+- SRC, SNK erklären
