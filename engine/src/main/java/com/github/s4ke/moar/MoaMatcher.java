@@ -82,7 +82,7 @@ public interface MoaMatcher {
 	 * The next call of this method will start at the end of the last match
 	 * (if any)
 	 *
-	 * @return true iff there if there was a match
+	 * @return true iff there was a match
 	 */
 	boolean nextMatch();
 
