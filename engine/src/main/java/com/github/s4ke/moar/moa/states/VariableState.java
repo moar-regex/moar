@@ -87,11 +87,6 @@ public class VariableState implements State {
 	}
 
 	@Override
-	public void touch() {
-
-	}
-
-	@Override
 	public String toString() {
 		return "VariableState{" +
 				"idx=" + idx +

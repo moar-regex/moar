@@ -90,11 +90,6 @@ public class BoundState implements State {
 	}
 
 	@Override
-	public void touch() {
-
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if ( this == o ) {
 			return true;

@@ -251,7 +251,6 @@ public final class EdgeGraph {
 						var -> var.consume( mi.getString() )
 				);
 				stateHolder.setState( destinationState );
-				destinationState.touch();
 				if ( destinationState.isBound() ) {
 					return StepResult.NOT_CONSUMED;
 				}

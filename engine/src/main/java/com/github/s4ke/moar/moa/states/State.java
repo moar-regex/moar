@@ -87,9 +87,4 @@ public interface State {
 	 */
 	boolean isBound();
 
-	/**
-	 * called when the state is "touched" while running the MOA.
-	 */
-	void touch();
-
 }

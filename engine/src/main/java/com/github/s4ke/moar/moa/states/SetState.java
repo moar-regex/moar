@@ -100,11 +100,6 @@ public class SetState implements State {
 	}
 
 	@Override
-	public void touch() {
-
-	}
-
-	@Override
 	public String toString() {
 		if(this.stringRepresentation != null) {
 			return this.stringRepresentation;

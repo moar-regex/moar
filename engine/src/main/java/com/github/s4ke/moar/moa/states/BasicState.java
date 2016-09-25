@@ -89,11 +89,6 @@ public class BasicState implements State {
 	}
 
 	@Override
-	public void touch() {
-
-	}
-
-	@Override
 	public String toString() {
 		return "BasicState{" +
 				"idx=" + idx +
