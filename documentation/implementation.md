@@ -78,3 +78,4 @@ Every Edge has a set of MemoryActions that determine just like in the theoretica
 ![EdgeGraph](img/EdgeGraph.png)
 
 - SRC, SNK erklären
+
