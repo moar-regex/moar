@@ -49,9 +49,9 @@ A static State is the code representation of basic character only states. These 
 
 ##### Set States
 
-The theoretical model has no need for these states as it doesn't support character classes. But we want to support these in our Regexes and don't to create unnecessarily big numbers of basic states to represent them. We will give a short explanation of character classes in Regexes later, but for now, we will just think of them as a Set of allowed characters.
+The theoretical model has no need for these states as it doesn't support character classes. But we want to support these in our Regexes and don't to create unnecessarily big numbers of basic states to represent them. We will give a short explanation of character classes in Regexes later, but for now, we will just think of them as a Set/range of allowed characters.
 
-In our implementation we represent these sets by a Google Guava TreeRangeSet which is space efficient as it only stores the ranges of allowed characters instead of all of them. It also already comes with a negation implementation which helps us with negative sets (e.g.: to allow everything but a's).
+In our implementation we represent basic Sets (not often needed) via the Java Collection Set and Ranges (like [a-ce-z]) by a Google Guava TreeRangeSet which is space efficient as it only stores the ranges of allowed characters instead of all of them. It also already comes with a negation implementation which helps us with negative sets (e.g.: to allow everything but a's).
 
 
 
@@ -75,7 +75,76 @@ Every Edge has a set of MemoryActions that determine just like in the theoretica
 
 #### EdgeGraph
 
+The EdgeGraph is the basic in-code representation of the MOA Graph:
+
 ![EdgeGraph](img/EdgeGraph.png)
 
-- SRC, SNK erklären
+It stores all the states (field: states) with their corresponding Edges (field: edges) which are duplicated into the other *Edges fields for more convenient and faster access during evaluation.
 
+Note: CurStepHolder is an abstraction enables the EdgeGraph to be reused as it doesn't need to store the current state.
+
+It's most prominent methods are:
+
+- `maximalNextTokenLength(CurStateHolder stateHolder, Map<String, Variable> vars) : int`
+
+  This method is used to compute the length of the next character sequence ("token") to be read. This is primarily needed because of the fact that Variable States can have tokens of any length and because we can have epsilon edges to the sink (just like in the theoretical model, the MOA always has a source and a sink, these are special unique State objects which we will talk about later in the Regex chapter which also explains how the MOAs are meant to be created). If there are only transitions to Basic or SetStates this will return 1.
+
+- `step(CurStateHolder stateHolder, MatchInfo mi, Map<String, Variable> vars) : StepResult`
+
+  The EdgeGraph tries to do a step with the current step represented in the stateHolder object with the given info of the MatchInfo object (position, current "token", see above) and the current variable state. Its possible return values are CONSUMED (success), NOT_CONSUMED (the current token was not consumed, this is used for boundary checks which do not consume anything) and REJECTED (no valid transition could be found).
+
+### SRC, SNK erklären (im Chapter über die Creation!)
+
+### JSON Serialization
+
+MoaPatterns can be serialized into a human readable format like this:
+
+```json
+{
+  "regex":"^(?<toast>[a-z]b[^b]\\w)\\k<toast>.$",
+  "vars":["toast"],
+  "states":[
+    		{"bound":"^","idx":2},
+    		{"set":"[a-z]","idx":3},
+    		{"name":"b","idx":4},
+    		{"set":"[^b]","idx":5},
+    		{"set":"\\w","idx":6},
+    		{"ref":"toast","idx":7},
+    		{"set":".","idx":8},
+    		{"bound":"$","idx":9}
+  ],
+  "edges":[
+    		{"from":0,"to":2},
+    		{"from":2,"to":3, "memoryActions":["o(toast)"]},
+    		{"from":3,"to":4},
+    		{"from":4,"to":5},
+    		{"from":5,"to":6},
+    		{"from":6,"to":7, "memoryActions":["c(toast)"]},
+    		{"from":7,"to":8},
+    		{"from":8,"to":9},
+    		{"from":9,"to":1}
+  ]
+}
+```
+
+Explanation for the JSON fields:
+
+- regex
+
+  This is for documentation purposes only and couldn't be anything else as the Regexes do not have the same expressive power as hand written MOAs.
+
+- vars
+
+  In this field all used vars of the MOA are listed as simple strings.
+
+- states
+
+  In this field the states are listed. "name" represents Basic states, "set" represents Set states, "ref" represents Variable states and "bound" represents boundary states (the list of supported bounds can be found in com.github.s4ke.moar.regex.BoundConstants). The "idx" must be unique and in the range and >= 2 as SRC and SNK are 0 and 1, respectively.
+
+- edges
+
+  In this field we can specify the edges and possible memoryActions (o = open, c = close, r = reset, used like in the example: r(x) - reset the variable x)
+
+Serialization is done via `com.github.s4ke.moar.json.MoarJSONSerializer#toJSON(MoaPattern pattern) : String` and deserialization via `com.github.s4ke.moar.json.MoarJSONSerializer#fromJSON(String json) : MoaPattern`.
+
+This feature is particularly useful as this allows users to not only hand-write MOAs but also enables them to transmit generic MoaPatterns between applications even if no Regex is available. One can also think of an extra application that allows users to create their own MOAs with a GUI which then are exported to this format for later usage.
