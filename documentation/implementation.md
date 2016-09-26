@@ -51,7 +51,7 @@ A static State is the code representation of basic character only states. These 
 
 The theoretical model has no need for these states as it doesn't support character classes. But we want to support these in our Regexes and don't to create unnecessarily big numbers of basic states to represent them. We will give a short explanation of character classes in Regexes later, but for now, we will just think of them as a Set/range of allowed characters.
 
-In our implementation we represent basic Sets (not often needed) via the Java Collection Set and Ranges (like [a-ce-z]) by a Google Guava TreeRangeSet which is space efficient as it only stores the ranges of allowed characters instead of all of them. It also already comes with a negation implementation which helps us with negative sets (e.g.: to allow everything but a's).
+In our implementation we represent basic Sets (not often needed, mainly for internal things) via the Java Collection Set and Ranges (like [a-ce-z]) by a Google Guava TreeRangeSet which is space efficient as it only stores the ranges of allowed characters instead of all of them. It also already comes with a negation implementation which helps us with negative sets (e.g.: to allow everything but a's).
 
 
 
@@ -95,7 +95,7 @@ It's most prominent methods are:
 
 ### SRC, SNK erklären (im Chapter über die Creation!)
 
-### JSON Serialization
+## JSON Serialization
 
 MoaPatterns can be serialized into a human readable format like this:
 
@@ -115,11 +115,11 @@ MoaPatterns can be serialized into a human readable format like this:
   ],
   "edges":[
     		{"from":0,"to":2},
-    		{"from":2,"to":3, "memoryActions":["o(toast)"]},
+    		{"from":2,"to":3,"memoryActions":["o(toast)"]},
     		{"from":3,"to":4},
     		{"from":4,"to":5},
     		{"from":5,"to":6},
-    		{"from":6,"to":7, "memoryActions":["c(toast)"]},
+    		{"from":6,"to":7,"memoryActions":["c(toast)"]},
     		{"from":7,"to":8},
     		{"from":8,"to":9},
     		{"from":9,"to":1}
