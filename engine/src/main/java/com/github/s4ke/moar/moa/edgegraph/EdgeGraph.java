@@ -448,6 +448,7 @@ public final class EdgeGraph {
 						continue;
 					}
 					State state = this.states.get( edge.destination );
+					assert state.getEdgeString( vars ).codePointLength() <= 1;
 					maxLen = Math.max( maxLen, state.getEdgeString( vars ).codePointLength() );
 					if ( maxLen > 0 ) {
 						return maxLen;
@@ -465,6 +466,7 @@ public final class EdgeGraph {
 						throw new AssertionError();
 					}
 					State state = this.states.get( edge.destination );
+					assert ((SetState) state).length <= 1;
 					maxLen = Math.max( maxLen, ((SetState) state).length );
 					if ( maxLen > 0 ) {
 						return maxLen;

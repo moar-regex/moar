@@ -250,9 +250,6 @@ public interface Regex extends StateContributor, EdgeContributor, VariableOccure
 		this.calculateVariableOccurences( variables, varIdxStart::getAndIncrement );
 		moa.setVariables( variables );
 		moa.setEdges( edgeGraph );
-		if ( !moa.isDeterministic() ) {
-			throw new NonDeterministicException( this.toString() + " is not deterministic" );
-		}
 		moa.freeze();
 		return moa;
 	}

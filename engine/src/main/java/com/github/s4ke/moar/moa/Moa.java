@@ -64,10 +64,6 @@ public final class Moa {
 		}
 	}
 
-	public boolean isDeterministic() {
-		return this.edges.isDeterministic();
-	}
-
 	public void checkNotFrozen() {
 		if ( this.frozen ) {
 			throw new IllegalStateException( "this Moa is frozen" );
