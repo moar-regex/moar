@@ -103,17 +103,27 @@ It's most prominent methods are:
 
 ### The Moa class
 
-The Moa class serves as an intermediary entry point for matching. Essentially it could be directly used, but is a bit rough on the edges (therefore it is wrapped into the MoaPattern class, which is explained in the Regexes & Pattern API chapter).
+![Moa class](img/Moa.png)
+
+The Moa class serves as an intermediary entry point for matching. Essentially it could be directly used, but is a bit rough on the edges (therefore it is wrapped into the MoaPattern class, which is explained in the Regexes & Pattern API chapter). Its two most prominent methods are `matcher(CharSeq charSeq) : MoaMatcher` which creates a MoaMatcher object on the given input and the `check(CharSeq charSeq) : boolean` method which immediately checks the input for a complete match.
 
 ###  The Matcher
 
 ![MoaMatcher interface](img/MoaMatcher.png)
 
+The MoaMatcher interface grants the user more detailed control over how the matching is done. With this interface the user can:
 
+- check for a full-string match with `matches() : boolean`
+- check for the next match with `nextMatch() : boolean` (this tries to find the longest sequence in the input that is in the language of the MOA)
+- replace the first match of the MOA in the input with `replaceFirst(String replacement) : String` (or all matches with `replaceAll(String replacement) : String`)
+- retrieve the variable content via the `getVariableContent(...) : String` methods
+- retrieve the start (`getStart() : int`) and the end (`getEnd() : int`) of the last match
+
+It is also meant to be reused (see `reuse(CharSeq charSeq) : MoaMatcher`).
 
 ## Regexes & Pattern API
 
-Our deterministic Regexes can be brought into code in two separate ways:
+Our deterministic Regexes can be translated into code in two separate ways:
 
 ### With a Java DSL:
 
@@ -136,7 +146,132 @@ This DSL was initially created to be able to create Regexes without any addition
 MoaPattern moa = MoaPattern.compile("((?<y>\k<x>)(?<x>\k<y>a))+");
 ```
 
-The parsing of this Regex string is done via ANTLR v4 and internally uses the DSL API (above).
+The parsing of this Regex string is done via ANTLR v4 and internally uses the DSL API (above). The Grammar is the following:
+
+```java
+grammar Regex;
+
+/**
+ * Grammar for parsing Perl/Java-style Regexes
+ * after: http://www.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
+ * but with left recursion eliminated
+ */
+
+regex:
+    EOF
+    | startBoundary? union endBoundary? EOF;
+
+startBoundary :
+    START
+    | prevMatch;
+prevMatch : ESC 'G';
+
+endBoundary :
+    EOS
+    | endOfInput;
+endOfInput : ESC 'z';
+
+union :
+    concatenation
+    | union '|' concatenation;
+
+concatenation :
+    basicRegex
+    | basicRegex concatenation;
+
+basicRegex :
+    star
+    | plus
+    | orEpsilon
+    | elementaryRegex;
+
+star :
+    elementaryRegex '*';
+plus :
+    elementaryRegex '+';
+orEpsilon:
+    elementaryRegex '?';
+
+elementaryRegex :
+    backRef
+    | group
+    | set
+    | charOrEscaped
+    | stockSets
+    | ANY;
+
+group :
+    '(' (capturingGroup | nonCapturingGroup) ')';
+capturingGroup : ('?' '<' groupName '>')? union?;
+nonCapturingGroup: '?' ':' union?;
+groupName : character+;
+
+backRef :
+    ESC number
+    | ESC 'k' '<' groupName '>';
+
+set :
+    positiveSet
+    | negativeSet;
+positiveSet	: '[' setItems ']';
+negativeSet	: '[^' setItems ']';
+setItems :
+    setItem
+    | setItem setItems;
+setItem :
+    range
+    | charOrEscaped;
+range :
+    charOrEscaped '-' charOrEscaped;
+
+//should these be handled in the TreeListener?
+//if so, we could patch stuff easily without changing
+//the grammar
+stockSets:
+    whiteSpace
+    | nonWhiteSpace
+    | digit
+    | nonDigit
+    | wordCharacter
+    | nonWordCharacter;
+whiteSpace : ESC 's';
+nonWhiteSpace : ESC 'S';
+digit : ESC 'd';
+nonDigit : ESC 'D';
+wordCharacter : ESC 'w';
+nonWordCharacter : ESC 'W';
+
+charOrEscaped :
+    character
+    | escapeSeq
+    | UTF_32_MARKER utf32 UTF_32_MARKER;
+character : (UNUSED_CHARS | ZERO | ONE_TO_NINE | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G' | ':' | '<' | '>' );
+escapeSeq : ESC escapee;
+escapee : '[' | ']' | '(' | ')'
+    | ESC | ANY | EOS | START | UTF_32_MARKER
+    | '*' | '+' | '?'
+    | '-' ;
+utf32 : (character | escapeSeq)+;
+
+number :  ONE_TO_NINE (ZERO | ONE_TO_NINE)*;
+
+ZERO : '0';
+ONE_TO_NINE : [1-9];
+ESC : '\\';
+ANY : '.';
+EOS : '$';
+START : '^';
+UTF_32_MARKER : '~';
+
+UNUSED_CHARS :
+    ~('0' .. '9'
+    | '[' | ']' | '(' | ')'
+    | '\\' | '.' | '$' | '^'
+    | '*' | '+' | '?'
+    | ':'
+    | 's' | 'S' | 'd' | 'D' | 'w' | 'W' | 'k' | 'z' | 'G'
+    | '~');
+```
 
 The MoaPattern class behaves in this context similar to Java's native Pattern class and wraps the internal MOA logic from the user. It serves as the entry point to build MoaMatcher objects (similar to Java's Matcher) which encapsulate all the matching logic so that the Pattern itself can be reused as its construction can be expensive.
 
@@ -146,7 +281,7 @@ The MoaPattern class behaves in this context similar to Java's native Pattern cl
 
 ## JSON Serialization
 
-MoaPatterns can be serialized into a human readable format like this:
+MoaPatterns can be serialized into a human readable format:
 
 ```json
 {
