@@ -125,7 +125,7 @@ It is also meant to be reused (see `reuse(CharSeq charSeq) : MoaMatcher`).
 
 ![MoaPattern](img/MoaPattern.png)
 
-This is the main entry class for users and has the same purpose as Java's Pattern class. It has two separate compile methods that allow for creation from a DSL and from a Regex String. The `build(Moa moa, String regex) : MoaPattern` method is mostly meant for integrators like the JSON export/import module.
+This is the main entry class for users and has the same purpose as Java's Pattern class. It doesn't add new functionality over the Moa class, but wraps it into a more beautiful API. It has two separate compile methods that allow for creation from a DSL and from a Regex String. The `build(Moa moa, String regex) : MoaPattern` method is mostly meant for integrators like the JSON export/import module.
 
 ## Regexes & Pattern API
 
