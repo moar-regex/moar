@@ -121,6 +121,12 @@ The MoaMatcher interface grants the user more detailed control over how the matc
 
 It is also meant to be reused (see `reuse(CharSeq charSeq) : MoaMatcher`).
 
+### The MoaPattern
+
+![MoaPattern](img/MoaPattern.png)
+
+This is the main entry class for users and has the same purpose as Java's Pattern class. It has two separate compile methods that allow for creation from a DSL and from a Regex String. The `build(Moa moa, String regex) : MoaPattern` method is mostly meant for integrators like the JSON export/import module.
+
 ## Regexes & Pattern API
 
 Our deterministic Regexes can be translated into code in two separate ways:
@@ -137,7 +143,9 @@ MoaPattern moa = MoaPattern.compile(
                  );
 ```
 
-This DSL was initially created to be able to create Regexes without any additional Parser.  It is a in code representation of the deterministic Regexes. How this representation is translated into a MOA, will be explained later.
+This chaining DSL was initially created to be able to create Regexes without any additional Parser.  It is a in code representation of the deterministic Regexes. For a complete list of the supported methods, take a look at the `com.github.s4ke.moar.regex.Regex` class.
+
+Later, we will explain how this is translated into a MOA.
 
 ### With a Java Pattern-like Regex string:
 
