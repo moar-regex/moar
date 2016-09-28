@@ -2,6 +2,14 @@
 
 Moar is the first implementation of MOA (Memory Occurence Automata). It aims to support all features provided in Dominik's paper while also shipping with a API that is inspired by Java's Pattern class. However, we only support a subset of Regexes compared to Java Patterns, in order to simplify the Grammar.
 
+## Utility classes/interfaces
+
+### CharSeq
+
+![CharSeq interface](img/CharSeq.png)
+
+The CharSeq interface is an abstraction from the CharSequences that Java normally and enables us to support other inputs as well (for example input from a byte sequence like in the Lucene module which can be found in the git repository). Moar only works with codePoints instead of char's. This means that we can support UTF-32 and helps us with unicode character duplicates.
+
 ## How are MOAs represented in Code?
 
 In moar, a MOA (Java class: com.github.s4ke.moar.Moa) consists of a set of Variables (basic placeholders for the Variables used in the MOA, nothing fancy) and a Graph representation of the automaton (com.github.s4ke.moar.moa.edgegraph.EdgeGraph).
@@ -22,7 +30,7 @@ Objects of this type just holds the current contents of the Variables and is imp
 
 MatchInfo objects are used to hold information about where in the input string the matching process is currently at. The fields are:
 
-- string: what character (or in some cases characters) are currently supposed to be matched. The EfficientString class is a wrapper around character sequences that allows us to represent subsequences  in an efficient manner by only storing the start and end index together with a reference to the original sequence.
+- string: what character (or in some cases characters) are currently supposed to be matched. The EfficientString wrapper around character sequences allows us to represent subsequences in an efficient manner by only storing the start and end index together with a reference to the original sequence.
 
 - wholeString: the whole input. The CharSeq interface is used so we can wrap away details of what we are matching. This way we can also support for example Byte-Wise character sequences instead of the default Java Strings.
 
@@ -92,6 +100,47 @@ It's most prominent methods are:
 - `step(CurStateHolder stateHolder, MatchInfo mi, Map<String, Variable> vars) : StepResult`
 
   The EdgeGraph tries to do a step with the current step represented in the stateHolder object with the given info of the MatchInfo object (position, current "token", see above) and the current variable state. Its possible return values are CONSUMED (success), NOT_CONSUMED (the current token was not consumed, this is used for boundary checks which do not consume anything) and REJECTED (no valid transition could be found).
+
+### The Moa class
+
+The Moa class serves as an intermediary entry point for matching. Essentially it could be directly used, but is a bit rough on the edges (therefore it is wrapped into the MoaPattern class, which is explained in the Regexes & Pattern API chapter).
+
+###  The Matcher
+
+![MoaMatcher interface](img/MoaMatcher.png)
+
+
+
+## Regexes & Pattern API
+
+Our deterministic Regexes can be brought into code in two separate ways:
+
+### With a Java DSL:
+
+```Java
+MoaPattern moa = MoaPattern.compile(
+  					// DSL style generation of the Regex
+  					Regex.reference( "x" )
+                        .bind( "y" )
+                        .and( Regex.reference( "y" ).and( "a" ).bind( "x" ) )
+                        .plus()
+                 );
+```
+
+This DSL was initially created to be able to create Regexes without any additional Parser.  It is a in code representation of the deterministic Regexes. How this representation is translated into a MOA, will be explained later.
+
+### With a Java Pattern-like Regex string:
+
+```Java
+// building a Regex from a String
+MoaPattern moa = MoaPattern.compile("((?<y>\k<x>)(?<x>\k<y>a))+");
+```
+
+The parsing of this Regex string is done via ANTLR v4 and internally uses the DSL API (above).
+
+The MoaPattern class behaves in this context similar to Java's native Pattern class and wraps the internal MOA logic from the user. It serves as the entry point to build MoaMatcher objects (similar to Java's Matcher) which encapsulate all the matching logic so that the Pattern itself can be reused as its construction can be expensive.
+
+### From Regex to the MOA
 
 ### SRC, SNK erklären (im Chapter über die Creation!)
 
