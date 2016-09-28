@@ -116,7 +116,7 @@ public final class Moa {
 		return Collections.unmodifiableMap( this.vars );
 	}
 
-	public MoaMatcherImpl matcher(CharSeq charSeq) {
+	public MoaMatcher matcher(CharSeq charSeq) {
 		this.checkFrozen();
 		Map<String, Variable> varCopy = new HashMap<>( this.vars.size() );
 		for ( Map.Entry<String, Variable> entry : this.vars.entrySet() ) {
@@ -129,8 +129,12 @@ public final class Moa {
 		return this.matcher( new IntCharSeq( str ) );
 	}
 
-	public boolean check(String str) {
+	public boolean check(CharSequence str) {
 		return this.matcher( str ).matches();
+	}
+
+	public boolean check(CharSeq charSeq) {
+		return this.matcher( charSeq ).matches();
 	}
 
 	@Override
