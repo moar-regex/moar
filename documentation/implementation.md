@@ -143,7 +143,7 @@ MoaPattern moa = MoaPattern.compile(
                  );
 ```
 
-This chaining DSL was initially created to be able to create Regexes without any additional Parser.  It is a in code representation of the deterministic Regexes. For a complete list of the supported methods, take a look at the `com.github.s4ke.moar.regex.Regex` class.
+This chaining DSL was initially created to be able to create Regexes without any additional Parser. It is a in code representation of the deterministic Regexes. Internally it produces a direct representation of the abstract syntax tree of the regex. For a complete list of the supported methods, take a look at the `com.github.s4ke.moar.regex.Regex` class.
 
 Later, we will explain how this is translated into a MOA.
 
@@ -284,6 +284,28 @@ UNUSED_CHARS :
 The MoaPattern class behaves in this context similar to Java's native Pattern class and wraps the internal MOA logic from the user. It serves as the entry point to build MoaMatcher objects (similar to Java's Matcher) which encapsulate all the matching logic so that the Pattern itself can be reused as its construction can be expensive.
 
 ### From Regex to the MOA
+
+Now that we know how the Regexes are represented (as an AST), we will now talk about the process that is used to create a MOA from a Regex.
+
+#### Accumulate States
+
+In the first phase of the Building process we start at the top of our AST representation of the Regex and let every Regex object contribute the states it has via `contributeStates(Map<String, Variable> variables, Set<State> states, Map<Regex, Map<String, State>> selfRelevant, Supplier<Integer> idxSupplier) : void`. 
+
+###### Trivial Sub-Regexes
+
+For trivial sub Regexes (Primitive, SetRegex,  BoundaryRegex, Epsilon) and also for Reference this means that the object has to create a new State with the index supplied by the idxSupplier object (in our case this is a method reference to the getAndIncrement function of a AtomicInteger object, but this can be changed ;)) and add it to the states set (The Reference Regex also creates the Variable it is referring to if it does not exist - this is needed due to the fact that references can occur before the variable is declared) .
+
+In this method the Regex object also has to store the states that it needs later on in the creation in the selfRelevant Map (currently that's all the states that the object created).
+
+###### Non Trivial Sub-Regexes
+
+For the other non trivial Regexes (Plus, Concat and Choice, Binding) the implementation is quite basic as they don't require their own states. These just delegate to their own Sub-Regexes.
+
+#### Accumulate Edges
+
+#### Number variables
+
+As we support References and data retrieval by index of the Binding in our Regexes as well, we have to number all variables. The algorithm is similar to the accumulation of states and edges but is only relevant for the Binding Regex (Plus, Concat and Choice just delegate to their children while all other Sub-Regexes - except for Bindings - have a no-op implementation of their respective `calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) : void` method).
 
 ### SRC, SNK erklären (im Chapter über die Creation!)
 
