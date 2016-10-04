@@ -285,7 +285,9 @@ The MoaPattern class behaves in this context similar to Java's native Pattern cl
 
 ### From Regex to the MOA
 
-Now that we know how the Regexes are represented (as an AST), we will now talk about the process that is used to create a MOA from a Regex.
+BILD FEHLT
+
+Now that we know how the Regexes are represented (as an AST), we will now talk about the process that is used to create a MOA from a Regex. This process is internally used by the MoaPattern class to compile the Regex it is given in the `compile(...)` method into a usable Moa.
 
 #### Accumulate States
 
@@ -303,11 +305,31 @@ For the other non trivial Regexes (Plus, Concat and Choice, Binding) the impleme
 
 #### Accumulate Edges
 
+In the second phase, now that all states are properly known, the edges are added to the moa via `contributeEdges( EdgeGraph edgeGraph, Map<String, Variable> variables, Set<State> states, Map<Regex, Map<String, State>> selfRelevant) : void`. The passed `edgeGraph` already has all the states properly added, so the Regex objects can directly work with the states passed in the `states` set (this is also due to us wanting seperation of concerns during the process of creating the MOA).
+
+In a similar fashion to the accumulation of states the behaviours of the different Regex types differ (by nature of the creation). This is done more straight forward than the accumulation of the states (but uses some of the principles of the delegation to the Sub Regexes for non trivial parents) and every Regex contributes at least one edge in the process (but can be removed by a ancestor Regex). 
+
+One important thing is how the sources and sinks of the MOAs are handled, though: If an edge that includes at least one of them is needed, the Regex implementations are required to use the static fields `SRC` and `SNK`of the Moa class (or the EdgeGraph class, they are equivalent) as equality for SRC and SNK is generally checked by equivalende.
+
+Note: The only part of the accumulation of the edges that differs greatly to the one in the paper is how Concat and Plus are built. In Moar this still relies on a older version of the paper that included a special function (see `com.github.s4ke.moar.moa.Moa#f(Set<MemoryAction> a1, Set<MemoryAction> a2) : Set<MemoryAction>`) that recomputed the memory actions. This approach is equivalent to the way this is done in the paper (the paper version should be more easy to understand), but has not been changed in Moar (,yet ?).
+
 #### Number variables
 
-As we support References and data retrieval by index of the Binding in our Regexes as well, we have to number all variables. The algorithm is similar to the accumulation of states and edges but is only relevant for the Binding Regex (Plus, Concat and Choice just delegate to their children while all other Sub-Regexes - except for Bindings - have a no-op implementation of their respective `calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) : void` method).
+For the third phase, as we support References and data retrieval by index of the Binding in our Regexes as well, we have to number all variables. The algorithm is similar to the accumulation of states and edges but is only relevant for the Binding Regex (Plus, Concat and Choice just delegate to their children while all other Sub-Regexes - except for Bindings - have a no-op implementation of their respective `calculateVariableOccurences(Map<String, Variable> variables, Supplier<Integer> varIdxSupplier) : void` method).
 
-### SRC, SNK erklären (im Chapter über die Creation!)
+## Using MoaPatterns
+
+BILD FEHLT
+
+Now that we know how the internals of MoaPatterns work, we can take a quick look into how they are meant to be used.
+
+### MoaPattern Creation
+
+This was already discussed when we described how Regexes are represented in code: We use one of the two static compilation methods `MoaPattern#compile(String Regex) : MoaPattern` / `MoaPattern#compile(Regex regex) : MoaPattern` and then usually **cache the returned object** as the compilation is quite costly.
+
+### Accessing the MoaMatcher
+
+The MoaMatcher is easily accessed via the instance methods `MoaPattern#matcher(...)` which either take a CharSequence or an instance of the CharSeq abstraction we talked about earlier in this draft. How the MoaMatcher works is explained in the introductory chapter.
 
 ## JSON Serialization
 
