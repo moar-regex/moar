@@ -297,7 +297,7 @@ The MoaPattern class behaves in this context similar to Java's native Pattern cl
 
 ### From Regex to MOA
 
-BILD FEHLT
+![Regex Interface](img/Regex_Interface.png)
 
 Now that we know how the Regexes are represented (as an AST), we shall talk about the process that is used to create a MOA from a Regex. This process is internally used by the MoaPattern class to compile the Regex it is given in the `compile(...)` method into a usable Moa.
 
@@ -335,7 +335,7 @@ For the third phase, as we support References and data retrieval by index of the
 
 ## Using MoaPatterns
 
-BILD FEHLT
+![MoaPattern](img/MoaPattern.png)
 
 Now that we know how the internals of MoaPatterns work, we can take a quick look into how they are meant to be used.
 
