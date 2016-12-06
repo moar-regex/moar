@@ -28,7 +28,7 @@ import java.util.Map;
 import com.github.s4ke.moar.strings.EfficientString;
 
 /**
- * Interface that represents the States in a Memory Occurence Automaton
+ * Interface that represents the States in a Memory Occurrence Automaton
  *
  * @author Martin Braun
  */

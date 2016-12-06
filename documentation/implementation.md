@@ -400,3 +400,41 @@ Explanation for the JSON fields:
 Serialization is done via `com.github.s4ke.moar.json.MoarJSONSerializer#toJSON(MoaPattern pattern) : String` and deserialization via `com.github.s4ke.moar.json.MoarJSONSerializer#fromJSON(String json) : MoaPattern`.
 
 This feature is particularly useful as this allows users to not only hand-write MOAs but also enables them to transmit generic MoaPatterns between applications even if no Regex is available. One can also think of an extra application that allows users to create their own MOAs with a GUI which then are exported to this format for later usage.
+
+## Trying it out
+
+The moar project also has a separate command line tool to try out the functionality (the cli module). Already compiled binaries of it can be found in the realease section on GitHub (https://github.com/s4ke/moar/releases).
+
+Its usage is as follows:
+
+```
+C:\Users\Martin\Downloads>java -jar moar-cli-2016-08-23.jar
+usage: moar-cli
+ -d          only do determinism check
+ -help       prints this dialog
+ -ls         treat every line of the input string file as one string
+ -m          multiline matching mode (search in string for regex)
+ -mf <arg>   file/folder to read the MOA from
+ -mo <arg>   folder to export the MOAs to (overwrites if existent)
+ -r <arg>    regex to test against
+ -rf <arg>   file containint the regexes to test against (multiple regexes
+             are separated by one empty line)
+ -s <arg>    string to test the MOA/Regex against
+ -sf <arg>   file to read the input string(s) from
+ -t          trim lines if -ls is set
+```
+
+## The Lucene Module
+
+Regexes are quite useful if we want to search for data. This is the reason we implemented a proof of concept for a MoaPattern Query for the popular fulltext search engine Lucene in the 'lucene' module. It is currently not as fast as Lucene's own Regex Query type because it does not do optimizations like stopping traversal of the search-tree if it encounters words that will never match. For example all remaining words start with a 'b' if the Regex expects an 'a'. This would require more specific tuning of the moar API for this specific use-case.
+
+It can be used like this:
+
+```
+IndexSearcher is = ...
+MoaPattern pattern = MoaPattern.compile( "(a*)b\\1" );
+MoarQuery tq = new MoarQuery( "tag", pattern );
+TopDocs td = searcher.search( query, 10 );
+```
+
+Just like with normal Lucene Queries we could now extract the Lucene documents from the TopDocs object. This however, can be looked up in any basic Lucene tutorial.
