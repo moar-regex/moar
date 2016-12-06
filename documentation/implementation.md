@@ -1,6 +1,8 @@
 # moar Implementation Details
 
-Moar is the first implementation of deterministica MOA (Memory Occurence Automata). It aims to support all features provided in Dominik & Markus' paper while also shipping with a API that is inspired by Java's Pattern class. However, we only support a subset of Regexes compared to Java Patterns, in order to simplify the Grammar.
+The Regular Expressions (Regexes) used in Java, C++, etc. are mostly based on Perl Regexes. They are more powerful than the ones known in language theory and describe a superset of the regular languages. Perl Regexes, however are non deterministic by design, and have therefore to be handled with care in user-facing applications (so that a specific user input can not crash the complete program/website). In this case specific deterministic Regex engines are used, which however don't  support backreferences - a feature that can be useful in some applications. Dominik and Markus proposed the notion of deterministic Regexes with backreferences that work with deterministic Memory Occurence Automata (or MOA, these can be thought of as regular automata with variables).
+
+Moar is the first implementation of Regular Expressions based on deterministica MOAs. It aims to support all features provided in Dominik & Markus' paper while also shipping with an API that is inspired by Java's Pattern class. However, we only support a subset of Regexes compared to Java Patterns, in order to simplify the Grammar.
 
 ## Utility classes/interfaces
 
@@ -297,7 +299,7 @@ The MoaPattern class behaves in this context similar to Java's native Pattern cl
 
 BILD FEHLT
 
-Now that we know how the Regexes are represented (as an AST), we shall now talk about the process that is used to create a MOA from a Regex. This process is internally used by the MoaPattern class to compile the Regex it is given in the `compile(...)` method into a usable Moa.
+Now that we know how the Regexes are represented (as an AST), we shall talk about the process that is used to create a MOA from a Regex. This process is internally used by the MoaPattern class to compile the Regex it is given in the `compile(...)` method into a usable Moa.
 
 #### Accumulate States
 
