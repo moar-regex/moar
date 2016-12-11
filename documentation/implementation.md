@@ -319,7 +319,7 @@ For the other non trivial Regexes (Plus, Concat and Choice, Binding) the impleme
 
 In the second phase, now that all states are properly known, the edges are added to the moa via `contributeEdges( EdgeGraph edgeGraph, Map<String, Variable> variables, Set<State> states, Map<Regex, Map<String, State>> selfRelevant) : void`. The passed `edgeGraph` already has all the states properly added, so the Regex objects can directly work with the states passed in the `states` set (this is also due to us wanting seperation of concerns during the process of creating the MOA).
 
-In a similar fashion to the accumulation of states the behaviours of the different Regex types differ (by nature of the creation). This is done more straight forward than the accumulation of the states (but uses some of the principles of the delegation to the Sub Regexes for non trivial parents) and every Regex contributes at least one edge in the process (but can be removed by a ancestor Regex). 
+In a similar fashion to the accumulation of states the behaviours of the different Regex types differ (by nature of the creation). This is done more straight forward than the accumulation of the states (but uses some of the principles of the delegation to the Sub Regexes for non trivial parents) and every Regex contributes at least one edge in the process (but can be removed by an ancestor Regex). 
 
 One important thing is how the sources and sinks of the MOAs are handled, though: If an edge that includes at least one of them is needed, the Regex implementations are required to use the static fields `SRC` and `SNK`of the Moa class (or the EdgeGraph class, they are equivalent) as equality for SRC and SNK is generally checked by equivalence.
 
