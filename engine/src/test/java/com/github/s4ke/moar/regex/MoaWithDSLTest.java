@@ -383,6 +383,16 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testDontMergeBindings() {
+		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" )
+														 .bind( "x" )
+														 .and( Regex.str( "b" ).bind( "x" ) )
+														 .and( Regex.reference( "x" ) ) );
+		assertTrue(pattern.matcher( "abb" ).matches());
+		assertFalse(pattern.matcher( "abab" ).matches());
+	}
+
+	@Test
 	public void testPlusWithBind() {
 		Regex regex = Regex.str( "abc" ).bind( "toast" )
 				.and( "|" )

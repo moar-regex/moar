@@ -33,6 +33,8 @@ public enum ActionType {
 		@Override
 		public void act(String variableName, Variable val) {
 			val.open();
+			//important so we don't merge stuff like this x{a}x{b} into something like x{ab}
+			val.contents.reset();
 		}
 
 		@Override

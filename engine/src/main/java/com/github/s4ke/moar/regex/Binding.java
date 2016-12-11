@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.moa.edgegraph.ActionType;
 import com.github.s4ke.moar.moa.edgegraph.EdgeGraph;
