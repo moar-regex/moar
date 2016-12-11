@@ -32,9 +32,7 @@ public enum ActionType {
 	OPEN {
 		@Override
 		public void act(String variableName, Variable val) {
-			if ( !val.isOpen() ) {
-				val.open();
-			}
+			val.open();
 		}
 
 		@Override
@@ -45,9 +43,7 @@ public enum ActionType {
 	CLOSE {
 		@Override
 		public void act(String variableName, Variable val) {
-			if ( val.isOpen() ) {
-				val.close();
-			}
+			val.close();
 		}
 
 		@Override
@@ -58,9 +54,8 @@ public enum ActionType {
 	RESET {
 		@Override
 		public void act(String variableName, Variable val) {
-			if ( val.isOpen() ) {
-				val.contents.reset();
-			}
+			val.close();
+			val.contents.reset();
 		}
 
 		@Override
