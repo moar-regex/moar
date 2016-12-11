@@ -70,8 +70,22 @@ final class Choice implements Regex {
 			Map<String, Variable> variables,
 			Set<State> states,
 			Map<Regex, Map<String, State>> selfRelevant) {
-		this.fst.contributeEdges( edgeGraph, variables, states, selfRelevant );
-		this.snd.contributeEdges( edgeGraph, variables, states, selfRelevant );
+		EdgeGraph eg1 = new EdgeGraph();
+		for ( State state : states ) {
+			eg1.addState( state );
+		}
+		this.fst.contributeEdges( eg1, variables, states, selfRelevant );
+
+		EdgeGraph eg2 = new EdgeGraph();
+		for ( State state : states ) {
+			eg2.addState( state );
+		}
+		this.snd.contributeEdges( eg2, variables, states, selfRelevant );
+
+		for ( State state : states ) {
+			edgeGraph.addEdgesWithDeterminismCheck( state, eg1.getEdges( state ) );
+			edgeGraph.addEdgesWithDeterminismCheck( state, eg2.getEdges( state ) );
+		}
 	}
 
 	@Override
