@@ -16,6 +16,8 @@
 \usetikzlibrary{matrix}
 \usetikzlibrary{chains,fit,shapes}
 
+\DeclareMathOperator\caret{\raisebox{1ex}{$\scriptstyle\wedge$}}
+
 \DeclareMathOperator{\DREG}{\mathsf{DREG}}
 \DeclareMathOperator{\REG}{\mathsf{REG}}
 \DeclareMathOperator{\DFA}{\mathsf{DFA}}
@@ -212,7 +214,8 @@
 		\node[state]  (b)     [right=of a1, xshift=3mm]     	{$\tb$};
 		\node[state]  (a2)     [right=of b,xshift=3mm] 				{$\ta$};
 		\node[state]  (c)	[below=of b]		 	{$\tc$};
-		\node[state]  (varX)	[above=of b] {$\tRefX$};
+		\node[state]  (varX)	[above=of a1] {$\tRefX$};
+		\node[state]  (one)     [above=of a2] {$\tone$};
 		
 		\node 				(end)   [right=of a2]	   	{};
 		
@@ -227,7 +230,8 @@
 		(c) edge[] node[below, xshift=2mm, yshift=0.75mm]{c(x)} (a2)
 		(c) edge[loop below] (c)
 		(b) edge[] node[yshift=-1.5mm]{c(x)} (a2)
-		(a2) edge[] (varX)
+		(a2) edge[] (one)
+		(one) edge[] (varX)
 		(varX) edge[] (a1)
 		(a2) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
 		\end{tikzpicture}
@@ -235,7 +239,7 @@
 	\end{center}
 	\vspace{-20pt}
 	\begin{center}
-		$(\tRefX \cdot \ta \cdot \tVarX\{(\tb\ror \tc^+)\} \cdot \ta)^+$
+		$(\ta \cdot \tVarX\{(\tb\ror \tc^+)\} \cdot \ta) \cdot (\tone \cdot \tRefX \cdot \ta \cdot \tVarX\{(\tb\ror \tc^+)\} \cdot \ta)^*$
 	\end{center}
 	\vspace{5pt}
 
@@ -249,7 +253,8 @@
 		\node[state]  (b)     [right=of a1, xshift=3mm]     	{$\tb$};
 		\node[state]  (a2)     [right=of b,xshift=3mm] 				{$\ta$};
 		\node[state]  (c)	[below=of b]		 	{$\tc$};
-		\node[state]  (varX)	[above=of b] {$\tRefX$};
+				\node[state]  (varX)	[above=of a1] {$\tRefX$};
+		\node[state]  (one)     [above=of a2] {$\tone$};
 		
 		\node 				(end)   [right=of a2]	   	{};
 		
@@ -264,7 +269,8 @@
 		(c) edge[] node[below, xshift=2mm, yshift=0.75mm]{c(x)} (a2)
 		(c) edge[loop below] (c)
 		(b) edge[] node[yshift=-1.5mm]{c(x)} (a2)
-		(a2) edge[] (varX)
+		(a2) edge[] (one)
+		(one) edge[] (varX)
 		(varX) edge[] (a1)
 		(a2) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
 		
@@ -274,33 +280,123 @@
 	\end{center}
 	\vspace{-20pt}
 	\begin{center}
-		$(\tRefX \cdot \ta \cdot \tVarX\{(\tb \ror \tc^+ \ror \mathtt{\epsilon)}\} \cdot \ta)^+$
+		$(\ta \cdot \tVarX\{(\tb\ror \tc^+ \ror \epsilon)\} \cdot \ta) \cdot (\tone \cdot \tRefX \cdot \ta \cdot \tVarX\{(\tb\ror \tc^+ \ror \epsilon )\} \cdot \ta)^*$
 	\end{center}	
+
+	\pagebreak
+	
+		\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};
+		\node[state]  (b)     [right=of a1, xshift=12mm]     	{$[A-Z]$};
+		\node[state]  (a2)     [right=of b,xshift=12mm] 				{$\ta$};
+		\node[state]	(c)	[below=of b]		 	{$\tc$};
+		\node[state]  (refX) [right=of a2] {$\tRefX$};
+		
+		\node 				(end)   [right=of refX]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=1mm] {} (a1)
+		(a1) edge[] node[yshift=-1.5mm]{o(x)} (b)
+		(a1) edge[] node[below, xshift=-2mm, yshift=0.75mm]{o(x)} (c)
+		(c) edge[] node[below, xshift=2mm, yshift=0.75mm]{c(x)} (a2)
+		(c) edge[loop below] (c)
+		(b) edge[] node[yshift=-1.5mm]{c(x)} (a2)
+		(a2) edge[] (refX)
+		(refX) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\ta \cdot \tVarX\{(\tb\ror \tc^+)\} \cdot \ta \cdot \tRefX$
+	\end{center}
 
 	\def\circle#1{\tikz\node[draw,circle]{#1};} 
 
-	\Tree[.\circle{$+$}
+	\Tree[.\circle{$\cdot$}
 			[.\circle{$\cdot$}
 				[.\circle{$\cdot$} 
 				  [.\ta~ ]
 				  [.\circle{x\{\}}
 					  [.\circle{$\ror$} 
-						  [.\tb~ ]
-						  [.\circle{$\ror$} 
-							[.\circle{$+$}
+						  [.$[A-Z]$~ ]
+						  [.\circle{$+$}
 								[.\tc~ ]
-							]
-							[.$\epsilon$ ]
-						]
+						  ]
 					  ]
 					]
 				 ]
-				 [.\circle{$\cdot$} 
-					[.\ta~ ]
-					[.\tRefX~ ]	 
-				 ]
+				[.\ta~ ]
 			]
+			[.$\tRefX$ ]
 		]
 
 	\pagebreak
+	
+	
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (caret)  [right=of start] {$\caret$};
+		\node[state]  (a1)     [right=of caret] 				{$\ta$};
+		\node[state]  (b)     [right=of a1, xshift=12mm]     	{$[A-Z]$};
+		\node[state]  (a2)     [right=of b,xshift=12mm] 				{$\ta$};
+		\node[state]	(c)	[below=of b]		 	{$\tc$};
+		\node[state]  (refX) [right=of a2] {$\tRefX$};
+		
+		\node 				(end)   [right=of refX]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=1mm] {} (caret)
+		(caret) edge (a1)
+		(a1) edge[] node[yshift=-1.5mm]{o(x)} (b)
+		(a1) edge[] node[below, xshift=-2mm, yshift=0.75mm]{o(x)} (c)
+		(c) edge[] node[below, xshift=2mm, yshift=0.75mm]{c(x)} (a2)
+		(c) edge[loop below] (c)
+		(b) edge[] node[yshift=-1.5mm]{c(x)} (a2)
+		(a2) edge[] (refX)
+		(refX) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\caret \cdot ~ \ta \cdot \tVarX\{([A-Z] \ror \tc^+)\} \cdot \ta \cdot \tRefX$
+	\end{center}
+	
+	\def\circle#1{\tikz\node[draw,circle]{#1};} 
+	
+	\Tree[.\circle{$\cdot$}
+	[.\circle{$\cdot$}
+	[.\circle{$\cdot$} 
+		[.\circle{$\cdot$}
+			[.$\caret$ ]
+		[.\ta~ ]
+	]
+	[.\circle{x\{\}}
+	[.\circle{$\ror$} 
+	[.$[A-Z]$~ ]
+	[.\circle{$+$}
+	[.\tc~ ]
+	]
+	]
+	]
+	]
+	[.\ta~ ]
+	]
+	[.$\tRefX$ ]
+	]
+	
 \end{document}

@@ -24,6 +24,7 @@
 package com.github.s4ke.moar.regex;
 
 import com.github.s4ke.moar.MoaMatcher;
+import com.github.s4ke.moar.MoaPattern;
 import com.github.s4ke.moar.moa.Moa;
 import com.github.s4ke.moar.strings.EfficientString;
 
@@ -363,6 +364,22 @@ public class MoaWithDSLTest {
 			}
 		}
 		assertTrue( tmp );
+	}
+
+	@Test
+	public void testWhoopDieDoo() {
+		MoaPattern pattern = MoaPattern.compile( Regex.caret().and( "a" )
+														 .and( Regex.set( "A", "Z" )
+																	   .or( Regex.str( "c" ).plus() )
+																	   .bind( "x" ) )
+														 .and( "a" )
+														 .and(
+																 Regex.reference( "x" ) ) );
+		assertTrue( pattern.matcher( "aBaB" ).matches() );
+		assertTrue( pattern.matcher( "accacc" ).matches() );
+		assertFalse( pattern.matcher( "aBac" ).matches() );
+		assertFalse( pattern.matcher( "aCCaCC" ).matches() );
+		assertFalse( pattern.matcher( "accac" ).matches() );
 	}
 
 	@Test

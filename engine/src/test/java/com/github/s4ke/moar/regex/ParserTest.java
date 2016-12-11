@@ -277,7 +277,7 @@ public class ParserTest {
 		assertMatch( false, regex, "d" );
 		assertMatch( false, regex, "" );
 	}
-	
+
 	@Test
 	public void testAStarBStarStar() {
 		Regex regex = parseRegex( "(?:a*b*)*" );
@@ -383,6 +383,28 @@ public class ParserTest {
 		assertMatch( true, moa, "ab" );
 		assertMatch( true, moa, "bcd" );
 		assertMatch( false, moa, "abbcd" );
+	}
+
+	@Test
+	public void testJavaSyntaxWhoopDieDoo() {
+		{
+			Pattern pattern = Pattern.compile( "^a([A-Z]|c+)a\\1" );
+			assertTrue( pattern.matcher( "aBaB" ).matches() );
+			assertTrue( pattern.matcher( "accacc" ).matches() );
+			assertFalse( pattern.matcher( "aBac" ).matches() );
+			assertFalse( pattern.matcher( "aCCaCC" ).matches() );
+			assertFalse( pattern.matcher( "accac" ).matches() );
+		}
+
+		{
+			MoaPattern pattern = MoaPattern.compile( "^a([A-Z]|c+)a\\1" );
+			assertTrue( pattern.matcher( "aBaB" ).matches() );
+			assertTrue( pattern.matcher( "accacc" ).matches() );
+			assertFalse( pattern.matcher( "aBac" ).matches() );
+			assertFalse( pattern.matcher( "aCCaCC" ).matches() );
+			assertFalse( pattern.matcher( "accac" ).matches() );
+		}
+
 	}
 
 	@Test

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Random;
 
+import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.MoaPattern;
 import com.github.s4ke.moar.lucene.query.MoarQuery;
 import org.apache.lucene.document.Document;
@@ -107,7 +108,9 @@ public class MoarQueryTest extends BaseLuceneTest {
 			doc.add( new Field( "tag", UNIQUE, TAGS_FIELD_TYPE ) );
 			this.writeSingleDoc( doc );
 		}
+
 		MoaPattern pattern = MoaPattern.compile( "(a*)b\\1" );
+
 		MoarQuery tq = new MoarQuery( "tag", pattern );
 		this.assertHits( new MatchAllDocsQuery(), BACK_REF_DOC_COUNT + 1 );
 		this.assertHits( tq, BACK_REF_DOC_COUNT );
