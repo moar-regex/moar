@@ -91,16 +91,18 @@ public final class Moa {
 		Set<MemoryAction> ret = new HashSet<>();
 		Set<String> variablesHandled = new HashSet<>();
 		for ( MemoryAction ma : a2 ) {
-			if ( ma.actionType == ActionType.OPEN || ma.actionType == ActionType.RESET ) {
-				ret.add( ma );
-				variablesHandled.add( ma.variable );
-			}
+			//if ( !variablesHandled.contains( ma.variable ) ) {
+				if ( ma.actionType == ActionType.OPEN || ma.actionType == ActionType.RESET ) {
+					ret.add( ma );
+					variablesHandled.add( ma.variable );
+				}
+			//}
 		}
 		for ( MemoryAction ma : a1 ) {
 			if ( !variablesHandled.contains( ma.variable ) ) {
 				if ( ma.actionType == ActionType.OPEN || ma.actionType == ActionType.RESET || ma.actionType == ActionType.CLOSE ) {
 					ret.add( ma );
-					variablesHandled.add( ma.variable );
+					//variablesHandled.add( ma.variable );
 				}
 			}
 		}

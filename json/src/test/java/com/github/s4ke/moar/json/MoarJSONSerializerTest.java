@@ -44,7 +44,7 @@ public class MoarJSONSerializerTest {
 
 		MoaPattern fromJSON = MoarJSONSerializer.fromJSON( jsonString );
 		System.out.println( "\n" + MoarJSONSerializer.toJSON( fromJSON ) );
-		assertTrue( pattern.matcher( "abcdabcde" ).matches() );
+		assertTrue( fromJSON.matcher( "abcdabcde" ).matches() );
 
 		assertEquals( jsonString, MoarJSONSerializer.toJSON( fromJSON ) );
 	}

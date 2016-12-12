@@ -407,40 +407,56 @@ public class MoaWithDSLTest {
 
 	@Test
 	public void testOrEpsilonWithBind() {
-		MoaPattern pattern = MoaPattern.compile( Regex.str("a").bind("x").or(Regex.eps()) );
+		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).bind( "x" ).or( Regex.eps() ) );
 		{
 			MoaMatcher matcher = pattern.matcher( "a" );
-			assertTrue(matcher.matches());
-			assertEquals("a", matcher.getVariableContent( "x" ));
+			assertTrue( matcher.matches() );
+			assertEquals( "a", matcher.getVariableContent( "x" ) );
 		}
 
 		{
 			MoaMatcher matcher = pattern.matcher( "" );
-			assertTrue(matcher.matches());
-			assertEquals("", matcher.getVariableContent( "x" ));
+			assertTrue( matcher.matches() );
+			assertEquals( "", matcher.getVariableContent( "x" ) );
 		}
 
 	}
 
 	@Test
-	public void testPlusOrEpsilonWithBind() {
-		MoaPattern pattern = MoaPattern.compile( Regex.str("a").plus().bind("x").or(Regex.eps()) );
+	public void testEpsilonInBind() {
+		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).or( Regex.eps() ).bind( "x" ) );
 		{
 			MoaMatcher matcher = pattern.matcher( "a" );
-			assertTrue(matcher.matches());
-			assertEquals("a", matcher.getVariableContent( "x" ));
-		}
-
-		{
-			MoaMatcher matcher = pattern.matcher( "aa" );
-			assertTrue(matcher.matches());
-			assertEquals("aa", matcher.getVariableContent( "x" ));
+			assertTrue( matcher.matches() );
+			assertEquals( "a", matcher.getVariableContent( "x" ) );
 		}
 
 		{
 			MoaMatcher matcher = pattern.matcher( "" );
-			assertTrue(matcher.matches());
-			assertEquals("", matcher.getVariableContent( "x" ));
+			assertTrue( matcher.matches() );
+			assertEquals( "", matcher.getVariableContent( "x" ) );
+		}
+	}
+
+	@Test
+	public void testPlusOrEpsilonWithBind() {
+		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).plus().bind( "x" ).or( Regex.eps() ) );
+		{
+			MoaMatcher matcher = pattern.matcher( "a" );
+			assertTrue( matcher.matches() );
+			assertEquals( "a", matcher.getVariableContent( "x" ) );
+		}
+
+		{
+			MoaMatcher matcher = pattern.matcher( "aa" );
+			assertTrue( matcher.matches() );
+			assertEquals( "aa", matcher.getVariableContent( "x" ) );
+		}
+
+		{
+			MoaMatcher matcher = pattern.matcher( "" );
+			assertTrue( matcher.matches() );
+			assertEquals( "", matcher.getVariableContent( "x" ) );
 		}
 
 	}

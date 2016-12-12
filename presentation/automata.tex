@@ -399,4 +399,229 @@
 	[.$\tRefX$ ]
 	]
 	
+	\pagebreak
+	
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (caret)  [right=of start] {$\caret$};
+		\node[state]  (a1)     [right=of caret] 				{$\ta$};
+		\node[state]  (b)     [right=of a1, xshift=12mm]     	{$[A-Z]$};
+		\node[state]  (a2)     [right=of b,xshift=12mm] 				{$\ta$};
+		\node[state]	(c)	[below=of b]		 	{$\tc$};
+		\node[state]  (refX) [right=of a2] {$\tRefX$};
+		
+		\node 				(end)   [right=of refX]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-10pt}
+	\begin{center}
+		$\caret \cdot ~ \ta \cdot \tVarX\{([A-Z] \ror \tc^+)\} \cdot \ta \cdot \tRefX$
+	\end{center}
+
+	\pagebreak
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};		
+		\node 				(end)   [right=of start]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\epsilon$
+	\end{center}
+
+	~\newline
+	
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=1mm] {} (a1)
+		(a1) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\ta$
+	\end{center}
+
+	~\newline
+	
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=1mm] {} (a1)
+		(start.center) edge[bend right=50] node[] {} (end.west)
+		(a1) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\ta \ror \epsilon$
+	\end{center}
+	~\newline
+
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\tRefX$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=1mm] {} (a1)
+		(start.center) edge[bend right=50] node[] {} (end.west)
+		(a1) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\tRefX \ror \epsilon$
+	\end{center}
+
+	~\newline
+	
+		
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=2mm] {o(x)} (a1)
+		(a1) edge[] node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {c(x)} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-10pt}
+	\begin{center}
+		$\tVarX\{\ta\}$
+	\end{center}
+
+	~\newline
+	
+	
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=2mm] {o(x)} (a1)
+		(a1) edge[loop above] node[above]{o(x)} (a1)
+		(a1) edge[] node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {c(x)} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-10pt}
+	\begin{center}
+		$\tVarX\{\ta\}^+$
+	\end{center}
+	
+	~\newline
+	
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=2mm] {o(x)} (a1)
+		(start.center) edge[bend right=50] node[below]{r(x)} (end.west)
+		(a1) edge[] node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {c(x)} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\tVarX\{\ta \ror \epsilon\}$
+	\end{center}
+
+	~\newline
+
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};
+		\node[state]  (b)		[right=of a1]		{$\tb$};		
+		\node 				(end)   [right=of b]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=2mm] {o(x)} (a1)
+		(start.center) edge[bend right=50] node[below]{r(x)} (end.west)
+		(a1) edge node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {o(x)} (b)
+		(a1) edge[bend left=120] node[above]{r(x)} (end.west)
+		(b) edge[] node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {c(x)} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\tVarX\{\ta \ror \epsilon\} \cdot \tVarX\{\tb \ror \epsilon\}$
+	\end{center}
+
 \end{document}
