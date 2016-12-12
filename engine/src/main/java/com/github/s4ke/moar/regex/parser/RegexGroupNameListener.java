@@ -21,35 +21,39 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-package com.github.s4ke.moar.benchmark;
+package com.github.s4ke.moar.regex.parser;
 
-
-import java.io.IOException;
-
-import org.apache.commons.cli.ParseException;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * This is meant to be used in a first pass while converting the Regex in order
+ * to get the correct groupNames for the \\number references that can occur,
+ * before the actual group is known
+ *
  * @author Martin Braun
  */
-public class Main {
+public class RegexGroupNameListener extends RegexBaseListener implements RegexListener {
 
-	public static void main(String[] args) throws ParseException, IOException, RunnerException {
-		org.openjdk.jmh.runner.options.Options opt = new OptionsBuilder()
-				.include( JavaPatternBench.class.getSimpleName() )
-				.include( MoaPatternBench.class.getSimpleName() )
-				.include( HashMapBench.class.getSimpleName() )
-				.warmupIterations( 15 )
-				.measurementIterations( 100 )
-				.forks( 1 )
-				.jvmArgs( "-ea" )
-				.shouldFailOnError( false ) // switch to "true" to fail the complete run
-				.build();
+	private int groupCount = 0;
+	private final Map<Integer, String> groupNames = new HashMap<>();
 
-		new Runner( opt ).run();
+	@Override
+	public void enterCapturingGroup(RegexParser.CapturingGroupContext ctx) {
+		int groupIdx = ++this.groupCount;
+		String regexName;
+		if ( ctx.groupName() == null ) {
+			regexName = String.valueOf( groupIdx );
+		}
+		else {
+			regexName = ctx.groupName().getText();
+		}
+		this.groupNames.put( groupIdx, regexName );
 	}
 
-}
+	public Map<Integer, String> getGroupNames() {
+		return groupNames;
+	}
 
+
+}

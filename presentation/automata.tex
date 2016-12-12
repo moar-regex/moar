@@ -597,6 +597,33 @@
 	\end{center}
 
 	~\newline
+	
+	\pagebreak
+
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\tb$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=2mm] {o(x)} (a1)
+		(start.center) edge[bend right=50] node[below]{r(x)} (end.west)
+		(a1) edge[] node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {c(x)} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-20pt}
+	\begin{center}
+		$\tVarX\{\tb \ror \epsilon\}$
+	\end{center}
+
+	~\newline
 
 	\begin{center}
 		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
@@ -612,7 +639,8 @@
 		
 		\path[->]
 		(start.center) edge node[above, left=-5pt,very near end,yshift=2mm] {o(x)} (a1)
-		(start.center) edge[bend right=50] node[below]{r(x)} (end.west)
+		(start.center) edge[bend right=120] node[below]{r(x)} (end.west)
+		(start.center) edge[bend right=30] node[below, yshift=1mm]{r(x)} (b)
 		(a1) edge node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {o(x)} (b)
 		(a1) edge[bend left=120] node[above]{r(x)} (end.west)
 		(b) edge[] node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {c(x)} (end.west);

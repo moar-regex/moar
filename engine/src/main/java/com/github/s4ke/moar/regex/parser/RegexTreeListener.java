@@ -24,7 +24,6 @@
 package com.github.s4ke.moar.regex.parser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -42,8 +41,12 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 
 	private final Stack<Regex> regexStack = new Stack<>();
 	private final Stack<Integer> groupCountStack = new Stack<>();
-	private final Map<Integer, String> groupNames = new HashMap<>();
+	private final Map<Integer, String> groupNames;
 	private int groupCount = 0;
+
+	public RegexTreeListener(Map<Integer, String> groupNames) {
+		this.groupNames = groupNames;
+	}
 
 	public Regex finalRegex() {
 		return this.regexStack.peek();
@@ -182,14 +185,6 @@ public class RegexTreeListener extends RegexBaseListener implements RegexListene
 	public void enterCapturingGroup(RegexParser.CapturingGroupContext ctx) {
 		int groupIdx = ++this.groupCount;
 		this.groupCountStack.add( groupIdx );
-		String regexName;
-		if ( ctx.groupName() == null ) {
-			regexName = String.valueOf( groupIdx );
-		}
-		else {
-			regexName = ctx.groupName().getText();
-		}
-		this.groupNames.put( groupIdx, regexName );
 	}
 
 	@Override

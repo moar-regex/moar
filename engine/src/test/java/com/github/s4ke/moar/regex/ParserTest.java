@@ -32,6 +32,7 @@ import com.github.s4ke.moar.MoaMatcher;
 import com.github.s4ke.moar.MoaPattern;
 import com.github.s4ke.moar.NonDeterministicException;
 import com.github.s4ke.moar.moa.Moa;
+import com.github.s4ke.moar.regex.parser.RegexGroupNameListener;
 import com.github.s4ke.moar.regex.parser.RegexLexer;
 import com.github.s4ke.moar.regex.parser.RegexParser;
 import com.github.s4ke.moar.regex.parser.RegexTreeListener;
@@ -220,6 +221,12 @@ public class ParserTest {
 			}
 			Assert.assertEquals( 1, cnt );
 		}
+	}
+
+	@Test
+	public void testFromPresentation() {
+		TestUtil.assertDet( parseRegex( "(\\2a(b|c+)a)+" ) );
+		System.out.println( parseRegex( "(\\2a(b|c+)a)+" ).toString() );
 	}
 
 	@Test
@@ -636,9 +643,13 @@ public class ParserTest {
 		RegexParser parser = regexParser( regexStr );
 		RegexParser.RegexContext regexTree = parser.regex();
 		System.out.println( regexTree.toStringTree( parser ) );
-		RegexTreeListener listener = new RegexTreeListener();
 		ParseTreeWalker walker = new ParseTreeWalker();
+		RegexGroupNameListener nameListener = new RegexGroupNameListener();
+		walker.walk( nameListener, regexTree );
+
+		RegexTreeListener listener = new RegexTreeListener( nameListener.getGroupNames() );
 		walker.walk( listener, regexTree );
+
 		return listener.finalRegex();
 	}
 

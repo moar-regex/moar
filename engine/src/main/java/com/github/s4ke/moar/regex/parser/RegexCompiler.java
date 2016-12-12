@@ -80,12 +80,16 @@ public final class RegexCompiler {
 				}
 		);
 		RegexParser.RegexContext regexTree = parser.regex();
-		RegexTreeListener listener = new RegexTreeListener();
-		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk( listener, regexTree );
 		if ( parser.getNumberOfSyntaxErrors() > 0 ) {
 			throw new IllegalArgumentException( "malformed regex found : " + regexStr + "\n" + additionalMessage.toString() );
 		}
+		ParseTreeWalker walker = new ParseTreeWalker();
+		RegexGroupNameListener nameListener = new RegexGroupNameListener();
+		walker.walk( nameListener, regexTree );
+
+		RegexTreeListener listener = new RegexTreeListener( nameListener.getGroupNames() );
+		walker.walk( listener, regexTree );
+
 		return listener.finalRegex();
 	}
 
