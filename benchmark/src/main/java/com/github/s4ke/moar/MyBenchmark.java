@@ -23,8 +23,7 @@
  */
 package com.github.s4ke.moar;
 
-
-//import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Benchmark;
 
 public class MyBenchmark {
 
