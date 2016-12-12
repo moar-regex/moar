@@ -388,8 +388,61 @@ public class MoaWithDSLTest {
 														 .bind( "x" )
 														 .and( Regex.str( "b" ).bind( "x" ) )
 														 .and( Regex.reference( "x" ) ) );
-		assertTrue(pattern.matcher( "abb" ).matches());
-		assertFalse(pattern.matcher( "abab" ).matches());
+		assertTrue( pattern.matcher( "abb" ).matches() );
+		assertFalse( pattern.matcher( "abab" ).matches() );
+	}
+
+	@Test
+	public void testTwoToThePowerOfN() {
+		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).and( Regex.reference( "x" ).plus() )
+														 .bind( "x" ) );
+		assertFalse( pattern.matcher( "a" ).matches() );
+		assertTrue( pattern.matcher( "aa" ).matches() );
+		assertTrue( pattern.matcher( "aaaa" ).matches() );
+		assertFalse( pattern.matcher( "aaaaa" ).matches() );
+		assertFalse( pattern.matcher( "aaaaaa" ).matches() );
+		assertFalse( pattern.matcher( "aaaaaaa" ).matches() );
+		assertTrue( pattern.matcher( "aaaaaaaa" ).matches() );
+	}
+
+	@Test
+	public void testOrEpsilonWithBind() {
+		MoaPattern pattern = MoaPattern.compile( Regex.str("a").bind("x").or(Regex.eps()) );
+		{
+			MoaMatcher matcher = pattern.matcher( "a" );
+			assertTrue(matcher.matches());
+			assertEquals("a", matcher.getVariableContent( "x" ));
+		}
+
+		{
+			MoaMatcher matcher = pattern.matcher( "" );
+			assertTrue(matcher.matches());
+			assertEquals("", matcher.getVariableContent( "x" ));
+		}
+
+	}
+
+	@Test
+	public void testPlusOrEpsilonWithBind() {
+		MoaPattern pattern = MoaPattern.compile( Regex.str("a").plus().bind("x").or(Regex.eps()) );
+		{
+			MoaMatcher matcher = pattern.matcher( "a" );
+			assertTrue(matcher.matches());
+			assertEquals("a", matcher.getVariableContent( "x" ));
+		}
+
+		{
+			MoaMatcher matcher = pattern.matcher( "aa" );
+			assertTrue(matcher.matches());
+			assertEquals("aa", matcher.getVariableContent( "x" ));
+		}
+
+		{
+			MoaMatcher matcher = pattern.matcher( "" );
+			assertTrue(matcher.matches());
+			assertEquals("", matcher.getVariableContent( "x" ));
+		}
+
 	}
 
 	@Test
