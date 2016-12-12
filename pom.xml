@@ -15,6 +15,7 @@
         <module>cli</module>
         <module>json</module>
         <module>lucene</module>
+        <module>benchmark</module>
     </modules>
     
     <properties>
