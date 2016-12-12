@@ -32,7 +32,7 @@ import com.github.s4ke.moar.util.IntCharSeq;
 public class Regex {
 
 	public static final String[] REGEX_TO_BENCH = new String[] {
-			"th(e)\\1*",
+			"th(e)\\1+",
 			"fairest",
 			"from",
 			"beauty",

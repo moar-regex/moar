@@ -172,6 +172,19 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 			while ( !this.isFinished() && this.mi.getPos() < strLen ) {
 				int tokenLen = this.edges.maximalNextTokenLength( this, this.vars );
 				if ( this.mi.getPos() + tokenLen > strLen ) {
+					if ( tokenLen > 0 ) {
+						//we were rejected, but let's check if we have to
+						//read \epsilon on the end instead
+						token.reset();
+						while ( !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
+
+						}
+						if ( this.isFinished() ) {
+							this.lastStart = curStart;
+							this.mi.setLastMatch( this.mi.getPos() );
+							return true;
+						}
+					}
 					if ( tokenLen > 1 ) {
 						//reference
 						this.mi.setPos( curStart );
@@ -186,19 +199,20 @@ final class MoaMatcherImpl implements CurStateHolder, MoaMatcher {
 						if ( !advanceOnReject ) {
 							return false;
 						}
-						if ( tokenLen > 1 ) {
-							//reference
-							this.mi.setPos( curStart );
-						}
 						if ( tokenLen > 0 ) {
-							this.mi.setPos( this.mi.getPos() + 1 );
+							//we were rejected, but let's check if we have to
+							//read \epsilon on the end instead
+							token.reset();
+							while ( !this.isFinished() && this.step( mi ) != EdgeGraph.StepResult.REJECTED ) {
+
+							}
+							if ( this.isFinished() ) {
+								this.lastStart = curStart;
+								this.mi.setLastMatch( this.mi.getPos() );
+								return true;
+							}
 						}
-						else {
-							//this is in case we failed on a "epsilon"-style edge
-							//like end of input
-							//FIXME: can this be done better?
-							this.mi.setPos( curStart + 1 );
-						}
+						this.mi.setPos( curStart + 1 );
 						break;
 					}
 					if ( stepResult == EdgeGraph.StepResult.CONSUMED ) {

@@ -406,6 +406,32 @@ public class MoaWithDSLTest {
 	}
 
 	@Test
+	public void testTwoToPowerOfNFullText() {
+		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).and( Regex.reference( "x" ).plus() )
+														 .bind( "x" ) );
+		{
+			MoaMatcher matcher = pattern.matcher( "aaaaaaa" );
+			assertTrue( matcher.nextMatch() );
+			assertEquals( 0, matcher.getStart() );
+			assertEquals( "aaaa", matcher.getVariableContent( "x" ) );
+			assertEquals( 4, matcher.getEnd() );
+		}
+
+		{
+			MoaMatcher matcher = pattern.matcher( "aaabaaaa" );
+			assertTrue( matcher.nextMatch() );
+			assertEquals( 0, matcher.getStart() );
+			assertEquals( "aa", matcher.getVariableContent( "x" ) );
+			assertEquals( 2, matcher.getEnd() );
+
+			assertTrue( matcher.nextMatch() );
+			assertEquals( 4, matcher.getStart() );
+			assertEquals( "aaaa", matcher.getVariableContent( "x" ) );
+			assertEquals( 8, matcher.getEnd() );
+		}
+	}
+
+	@Test
 	public void testOrEpsilonWithBind() {
 		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).bind( "x" ).or( Regex.eps() ) );
 		{

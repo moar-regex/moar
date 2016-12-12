@@ -40,9 +40,9 @@ public class Main {
 		org.openjdk.jmh.runner.options.Options opt = new OptionsBuilder()
 				.include( JavaPatternBench.class.getSimpleName() )
 				.include( MoaPatternBench.class.getSimpleName() )
-				//.include( HashMapBench.class.getSimpleName() )
-				.warmupIterations( 15 )
-				.measurementIterations( 25 )
+				.include( HashMapBench.class.getSimpleName() )
+				.warmupIterations( 1 )
+				.measurementIterations( 1 )
 				.forks( 1 )
 				.jvmArgs( "-ea" )
 				.shouldFailOnError( false ) // switch to "true" to fail the complete run

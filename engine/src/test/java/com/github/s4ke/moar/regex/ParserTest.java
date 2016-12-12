@@ -24,6 +24,7 @@
 package com.github.s4ke.moar.regex;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -157,6 +158,26 @@ public class ParserTest {
 			}
 			Assert.assertEquals( 1, cnt );
 		}
+	}
+
+	@Test
+	public void testEnsureLongestMatchMoa() {
+		MoaPattern pattern = MoaPattern.compile( "th(e)\\1*" );
+		MoaMatcher matcher = pattern.matcher( "\n thee" );
+		assertTrue( matcher.nextMatch() );
+		assertEquals( 2, matcher.getStart() );
+		assertEquals( 6, matcher.getEnd() );
+		assertFalse( matcher.nextMatch() );
+	}
+
+	@Test
+	public void testEnsureLongestMatchJava() {
+		Pattern pattern = Pattern.compile( "th(e)\\1*" );
+		Matcher matcher = pattern.matcher( "\n thee" );
+		assertTrue( matcher.find() );
+		assertEquals( 2, matcher.start() );
+		assertEquals( 6, matcher.end() );
+		assertFalse( matcher.find() );
 	}
 
 	@Test

@@ -37,6 +37,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 
 /**
  * @author Martin Braun
@@ -76,8 +77,14 @@ public class MoaPatternBench {
 
 	int matches = 0;
 
+	@TearDown
+	public void tearDown() {
+		System.out.println(this.matches);
+	}
+
 	@Benchmark
 	public void benchMoaPattern() {
+		this.matches = 0;
 		for ( MoaPattern pattern : this.patterns ) {
 			MoaMatcher matcher = pattern.matcher( this.sonnets );
 			while ( matcher.nextMatch() ) {

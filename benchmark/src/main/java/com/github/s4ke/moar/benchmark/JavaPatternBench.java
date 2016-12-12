@@ -35,6 +35,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 
 @State(Scope.Benchmark)
 public class JavaPatternBench {
@@ -67,12 +68,18 @@ public class JavaPatternBench {
 
 	@Benchmark
 	public void benchJavaPattern() {
+		this.matches = 0;
 		for ( Pattern pattern : this.patterns ) {
 			Matcher matcher = pattern.matcher( sonnets );
 			while ( matcher.find() ) {
 				++matches;
 			}
 		}
+	}
+
+	@TearDown
+	public void tearDown() {
+		System.out.println(this.matches);
 	}
 
 	@Benchmark
