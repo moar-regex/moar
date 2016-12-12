@@ -23,52 +23,57 @@
  */
 package com.github.s4ke.moar.benchmark;
 
-import com.github.s4ke.moar.util.CharSeq;
-import com.github.s4ke.moar.util.IntCharSeq;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
 
 /**
  * @author Martin Braun
  */
-public class Regex {
+@State(Scope.Benchmark)
+public class HashMapBench {
 
-	public static final String[] REGEX_TO_BENCH = new String[] {
-			"th(e)\\1*",
-			"fairest",
-			"from",
-			"beauty",
-			"foe",
-			"f((riend)|(oe))",
-			"[A-Z]([a-z])+",
-			"shall besiege",
-			"(c)?old"
-	};
+	private int[] arr;
+	private Map<Integer, Integer> map;
+	private static final int ARR_SIZE = 4;
 
-	public static final String[] EASY_MATCHES = new String[] {
-			"the",
-			"thee",
-			"fairest",
-			"from",
-			"beauty",
-			"foe",
-			"friend",
-			"Asdfwqekadkweiqkdkqew",
-			"shall besiege",
-			"cold",
-			"old"
-	};
+	private static final int GET_COUNT = 10_000;
 
-	public static final String[] TWO_TO_POWER_OF_N_AND_OTHERS = new String[128];
-	public static final CharSeq[] TWO_TO_POWER_OF_N_AND_OTHERS_CHARSEQ = new CharSeq[128];
-	static {
-		StringBuilder builder = new StringBuilder( "a" );
-		//so that we start at 2 a's in arr[0]
-		for(int i = 0; i < TWO_TO_POWER_OF_N_AND_OTHERS.length; ++i) {
-			String curStr = builder.append( "a" ).toString();
-			TWO_TO_POWER_OF_N_AND_OTHERS[i] = curStr;
-			TWO_TO_POWER_OF_N_AND_OTHERS_CHARSEQ[i] = new IntCharSeq( curStr );
+	@Setup
+	public void setup() {
+		Random random = new Random(42);
+		this.arr = new int[ARR_SIZE];
+		this.map = new HashMap<>();
+		for(int i = 0; i < ARR_SIZE; ++i) {
+			int val = random.nextInt();
+			this.arr[i] = val;
+			this.map.put(i, val);
 		}
 	}
 
-	public static final String TWO_TO_POWER_OF_N_MOA = "(a(\\1)+)";
+	int hack = 0;
+
+	@Benchmark
+	public void benchArray() {
+		hack = 0;
+		Random random = new Random( 43 );
+		for(int i = 0; i < GET_COUNT; ++i) {
+			hack += this.arr[random.nextInt(ARR_SIZE)];
+		}
+	}
+
+	@Benchmark
+	public void benchMap() {
+		hack = 0;
+		Random random = new Random( 43 );
+		for(int i = 0; i < GET_COUNT; ++i) {
+			hack += this.map.get(random.nextInt(ARR_SIZE));
+		}
+	}
 
 }

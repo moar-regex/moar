@@ -41,6 +41,7 @@ public class JavaPatternBench {
 
 	private List<Pattern> patterns = new ArrayList<>();
 	private String sonnets;
+	private final Pattern twoPowerOfN = Pattern.compile( Regex.TWO_TO_POWER_OF_N_MOA );
 
 	@Setup
 	public void setup() {
@@ -82,6 +83,21 @@ public class JavaPatternBench {
 					//throw new AssertionError( pattern + " did not match " + easy );
 				}
 			}
+		}
+	}
+
+	//this will never work -.-
+	//Java Patterns do not support stuff like this
+	//@Benchmark
+	public void benchMoaTwoPowerN() {
+		this.matches = 0;
+		for ( int i = 0; i < Regex.TWO_TO_POWER_OF_N_AND_OTHERS.length; ++i ) {
+			if ( this.twoPowerOfN.matcher( Regex.TWO_TO_POWER_OF_N_AND_OTHERS[i] ).matches() ) {
+				++this.matches;
+			}
+		}
+		if(this.matches == 0) {
+			throw new AssertionError();
 		}
 	}
 

@@ -46,6 +46,8 @@ public class MoaPatternBench {
 
 	private List<MoaPattern> patterns = new ArrayList<>();
 	private CharSeq sonnets;
+	private CharSeq[] easyMatches;
+	private final MoaPattern twoPowerOfN = MoaPattern.compile( Regex.TWO_TO_POWER_OF_N_MOA );
 
 	@Setup
 	public void setup() {
@@ -65,6 +67,11 @@ public class MoaPatternBench {
 			throw new AssertionError( e );
 		}
 
+		this.easyMatches = new CharSeq[Regex.EASY_MATCHES.length];
+		for(int i = 0; i < Regex.EASY_MATCHES.length; ++i) {
+			this.easyMatches[i] = new IntCharSeq( Regex.EASY_MATCHES[i] );
+		}
+
 	}
 
 	int matches = 0;
@@ -72,7 +79,7 @@ public class MoaPatternBench {
 	@Benchmark
 	public void benchMoaPattern() {
 		for ( MoaPattern pattern : this.patterns ) {
-			MoaMatcher matcher = pattern.matcher( sonnets );
+			MoaMatcher matcher = pattern.matcher( this.sonnets );
 			while ( matcher.nextMatch() ) {
 				++matches;
 			}
@@ -82,11 +89,24 @@ public class MoaPatternBench {
 	@Benchmark
 	public void benchMoaPatternEasy() {
 		for ( MoaPattern pattern : this.patterns ) {
-			for ( String easy : Regex.EASY_MATCHES ) {
+			for ( CharSeq easy : this.easyMatches ) {
 				if ( !pattern.matcher( easy ).matches() ) {
 					//throw new AssertionError( pattern + " did not match " + easy );
 				}
 			}
+		}
+	}
+
+	@Benchmark
+	public void benchMoaTwoPowerN() {
+		this.matches = 0;
+		for(int i = 0; i < Regex.TWO_TO_POWER_OF_N_AND_OTHERS_CHARSEQ.length; ++i) {
+			if(this.twoPowerOfN.matcher( Regex.TWO_TO_POWER_OF_N_AND_OTHERS_CHARSEQ[i] ).matches()) {
+				++this.matches;
+			}
+		}
+		if(this.matches == 0) {
+			throw new AssertionError();
 		}
 	}
 

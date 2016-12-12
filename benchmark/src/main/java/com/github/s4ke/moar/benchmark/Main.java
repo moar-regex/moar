@@ -40,6 +40,7 @@ public class Main {
 		org.openjdk.jmh.runner.options.Options opt = new OptionsBuilder()
 				.include( JavaPatternBench.class.getSimpleName() )
 				.include( MoaPatternBench.class.getSimpleName() )
+				//.include( HashMapBench.class.getSimpleName() )
 				.warmupIterations( 5 )
 				.measurementIterations( 5 )
 				.forks( 1 )
