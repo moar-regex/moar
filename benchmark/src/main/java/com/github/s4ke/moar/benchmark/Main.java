@@ -21,16 +21,34 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-package com.github.s4ke.moar;
+package com.github.s4ke.moar.benchmark;
 
-import org.openjdk.jmh.annotations.Benchmark;
 
-public class MyBenchmark {
+import java.io.IOException;
 
-    @Benchmark
-    public void benchRE2() {
-        // This is a demo/sample template for building your JMH benchmarks. Edit as needed.
-        // Put your benchmark code here.
-    }
+import org.apache.commons.cli.ParseException;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+
+/**
+ * @author Martin Braun
+ */
+public class Main {
+
+	public static void main(String[] args) throws ParseException, IOException, RunnerException {
+		org.openjdk.jmh.runner.options.Options opt = new OptionsBuilder()
+				.include( JavaPatternBench.class.getSimpleName() )
+				.include( MoaPatternBench.class.getSimpleName() )
+				.warmupIterations( 5 )
+				.measurementIterations( 5 )
+				.forks( 1 )
+				.jvmArgs( "-ea" )
+				.shouldFailOnError( false ) // switch to "true" to fail the complete run
+				.build();
+
+		new Runner( opt ).run();
+	}
 
 }
+

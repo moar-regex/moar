@@ -55,7 +55,7 @@ public class Main {
 		options.addOption(
 				"rf",
 				true,
-				"file containint the regexes to test against (multiple regexes are separated by one empty line)"
+				"file containing the regexes to test against (multiple regexes are separated by one empty line)"
 		);
 		options.addOption( "r", true, "regex to test against" );
 
