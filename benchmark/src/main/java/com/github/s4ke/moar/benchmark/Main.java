@@ -41,8 +41,8 @@ public class Main {
 				.include( JavaPatternBench.class.getSimpleName() )
 				.include( MoaPatternBench.class.getSimpleName() )
 				//.include( HashMapBench.class.getSimpleName() )
-				.warmupIterations( 5 )
-				.measurementIterations( 5 )
+				.warmupIterations( 15 )
+				.measurementIterations( 25 )
 				.forks( 1 )
 				.jvmArgs( "-ea" )
 				.shouldFailOnError( false ) // switch to "true" to fail the complete run
