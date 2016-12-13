@@ -570,6 +570,33 @@
 	\begin{center}
 		$\tVarX\{\ta\}^+$
 	\end{center}
+
+	~\newline
+	
+	
+	\begin{center}
+		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
+		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
+		\node         (start)                 				{};
+		\node[state]  (a1)     [right=of start] 				{$\ta$};		
+		\node 				(end)   [right=of a1]	   	{};
+		
+		\draw[fill=black] (start) circle (0.5mm);
+		\draw[fill=black] (end) circle (0.5mm);
+		\draw 						(end) circle (1mm);
+		
+		\path[->]
+		(start.center) edge node[above, left=-5pt,very near end,yshift=2mm] {o(x)} (a1)
+		(a1) edge[loop above] node[above]{o(x)} (a1)
+		(start.center) edge[bend right=50] node[below]{r(x)} (end.west)
+		(a1) edge[] node[above, left=-5pt,very near end,xshift=0.5mm, yshift=2mm] {c(x)} (end.west);
+		\end{tikzpicture}
+		
+	\end{center}
+	\vspace{-10pt}
+	\begin{center}
+		$\tVarX\{\ta\}^*$
+	\end{center}
 	
 	~\newline
 	

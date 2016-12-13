@@ -405,6 +405,36 @@ public class MoaWithDSLTest {
 		assertTrue( pattern.matcher( "aaaaaaaa" ).matches() );
 	}
 
+
+	@Test
+	public void testSameVarConcatDeterministic() {
+		{
+			MoaPattern pattern = MoaPattern.compile( Regex.str( "a" )
+															 .or( Regex.eps() )
+															 .bind( "x" )
+															 .and( Regex.str( "b" ).or( Regex.eps() ).bind( "x" ) ) );
+			assertTrue( pattern.matcher( "ab" ).matches() );
+			assertTrue( pattern.matcher( "a" ).matches() );
+			assertTrue( pattern.matcher( "b" ).matches() );
+			assertTrue( pattern.matcher( "" ).matches() );
+		}
+		{
+			MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).star()
+															 .bind( "x" )
+															 .and( Regex.str( "b" ).star().bind( "x" ) ) );
+			assertTrue( pattern.matcher( "ab" ).matches() );
+			assertTrue( pattern.matcher( "aab" ).matches() );
+			assertTrue( pattern.matcher( "abb" ).matches() );
+			assertTrue( pattern.matcher( "aabb" ).matches() );
+			assertTrue( pattern.matcher( "a" ).matches() );
+			assertTrue( pattern.matcher( "aa" ).matches() );
+			assertTrue( pattern.matcher( "b" ).matches() );
+			assertTrue( pattern.matcher( "bb" ).matches() );
+			assertTrue( pattern.matcher( "" ).matches() );
+		}
+
+	}
+
 	@Test
 	public void testTwoToPowerOfNFullText() {
 		MoaPattern pattern = MoaPattern.compile( Regex.str( "a" ).and( Regex.reference( "x" ).plus() )
