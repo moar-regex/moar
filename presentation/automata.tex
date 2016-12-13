@@ -136,7 +136,32 @@
 
 
 \begin{document}
+% regular languages
+~\newline
+$\mathtt{L((a \cdot (b \ror c^+) \cdot a)^+)}$
+\newline
+$\mathtt{L(w~|~w~has~equal~number~of~a's) = L((b^* \cdot a \cdot b^* \cdot a \cdot b^*)^*)}$
+\newline
+$\mathtt{L(a^na^n) = L(a^{2n}) = L((a \cdot a)^*)}$
+
+% non-regular languages
+~\newline
+$\mathtt{L(a^nb^n)}$
+\newline
+$\mathtt{L(a^nba^n)}$
+\newline
+$\mathtt{L(ww~|~w \in \Sigma^*, |\Sigma| > 1)}$
+\newline
+
+% regular languages with backreferences
+~\newline
+$\mathtt{L(a^nb^n) = L(\tVarX\{a^*\} \cdot b \cdot \tRefX)}$
+\newline
+$\mathtt{L(ww~|~w \in \Sigma^*, |\Sigma| > 1)} = L(\tVarX\{(a \ror b)^*\} \cdot \tRefX)$
 	
+%L(w | w has equal number of a’s)\newline
+%Regex: (b* · a · b* · a · b*)*\newline
+%L(anan) = L(a2*n) = L((a · a)*)\newline	
 	\begin{center}
 		\begin{tikzpicture}[node distance=10mm,on grid,>=stealth',auto, 
 		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
