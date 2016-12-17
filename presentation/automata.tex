@@ -146,18 +146,18 @@ $\mathtt{L(a^na^n) = L(a^{2n}) = L((a \cdot a)^*)}$
 
 % non-regular languages
 ~\newline
-$\mathtt{L(a^nb^n)}$
-\newline
 $\mathtt{L(a^nba^n)}$
+\newline
+$\mathtt{L(a^nb^n)}$
 \newline
 $\mathtt{L(ww~|~w \in \Sigma^*, |\Sigma| > 1)}$
 \newline
 
 % regular languages with backreferences
 ~\newline
-$\mathtt{L(a^nb^n) = L(\tVarX\{a^*\} \cdot b \cdot \tRefX)}$
+$\mathtt{L(a^nba^n) = L(\tVarX\{a^*\} \cdot b \cdot \tRefX)}$
 \newline
-$\mathtt{L(ww~|~w \in \Sigma^*, |\Sigma| > 1)} = L(\tVarX\{(a \ror b)^*\} \cdot \tRefX)$
+$\mathtt{L(ww~|~w \in \Sigma^*, |\Sigma| > 1) = L(\tVarX\{(a \ror b)^*\} \cdot \tRefX)}$
 	
 %L(w | w has equal number of a’s)\newline
 %Regex: (b* · a · b* · a · b*)*\newline
@@ -739,8 +739,8 @@ $\mathtt{L(ww~|~w \in \Sigma^*, |\Sigma| > 1)} = L(\tVarX\{(a \ror b)^*\} \cdot 
 		state/.style={rectangle,draw=black,inner sep=2pt,minimum size=4mm}]
 		\node         (start)                 				{};
 		\node[state]  (a1)     [right=of start] 				{$\ta$};	
-		\node[state] (a2) [below=of a1]	{$\ta$};
-		\node 				(end)   [right=of a1]	   	{};
+		\node[state] (b) [right=of a1]	{$\tb$};
+		\node 				(end)   [right=of b]	   	{};
 		
 		\draw[fill=black] (start) circle (0.5mm);
 		\draw[fill=black] (end) circle (0.5mm);
@@ -748,15 +748,15 @@ $\mathtt{L(ww~|~w \in \Sigma^*, |\Sigma| > 1)} = L(\tVarX\{(a \ror b)^*\} \cdot 
 		
 		\path[->]
 		(start.center) edge node[above, left=-5pt,very near end,yshift=1mm] {} (a1)
-		(start.center) edge[] node[] {} (a2)
-		(a1) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (end.west)
-		(a2) edge (end.west);
+		(a1) edge[] node[above, left=-5pt,very near end,yshift=1mm] {} (b)
+		(a1) edge[bend left=50] node[above, left=-5pt,very near end,yshift=1mm] {} (b)
+		(b) edge (end.west);
 		\end{tikzpicture}
 		
 	\end{center}
 	\vspace{-15pt}
 	\begin{center}
-		$\ta \ror \ta$
+		$\ta \cdot \tb$
 	\end{center}
 
 	~\newline	
