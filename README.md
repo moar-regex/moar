@@ -8,7 +8,7 @@ Java's Patterns are not deterministic and might get you into trouble. All determ
 
 ## Technical documentation
 
-The technical documentation can be found in the [documentation folder](documentation/implementation.md)
+The technical documentation can be found in the [documentation folder](documentation/implementation.md).
 
 ## Theoretical Background
 
