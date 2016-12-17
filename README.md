@@ -12,7 +12,7 @@ The technical documentation can be found in the [documentation folder](documenta
 
 ## Theoretical Background
 
-I held a talk at university covering the basics of this library as well. It can be found in the [presentation folder](presentation/README.md).
+I held a talk at university covering the basics of this library as well. It can be found in the [presentation folder](presentation/presentation.md).
 
 A Paper explaining the theoretical background is currently being written.
 
