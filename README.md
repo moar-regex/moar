@@ -14,7 +14,7 @@ The technical documentation can be found in the [documentation folder](documenta
 
 I held a talk at university covering the basics of this library as well. It can be found in the [presentation folder](presentation/presentation.md).
 
-A Paper explaining the theoretical background is currently being written.
+A Paper explaining the theoretical background can be found at http://ddfy.de/sci/det.pdf
 
 ## Supported Syntax
 
